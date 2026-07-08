@@ -56,6 +56,18 @@ Feature flag updates are admin-only, and RLS rejects attempts to enable the
 pilot-locked flags: `deposit_processing`, `mobile_money_processing`,
 `residential_listings`, and `family_accommodation`.
 
+Runtime-gated operational flags (app code checks `featureEnabled()`):
+
+| Flag | Effect when disabled |
+| --- | --- |
+| `maintenance_marketplace` | Hides trades nav/links; `/trades/*` redirects home |
+| `enquiry_attachments` | Hides upload UI; blocks upload/download |
+| `email_notifications` | Skips queue inserts and worker sends |
+| `featured_listings` | Hides homepage featured section |
+| `public_map` | Map page shows disabled state; map nav hidden |
+| `occupancy_records` | Provider occupancy create/list gated |
+| `saved_search_alerts` | Alert delivery path gated |
+
 ## Separation of duties
 
 - Verifiers submit checklists; **admins/moderators publish**. The verifier

@@ -53,26 +53,28 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-6xl px-4 py-12">
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-2xl font-semibold tracking-tight">
-            Featured spaces
-          </h2>
-          <Button
-            variant="ghost"
-            size="sm"
-            render={<Link href="/spaces" />}
-            nativeButton={false}
-          >
-            View all
-          </Button>
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {featured.map((listing) => (
-            <ListingCard key={listing.id} listing={listing} />
-          ))}
-        </div>
-      </section>
+      {featured.length > 0 ? (
+        <section className="mx-auto w-full max-w-6xl px-4 py-12">
+          <div className="mb-6 flex items-center justify-between">
+            <h2 className="text-2xl font-semibold tracking-tight">
+              Featured spaces
+            </h2>
+            <Button
+              variant="ghost"
+              size="sm"
+              render={<Link href="/spaces" />}
+              nativeButton={false}
+            >
+              View all
+            </Button>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {featured.map((listing) => (
+              <ListingCard key={listing.id} listing={listing} />
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <section className="mx-auto w-full max-w-6xl px-4 py-6">
         <h2 className="mb-6 text-2xl font-semibold tracking-tight">

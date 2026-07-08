@@ -1,4 +1,5 @@
 import { DEMO_LISTINGS } from "./demo-data";
+import { featureEnabled } from "./features";
 import { listingCoverUrl } from "./media";
 import { isSupabaseConfigured } from "./supabase/config";
 import { createClient } from "./supabase/server";
@@ -135,6 +136,8 @@ export async function getListingsByIds(ids: string[]): Promise<Listing[]> {
 }
 
 export async function getFeaturedListings(limit = 3): Promise<Listing[]> {
+  if (!(await featureEnabled("featured_listings"))) return [];
+
   const listings = await getListings();
   const featured = listings.filter((l) => l.featured);
   const rest = listings.filter((l) => !l.featured);

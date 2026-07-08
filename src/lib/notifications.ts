@@ -3,6 +3,22 @@ import "server-only";
 import { createAdminClient, isSupabaseAdminConfigured } from "./supabase/admin";
 import { sendTransactionalEmail, isEmailConfigured } from "./email/resend";
 
+async function emailNotificationsEnabled(): Promise<boolean> {
+  if (!isSupabaseAdminConfigured()) return true;
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from("feature_flags")
+    .select("enabled")
+    .eq("name", "email_notifications")
+    .maybeSingle();
+  if (error) {
+    console.error("emailNotificationsEnabled failed:", error.message);
+    return true;
+  }
+  if (!data) return true;
+  return Boolean(data.enabled);
+}
+
 interface QueueEmailInput {
   recipientUserId?: string | null;
   recipientEmail: string;
@@ -31,6 +47,9 @@ function appUrl(path: string): string {
 
 export async function queueEmailNotification(input: QueueEmailInput) {
   if (!isSupabaseAdminConfigured()) return { ok: false, disabled: true };
+  if (!(await emailNotificationsEnabled())) {
+    return { ok: false, disabled: true };
+  }
 
   const supabase = createAdminClient();
   const { error } = await supabase.from("notification_queue").upsert(
@@ -115,6 +134,9 @@ export async function queueEnquiryMessageEmail(
 
 export async function processPendingNotifications(limit = 20) {
   if (!isSupabaseAdminConfigured()) {
+    return { processed: 0, sent: 0, failed: 0, disabled: true };
+  }
+  if (!(await emailNotificationsEnabled())) {
     return { processed: 0, sent: 0, failed: 0, disabled: true };
   }
   if (!isEmailConfigured()) {

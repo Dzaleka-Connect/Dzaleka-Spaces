@@ -13,6 +13,7 @@ import { EnquiryThread } from "@/components/enquiry-thread";
 import { ViewingActions } from "@/components/viewing-actions";
 import { getSessionUser } from "@/lib/auth";
 import { getEnquiryForUser } from "@/lib/enquiries";
+import { featureEnabled } from "@/lib/features";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 import type { ViewingRecord } from "@/lib/viewings";
@@ -37,6 +38,7 @@ export default async function EnquiryDetailPage({
 
   const isSeeker = enquiry.seekerId === user.id;
   const viewerRole = isSeeker ? "seeker" : "provider";
+  const attachmentsEnabled = await featureEnabled("enquiry_attachments");
 
   const supabase = await createClient();
   const { data: viewingRow } = await supabase
@@ -102,7 +104,11 @@ export default async function EnquiryDetailPage({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <EnquiryThread enquiry={enquiry} viewerRole={viewerRole} />
+          <EnquiryThread
+            enquiry={enquiry}
+            viewerRole={viewerRole}
+            attachmentsEnabled={attachmentsEnabled}
+          />
         </CardContent>
       </Card>
 

@@ -4,11 +4,12 @@ import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { MobilePublicNav } from "@/components/mobile-public-nav";
 import { getDashboardPath, getSessionUser } from "@/lib/auth";
-import { PUBLIC_HEADER_LINKS } from "@/lib/nav-config";
+import { getPublicHeaderLinks } from "@/lib/nav";
 
 export async function SiteHeader() {
   const user = await getSessionUser();
   const homeHref = user ? getDashboardPath(user) : "/";
+  const publicLinks = user ? [] : await getPublicHeaderLinks();
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
@@ -21,7 +22,7 @@ export async function SiteHeader() {
           {user ? (
             <SidebarTrigger className="-ml-1" />
           ) : (
-            <MobilePublicNav links={PUBLIC_HEADER_LINKS} />
+            <MobilePublicNav links={publicLinks} />
           )}
           <Link
             href={homeHref}
@@ -36,7 +37,7 @@ export async function SiteHeader() {
 
         {!user ? (
           <nav className="hidden items-center gap-1 md:flex">
-            {PUBLIC_HEADER_LINKS.map((link) => (
+            {publicLinks.map((link) => (
               <Button
                 key={link.href}
                 variant="ghost"

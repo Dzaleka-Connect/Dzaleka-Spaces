@@ -1,7 +1,12 @@
 import "server-only";
 
 import { canModerate, hasRole, isStaff } from "@/lib/auth-roles";
-import type { AppNavItem } from "@/lib/nav-config";
+import { featureEnabled } from "@/lib/features";
+import {
+  PUBLIC_HEADER_LINKS,
+  type AppNavItem,
+  type NavLink,
+} from "@/lib/nav-config";
 import type { SessionUser } from "@/lib/session-user";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
@@ -29,28 +34,49 @@ async function hasTradeProfile(userId: string): Promise<boolean> {
   return Boolean(data);
 }
 
+/** Public header links filtered by feature flags. */
+export async function getPublicHeaderLinks(): Promise<NavLink[]> {
+  const [mapEnabled, tradesEnabled] = await Promise.all([
+    featureEnabled("public_map"),
+    featureEnabled("maintenance_marketplace"),
+  ]);
+
+  return PUBLIC_HEADER_LINKS.filter((link) => {
+    if (link.href === "/spaces/map") return mapEnabled;
+    if (link.href === "/trades") return tradesEnabled;
+    return true;
+  });
+}
+
 /**
  * Signed-in sidebar groups. Provider/Trades sections appear when relevant;
  * staff always see verifier/admin portals.
  */
 export async function getAppNav(user: SessionUser): Promise<AppNavItem[]> {
-  const [showProvider, showTrades] = await Promise.all([
-    ownsSpaces(user.id),
-    hasTradeProfile(user.id),
-  ]);
+  const [showProvider, showTrades, mapEnabled, tradesEnabled] =
+    await Promise.all([
+      ownsSpaces(user.id),
+      hasTradeProfile(user.id),
+      featureEnabled("public_map"),
+      featureEnabled("maintenance_marketplace"),
+    ]);
+
+  const discoverItems = [
+    { title: "Browse spaces", url: "/spaces" },
+    ...(mapEnabled ? [{ title: "Map", url: "/spaces/map" }] : []),
+    { title: "Zones", url: "/zones" },
+    ...(tradesEnabled
+      ? [{ title: "Trades directory", url: "/trades" }]
+      : []),
+    { title: "Help centre", url: "/help" },
+  ];
 
   const items: AppNavItem[] = [
     {
       title: "Discover",
       url: "/spaces",
       icon: "building",
-      items: [
-        { title: "Browse spaces", url: "/spaces" },
-        { title: "Map", url: "/spaces/map" },
-        { title: "Zones", url: "/zones" },
-        { title: "Trades directory", url: "/trades" },
-        { title: "Help centre", url: "/help" },
-      ],
+      items: discoverItems,
     },
     {
       title: "Account",
@@ -86,32 +112,34 @@ export async function getAppNav(user: SessionUser): Promise<AppNavItem[]> {
     });
   }
 
-  if (showTrades || canModerate(user)) {
-    items.push({
-      title: "Trades",
-      url: "/trades/jobs",
-      icon: "wrench",
-      items: [
-        { title: "Jobs", url: "/trades/jobs" },
-        { title: "Quotes", url: "/trades/quotes" },
-        { title: "Work orders", url: "/trades/work-orders" },
-        { title: "Messages", url: "/trades/messages" },
-        { title: "Reviews", url: "/trades/reviews" },
-        { title: "Documents", url: "/trades/documents" },
-        { title: "Schedule", url: "/trades/schedule" },
-        { title: "Trade profile", url: "/trades/profile" },
-      ],
-    });
-  } else {
-    items.push({
-      title: "Trades",
-      url: "/trades",
-      icon: "wrench",
-      items: [
-        { title: "Directory", url: "/trades" },
-        { title: "Create trade profile", url: "/trades/profile" },
-      ],
-    });
+  if (tradesEnabled) {
+    if (showTrades || canModerate(user)) {
+      items.push({
+        title: "Trades",
+        url: "/trades/jobs",
+        icon: "wrench",
+        items: [
+          { title: "Jobs", url: "/trades/jobs" },
+          { title: "Quotes", url: "/trades/quotes" },
+          { title: "Work orders", url: "/trades/work-orders" },
+          { title: "Messages", url: "/trades/messages" },
+          { title: "Reviews", url: "/trades/reviews" },
+          { title: "Documents", url: "/trades/documents" },
+          { title: "Schedule", url: "/trades/schedule" },
+          { title: "Trade profile", url: "/trades/profile" },
+        ],
+      });
+    } else {
+      items.push({
+        title: "Trades",
+        url: "/trades",
+        icon: "wrench",
+        items: [
+          { title: "Directory", url: "/trades" },
+          { title: "Create trade profile", url: "/trades/profile" },
+        ],
+      });
+    }
   }
 
   if (hasRole(user, "field_verifier") || isStaff(user)) {

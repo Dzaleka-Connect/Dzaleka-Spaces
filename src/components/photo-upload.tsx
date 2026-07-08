@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { ImagePlus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -99,7 +99,6 @@ export function PhotoUpload({
 }: PhotoUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [internalFiles, setInternalFiles] = useState<File[]>([]);
-  const [previews, setPreviews] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
@@ -108,13 +107,16 @@ export function PhotoUpload({
   const resolvedLabel =
     label ?? (required ? "Photos" : "Photos (optional)");
 
+  const previews = useMemo(
+    () => files.map((file) => URL.createObjectURL(file)),
+    [files]
+  );
+
   useEffect(() => {
-    const urls = files.map((f) => URL.createObjectURL(f));
-    setPreviews(urls);
     return () => {
-      for (const url of urls) URL.revokeObjectURL(url);
+      for (const url of previews) URL.revokeObjectURL(url);
     };
-  }, [files]);
+  }, [previews]);
 
   function setFiles(next: File[]) {
     if (controlledFiles === undefined) setInternalFiles(next);

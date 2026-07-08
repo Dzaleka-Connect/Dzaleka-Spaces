@@ -22,9 +22,11 @@ import {
 export function EnquiryThread({
   enquiry,
   viewerRole,
+  attachmentsEnabled = true,
 }: {
   enquiry: EnquiryDetail;
   viewerRole: "seeker" | "provider";
+  attachmentsEnabled?: boolean;
 }) {
   const [isPending, startTransition] = useTransition();
   const [messages, setMessages] = useState(enquiry.messages);
@@ -125,16 +127,18 @@ export function EnquiryThread({
                 placeholder="Write your message…"
               />
             </Field>
-            <Field>
-              <FieldLabel htmlFor="attachments">Attachments</FieldLabel>
-              <Input
-                id="attachments"
-                name="attachments"
-                type="file"
-                multiple
-                disabled={isPending}
-              />
-            </Field>
+            {attachmentsEnabled ? (
+              <Field>
+                <FieldLabel htmlFor="attachments">Attachments</FieldLabel>
+                <Input
+                  id="attachments"
+                  name="attachments"
+                  type="file"
+                  multiple
+                  disabled={isPending}
+                />
+              </Field>
+            ) : null}
             <div className="flex flex-wrap gap-2">
               <Button type="submit" disabled={isPending}>
                 {isPending ? (

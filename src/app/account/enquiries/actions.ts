@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getSessionUser } from "@/lib/auth";
 import { getEnquiryForUser } from "@/lib/enquiries";
+import { featureEnabled } from "@/lib/features";
 import { queueEnquiryMessageEmail } from "@/lib/notifications";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
@@ -64,25 +65,36 @@ export async function sendEnquiryMessage(
     return { ok: false, error: "Could not send message." };
   }
 
-  for (const file of files.slice(0, 5)) {
-    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "-").slice(0, 80);
-    const path = `${enquiryId}/${insertedMessage.id}/${crypto.randomUUID()}-${safeName}`;
-    const upload = await supabase.storage
-      .from("message-private")
-      .upload(path, file, { contentType: file.type || "application/octet-stream" });
-    if (upload.error) {
-      console.error("enquiry attachment upload failed:", upload.error.message);
-      continue;
+  if (files.length > 0) {
+    if (!(await featureEnabled("enquiry_attachments"))) {
+      return {
+        ok: false,
+        error: "File attachments are currently disabled.",
+      };
     }
-    await supabase.from("enquiry_attachments").insert({
-      enquiry_id: enquiryId,
-      message_id: insertedMessage.id,
-      uploader_id: user.id,
-      storage_path: path,
-      file_name: file.name,
-      content_type: file.type || "application/octet-stream",
-      size_bytes: file.size,
-    });
+
+    for (const file of files.slice(0, 5)) {
+      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "-").slice(0, 80);
+      const path = `${enquiryId}/${insertedMessage.id}/${crypto.randomUUID()}-${safeName}`;
+      const upload = await supabase.storage
+        .from("message-private")
+        .upload(path, file, {
+          contentType: file.type || "application/octet-stream",
+        });
+      if (upload.error) {
+        console.error("enquiry attachment upload failed:", upload.error.message);
+        continue;
+      }
+      await supabase.from("enquiry_attachments").insert({
+        enquiry_id: enquiryId,
+        message_id: insertedMessage.id,
+        uploader_id: user.id,
+        storage_path: path,
+        file_name: file.name,
+        content_type: file.type || "application/octet-stream",
+        size_bytes: file.size,
+      });
+    }
   }
 
   await queueEnquiryMessageEmail(enquiryId, senderRole);
