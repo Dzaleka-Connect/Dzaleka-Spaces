@@ -1,4 +1,5 @@
 import { DEMO_LISTINGS } from "./demo-data";
+import { listingCoverUrl } from "./media";
 import { isSupabaseConfigured } from "./supabase/config";
 import { createClient } from "./supabase/server";
 import type { Listing, ListingFilters } from "./types";
@@ -7,6 +8,7 @@ import type { Listing, ListingFilters } from "./types";
 function rowToListing(row: any): Listing {
   return {
     id: row.id,
+    slug: row.slug ?? null,
     title: row.title,
     category: row.category,
     zone: row.zone,
@@ -25,6 +27,12 @@ function rowToListing(row: any): Listing {
     providerName: row.provider_name,
     whatsapp: row.whatsapp,
     createdAt: row.created_at,
+    coverImagePath: row.cover_image_path ?? null,
+    coverImageBucket: row.cover_image_bucket ?? null,
+    coverImageUrl: listingCoverUrl(
+      row.cover_image_path,
+      row.cover_image_bucket
+    ),
   };
 }
 
@@ -80,14 +88,14 @@ export async function getListings(
 
 export async function getListing(id: string): Promise<Listing | null> {
   if (!isSupabaseConfigured()) {
-    return DEMO_LISTINGS.find((l) => l.id === id) ?? null;
+    return DEMO_LISTINGS.find((l) => l.id === id || l.slug === id) ?? null;
   }
 
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("public_listings")
     .select("*")
-    .eq("id", id)
+    .or(`id.eq.${id},slug.eq.${id}`)
     .maybeSingle();
 
   if (error) {

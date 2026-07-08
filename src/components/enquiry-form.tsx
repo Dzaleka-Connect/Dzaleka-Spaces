@@ -30,6 +30,9 @@ export function EnquiryForm({ listingId }: { listingId: string }) {
       if (result.ok) {
         setSent(true);
         toast.success(result.message);
+        if (result.enquiryId) {
+          window.location.href = `/account/enquiries/${result.enquiryId}`;
+        }
       } else {
         toast.error(result.message);
       }

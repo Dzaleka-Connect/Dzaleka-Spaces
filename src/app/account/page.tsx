@@ -110,6 +110,60 @@ export default async function AccountPage() {
         </Card>
         <Card>
           <CardHeader>
+            <CardTitle>Saved searches</CardTitle>
+            <CardDescription>
+              Named filters with optional match alerts.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button
+              variant="outline"
+              size="sm"
+              render={<Link href="/account/saved-searches" />}
+              nativeButton={false}
+            >
+              Open saved searches
+            </Button>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Viewings</CardTitle>
+            <CardDescription>
+              Upcoming and past viewing appointments.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button
+              variant="outline"
+              size="sm"
+              render={<Link href="/account/viewings" />}
+              nativeButton={false}
+            >
+              Open viewings
+            </Button>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>My occupancy</CardTitle>
+            <CardDescription>
+              Written records of arrangements where you are the occupant.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button
+              variant="outline"
+              size="sm"
+              render={<Link href="/account/occupancy" />}
+              nativeButton={false}
+            >
+              Open occupancy records
+            </Button>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
             <CardTitle>Provider tools</CardTitle>
             <CardDescription>
               Manage the spaces and listings you offer.
@@ -197,7 +251,7 @@ export default async function AccountPage() {
                 >
                   <div className="flex items-center justify-between gap-2">
                     <Link
-                      href={`/spaces/${e.listing_id}`}
+                      href={`/account/enquiries/${e.id}`}
                       className="font-medium hover:underline"
                     >
                       {titleById.get(e.listing_id) ?? "Listing"}

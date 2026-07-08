@@ -123,10 +123,10 @@ export default async function AccountEnquiriesPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  render={<Link href={`/spaces/${enquiry.listing_id}`} />}
+                  render={<Link href={`/account/enquiries/${enquiry.id}`} />}
                   nativeButton={false}
                 >
-                  Open listing
+                  Open conversation
                 </Button>
               </CardContent>
             </Card>

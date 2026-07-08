@@ -19,7 +19,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getListingsByIds } from "@/lib/listings";
-import { categoryLabel, facilityLabel, formatMwk } from "@/lib/types";
+import {
+  categoryLabel,
+  facilityLabel,
+  formatMwk,
+  listingHref,
+} from "@/lib/types";
 
 export const metadata: Metadata = {
   title: "Compare spaces",
@@ -153,7 +158,7 @@ export default async function ComparePage({
                 <TableCell key={listing.id}>
                   <Button
                     size="sm"
-                    render={<Link href={`/spaces/${listing.id}`} />}
+                    render={<Link href={listingHref(listing)} />}
                     nativeButton={false}
                   >
                     <Scale data-icon="inline-start" />

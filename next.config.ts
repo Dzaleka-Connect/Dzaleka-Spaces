@@ -1,6 +1,15 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "*.supabase.co",
+        pathname: "/storage/v1/object/public/**",
+      },
+    ],
+  },
   turbopack: {
     root: import.meta.dirname,
   },
@@ -12,6 +21,15 @@ const nextConfig: NextConfig = {
         destination: "/list-a-space",
         permanent: true,
       },
+      // Master-roadmap route aliases.
+      {
+        source: "/account/occupancies",
+        destination: "/account/occupancy",
+        permanent: false,
+      },
+      // Auth is passwordless (email OTP): password routes go to sign-in.
+      { source: "/forgot-password", destination: "/sign-in", permanent: false },
+      { source: "/reset-password", destination: "/sign-in", permanent: false },
     ];
   },
 };

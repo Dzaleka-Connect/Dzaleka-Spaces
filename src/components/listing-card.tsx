@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { BadgeCheck, MapPin, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -13,15 +14,25 @@ import {
   categoryLabel,
   facilityLabel,
   formatMwk,
+  listingHref,
   type Listing,
 } from "@/lib/types";
 
 export function ListingCard({ listing }: { listing: Listing }) {
   return (
-    <Link href={`/spaces/${listing.id}`} className="group">
+    <Link href={listingHref(listing)} className="group">
       <Card className="h-full gap-4 overflow-hidden pt-0 transition-shadow group-hover:shadow-md">
-        <div className="flex h-32 items-end bg-gradient-to-br from-primary/15 via-muted to-muted/40 p-3">
-          <div className="flex w-full items-center justify-between gap-2">
+        <div className="relative flex h-32 items-end bg-gradient-to-br from-primary/15 via-muted to-muted/40 p-3">
+          {listing.coverImageUrl ? (
+            <Image
+              src={listing.coverImageUrl}
+              alt=""
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 33vw"
+            />
+          ) : null}
+          <div className="relative flex w-full items-center justify-between gap-2">
             <Badge variant="outline" className="bg-background/80">
               {categoryLabel(listing.category)}
             </Badge>

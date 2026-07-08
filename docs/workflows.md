@@ -36,6 +36,34 @@ Seeker: /spaces
 - Anonymous enquiries are allowed on published listings only (RLS).
 - Provider contact details are only released per the provider's preference.
 - Every listing page carries the "view before paying" safety notice.
+- Signed-in participants can reply in enquiry threads. Private attachments are
+  stored in `message-private` and downloaded through signed URLs after RLS
+  verifies the requester is an enquiry participant.
+
+## Maintenance marketplace
+
+- Service providers create/update `/trades/profile`.
+- Open maintenance tickets appear in `/trades/jobs`; exact locations remain
+  hidden until assignment.
+- Service providers submit quotes from `/trades/quotes/new`.
+- Accepted quotes become `/trades/work-orders`; completion evidence and review
+  depth are next-phase work.
+
+## Notifications
+
+- App code writes transactional email work to `notification_queue` with
+  idempotency keys.
+- `/api/jobs/process-notifications` is protected by
+  `NOTIFICATION_WORKER_SECRET` and sends through Resend when configured.
+- SMS, WhatsApp and push adapters remain disabled.
+
+## Verifier offline
+
+- The service worker caches verifier pages.
+- `/verifier/offline` stores minimal local sync events and posts them to
+  `/api/verifier/sync` when connectivity returns.
+- Offline records must not include refugee ID numbers or unnecessary private
+  household details.
 
 ## Saved listings, comparison and reports
 

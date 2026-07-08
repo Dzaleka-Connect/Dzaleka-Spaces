@@ -26,7 +26,21 @@ verification and maintenance history when re-advertised.
 | `saved_listings` | User bookmarks | Own only |
 | `reports` | Safety/dispute reports | Insert by anyone; **read staff only** (protects reporters) |
 | `feature_flags` | Backend-controlled gates | Public read, admin write |
-| `audit_events` | Append-only audit log with before/after state, request_id | Admin read, staff insert |
+| `audit_events` | Append-only audit log with before/after state, request_id | Admin read; staff and participants insert their own rows |
+| `occupancies` | Phase 2 arrangement records: terms, dates, amounts (documentation only — no money handled) | Provider, occupant parties, staff |
+| `occupancy_parties` | Provider/occupant parties with confirmation state and method (in_app / in_person / staff_assisted) | Same as parent occupancy |
+| `provider_team_members` | Scoped provider-team permissions | Provider, member, staff |
+| `service_provider_profiles` | Maintenance-service provider profiles | Active public; own + staff |
+| `maintenance_tickets` | Maintenance requests/jobs | Requester, assigned service provider, staff; open jobs visible to service providers |
+| `maintenance_quotes` | Service-provider quotes | Service provider, requester, staff |
+| `maintenance_work_orders` | Assigned maintenance work | Service provider, requester, staff |
+| `enquiry_messages` | Threaded enquiry messages | Enquiry participants + staff |
+| `enquiry_attachments` | Private message attachment metadata | Enquiry participants + staff |
+| `notification_queue` / `notification_deliveries` | Email outbox + provider attempts | Recipient own read; admin operations |
+| `moderation_cases` / `case_events` | Staff case management | Staff; restricted cases admin/assignee |
+| `content_pages` | Database-managed public content | Published public; admin edit |
+| `analytics_events` | Privacy-safe event records | Insert public/auth; admin read |
+| `verifier_sync_events` | Offline verifier sync events | Verifier own + staff |
 
 ## Enums
 
@@ -61,8 +75,8 @@ The marketplace reads the `public_listings` view (security_invoker), which
 flattens listing + space + zone name + provider display name + verified
 badge. Client code never queries base tables for public data.
 
-## Future entities (see docs/roadmap.md)
+## Remaining entities (see docs/roadmap.md)
 
-Occupancies/charges/payment_records (Phase 2 ledger — no fund custody),
-maintenance tickets/quotes/work orders (Phase 3), notifications/queues,
-organisation accounts.
+Charges/payment_records/receipts/adjustments/disputes (Phase 2 ledger — no
+fund custody), organisation accounts and production notification delivery
+webhook events.

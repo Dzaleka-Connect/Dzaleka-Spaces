@@ -5,6 +5,7 @@ import { CheckCircle2, Send } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { PhotoUpload } from "@/components/photo-upload";
 import {
   Field,
   FieldDescription,
@@ -54,6 +55,7 @@ export function ListSpaceForm({ zones = [...ZONES] }: { zones?: string[] }) {
   const [authority, setAuthority] = useState<string | null>(null);
   const [billing, setBilling] = useState("monthly");
   const [done, setDone] = useState(false);
+  const [spaceId, setSpaceId] = useState<string | null>(null);
 
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -66,6 +68,7 @@ export function ListSpaceForm({ zones = [...ZONES] }: { zones?: string[] }) {
       const result = await submitSpace(formData);
       if (result.ok) {
         setDone(true);
+        if (result.spaceId) setSpaceId(result.spaceId);
         toast.success(result.message);
       } else {
         toast.error(result.message);
@@ -83,6 +86,12 @@ export function ListSpaceForm({ zones = [...ZONES] }: { zones?: string[] }) {
           in-person verification visit before your listing is published. There
           is no charge until verification is agreed.
         </p>
+        {spaceId ? (
+          <PhotoUpload
+            spaceId={spaceId}
+            description="Optional reference photos for the verifier. GPS metadata is removed before upload."
+          />
+        ) : null}
       </div>
     );
   }

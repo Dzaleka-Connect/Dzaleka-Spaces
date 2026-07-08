@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Suspense } from "react";
-import { SearchX } from "lucide-react";
+import { Map, SearchX } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   Empty,
   EmptyDescription,
@@ -10,7 +12,9 @@ import {
 } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ListingCard } from "@/components/listing-card";
+import { SaveSearchButton } from "@/components/save-search-button";
 import { SpacesFilters } from "@/components/spaces-filters";
+import { getSessionUser } from "@/lib/auth";
 import { getListings } from "@/lib/listings";
 import { getZones } from "@/lib/zones";
 
@@ -29,7 +33,7 @@ interface SpacesPageProps {
 
 export default async function SpacesPage({ searchParams }: SpacesPageProps) {
   const params = await searchParams;
-  const [listings, zones] = await Promise.all([
+  const [listings, zones, user] = await Promise.all([
     getListings({
       q: params.q,
       category: params.category,
@@ -37,6 +41,7 @@ export default async function SpacesPage({ searchParams }: SpacesPageProps) {
       verifiedOnly: params.verified === "1",
     }),
     getZones(),
+    getSessionUser(),
   ]);
 
   return (
@@ -49,9 +54,25 @@ export default async function SpacesPage({ searchParams }: SpacesPageProps) {
         </p>
       </div>
 
-      <Suspense fallback={<Skeleton className="h-20 w-full" />}>
-        <SpacesFilters zones={zones} />
-      </Suspense>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <Suspense fallback={<Skeleton className="h-20 w-full" />}>
+          <SpacesFilters zones={zones} />
+        </Suspense>
+        <div className="flex gap-2">
+          <Suspense>
+            <SaveSearchButton signedIn={Boolean(user)} />
+          </Suspense>
+          <Button
+            variant="outline"
+            size="sm"
+            render={<Link href="/spaces/map" />}
+            nativeButton={false}
+          >
+            <Map data-icon="inline-start" />
+            Map
+          </Button>
+        </div>
+      </div>
 
       {listings.length === 0 ? (
         <Empty>

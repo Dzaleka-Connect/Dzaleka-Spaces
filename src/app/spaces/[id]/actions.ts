@@ -9,6 +9,7 @@ import { createClient } from "@/lib/supabase/server";
 export interface EnquiryResult {
   ok: boolean;
   message: string;
+  enquiryId?: string;
 }
 
 export async function submitEnquiry(
@@ -37,26 +38,38 @@ export async function submitEnquiry(
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { error } = await supabase.from("enquiries").insert({
-    listing_id: listingId,
-    seeker_id: user?.id ?? null,
-    name,
-    contact,
-    channel,
-    message: message || null,
-  });
+  const { data: enquiry, error } = await supabase
+    .from("enquiries")
+    .insert({
+      listing_id: listingId,
+      seeker_id: user?.id ?? null,
+      name,
+      contact,
+      channel,
+      message: message || null,
+    })
+    .select("id")
+    .single();
 
-  if (error) {
-    console.error("submitEnquiry failed:", error.message);
+  if (error || !enquiry) {
+    console.error("submitEnquiry failed:", error?.message);
     return {
       ok: false,
       message: "Something went wrong sending your enquiry. Please try again.",
     };
   }
 
+  await supabase.from("enquiry_messages").insert({
+    enquiry_id: enquiry.id,
+    sender_id: user?.id ?? null,
+    sender_role: "seeker",
+    body: message || "Enquiry sent",
+  });
+
   return {
     ok: true,
     message: "Enquiry sent. The provider will contact you to arrange a viewing.",
+    enquiryId: channel === "in_app" && user ? enquiry.id : undefined,
   };
 }
 

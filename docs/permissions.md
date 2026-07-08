@@ -25,8 +25,14 @@ Enforced by Supabase RLS (see migrations) plus role checks in server code
 | Draft/pending listings | – | – | Own | All (staff) | All |
 | Exact location / authority evidence (`space_internal`) | – | – | Write own on submit, no read-back | Read | Read |
 | Enquiries | Insert | Own | Related listing | – (staff read exists) | All |
+| Enquiry attachments | – | Own thread | Related listing thread | – | All |
 | Verifications | Badge only | Badge only | Own summary | Read + insert checklist | All + decide |
 | Saved listings | – | Own | Own | Own | Own |
+| Provider team | – | – | Own team + scoped member access | – | All |
+| Maintenance tickets | – | Requester | Related space/request | – | All |
+| Service-provider profiles | Active read | Active read | Active read | Active read | All |
+| Notification queue | – | Own delivery rows | Own delivery rows | – | All |
+| Moderation cases | – | – | – | Assigned/relevant staff | All |
 | Reports | Insert | Insert | Insert | Read | Read + act |
 | Feature flags | Read | Read | Read | Read | Update |
 | User roles | – | Own | Own | Own | Manage |
@@ -38,6 +44,7 @@ Enforced by Supabase RLS (see migrations) plus role checks in server code
 | --- | --- |
 | `/account` | Signed in |
 | `/provider` | Signed in (rows self-scope via RLS) |
+| `/trades/profile`, `/trades/quotes`, `/trades/work-orders` | Signed in |
 | `/verifier` | `field_verifier`, `moderator` or `admin` |
 | `/admin` | `moderator` or `admin` (flags/roles: `admin` only) |
 

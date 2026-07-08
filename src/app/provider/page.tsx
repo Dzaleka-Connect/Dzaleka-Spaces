@@ -96,6 +96,16 @@ export default async function ProviderPage() {
     (l) => l.status === "pending_review" || l.status === "changes_requested"
   );
 
+  const enquiryIds = myEnquiries.map((e) => e.id);
+  const { data: viewingRows } = enquiryIds.length
+    ? await supabase
+        .from("viewings")
+        .select("id")
+        .in("enquiry_id", enquiryIds)
+        .in("status", ["requested", "proposed", "confirmed"])
+    : { data: [] };
+  const viewingCount = (viewingRows ?? []).length;
+
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -113,12 +123,13 @@ export default async function ProviderPage() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
         {[
           { label: "Spaces", value: (spaces ?? []).length },
           { label: "Published listings", value: published.length },
           { label: "Awaiting verification", value: pending.length },
           { label: "Enquiries", value: myEnquiries.length },
+          { label: "Viewings", value: viewingCount },
         ].map((m) => (
           <Card key={m.label} className="py-4">
             <CardHeader>
@@ -193,6 +204,41 @@ export default async function ProviderPage() {
 
       <Card>
         <CardHeader>
+          <CardTitle>Enquiries & viewings</CardTitle>
+          <CardDescription>
+            Respond to seekers and confirm viewing times.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-wrap gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            render={<Link href="/provider/enquiries" />}
+            nativeButton={false}
+          >
+            All enquiries
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            render={<Link href="/provider/viewings" />}
+            nativeButton={false}
+          >
+            Viewings
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            render={<Link href="/provider/occupancies" />}
+            nativeButton={false}
+          >
+            Occupancies
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
           <CardTitle>Recent enquiries</CardTitle>
           <CardDescription>
             Reply using the channel each person asked for.
@@ -232,6 +278,15 @@ export default async function ProviderPage() {
                     <p className="text-xs text-muted-foreground">
                       {new Date(e.created_at).toLocaleString()}
                     </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="mt-2"
+                      render={<Link href={`/provider/enquiries/${e.id}`} />}
+                      nativeButton={false}
+                    >
+                      Open
+                    </Button>
                   </li>
                 );
               })}

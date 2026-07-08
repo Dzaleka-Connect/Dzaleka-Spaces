@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 export interface SubmitSpaceResult {
   ok: boolean;
   message: string;
+  spaceId?: string;
 }
 
 export async function submitSpace(
@@ -112,5 +113,6 @@ export async function submitSpace(
     ok: true,
     message:
       "Space submitted. A field representative will contact you to arrange verification before it is published.",
+    spaceId: space.id,
   };
 }

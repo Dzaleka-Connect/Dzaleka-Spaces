@@ -46,6 +46,7 @@ export type BillingPeriod = "daily" | "monthly";
 
 export interface Listing {
   id: string;
+  slug: string | null;
   title: string;
   category: SpaceCategory;
   zone: string;
@@ -64,6 +65,9 @@ export interface Listing {
   providerName: string | null;
   whatsapp: string | null;
   createdAt: string;
+  coverImagePath: string | null;
+  coverImageBucket: string | null;
+  coverImageUrl: string | null;
 }
 
 export interface ListingFilters {
@@ -86,4 +90,8 @@ export function facilityLabel(value: string): string {
 
 export function formatMwk(amount: number): string {
   return `MWK ${amount.toLocaleString("en-MW")}`;
+}
+
+export function listingHref(listing: Pick<Listing, "id" | "slug">): string {
+  return `/spaces/${listing.slug ?? listing.id}`;
 }

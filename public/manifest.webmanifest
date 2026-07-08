@@ -1,0 +1,11 @@
+{
+  "name": "Dzaleka Spaces",
+  "short_name": "Spaces",
+  "description": "Dzaleka Spaces marketplace and verifier tools",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0f766e",
+  "icons": []
+}

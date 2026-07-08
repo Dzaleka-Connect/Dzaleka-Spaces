@@ -41,6 +41,10 @@ immediately.
    node scripts/db-apply.mjs supabase/migrations/00001_init.sql
    node scripts/db-apply.mjs supabase/migrations/00002_backend_foundations.sql
    node scripts/db-apply.mjs supabase/migrations/00003_portal_policies.sql
+   node scripts/db-apply.mjs supabase/migrations/00004_roadmap_next.sql
+   node scripts/db-apply.mjs supabase/migrations/00005_occupancies.sql
+   node scripts/db-apply.mjs supabase/migrations/00006_assisted_listings.sql
+   node scripts/db-apply.mjs supabase/migrations/00007_operations_marketplace.sql
    node scripts/db-apply.mjs supabase/seed.sql
    ```
 
@@ -64,11 +68,12 @@ immediately.
 
 | Surface | Route | Who |
 | --- | --- | --- |
-| Public marketplace | `/`, `/spaces`, `/spaces/[id]`, `/compare`, `/how-it-works`, `/verification`, `/safety`, `/list-a-space` | Everyone |
-| Seeker portal | `/account`, `/account/saved-spaces`, `/account/enquiries` | Signed-in users |
-| Provider portal | `/provider` | Space providers (own rows via RLS) |
-| Field verifier | `/verifier/assignments` | `field_verifier` role |
-| Administration | `/admin`, `/admin/review`, `/admin/flags` | `moderator` / `admin` roles |
+| Public marketplace | `/`, `/spaces`, `/spaces/[id-or-slug]`, `/spaces/map`, `/compare`, `/trades`, info/legal/help pages | Everyone |
+| Seeker portal | `/account`, `/account/profile`, `/account/saved-spaces`, `/account/saved-searches`, `/account/enquiries`, `/account/viewings`, `/account/occupancy` | Signed-in users |
+| Provider portal | `/provider`, `/provider/spaces`, `/provider/listings`, `/provider/listings/[id]/edit`, `/provider/listings/[id]/preview`, `/provider/team`, enquiries/viewings/occupancies | Space providers + scoped team members |
+| Trades portal | `/trades`, `/trades/profile`, `/trades/jobs`, `/trades/quotes`, `/trades/work-orders`, schedule/messages/reviews/documents/settings | Service providers |
+| Field verifier | `/verifier/assignments`, `/verifier/completed`, `/verifier/offline` | `field_verifier` role |
+| Administration | `/admin`, `/admin/review`, `/admin/flags`, `/admin/users`, `/admin/cases`, `/admin/reports`, `/admin/notifications`, `/admin/analytics`, `/admin/settings` | `moderator` / `admin` roles |
 
 ### Bootstrapping the first admin
 
@@ -89,13 +94,14 @@ src/
     page.tsx                 Home: hero, featured, categories, how-it-works
     spaces/                  Browse + listing detail + save/report/enquiry
     compare/                 Side-by-side listing comparison from query IDs
+    trades/                  Maintenance provider portal
     list-a-space/            Provider submission (goes to review queue)
     how-it-works/ verification/ safety/   Public info pages
     sign-in/  auth/          Email OTP sign-in + callback/signout
     account/                 Seeker dashboard, saved spaces, enquiries
-    provider/                Provider dashboard
-    verifier/                Field-verification assignments + checklist
-    admin/                   Overview, review queue, feature flags
+    provider/                Provider dashboard, team, listing edit/preview
+    verifier/                Field-verification assignments + offline queue
+    admin/                   Overview, review, cases, reports, notifications
   components/                Site chrome, cards, forms, badges
   lib/                       Domain types, data access, auth, supabase clients
 supabase/
@@ -105,17 +111,19 @@ scripts/
   db-apply.mjs               Apply a SQL file via DIRECT_URL (no psql needed)
   grant-admin.mjs            Grant the admin role to a user by email
 docs/
-  data-model.md permissions.md workflows.md roadmap.md
+  data-model.md permissions.md workflows.md roadmap.md security/ privacy/ operations/
 ```
 
 ## Roadmap (from the business plan)
 
-- **Phase 1 (this code):** commercial & community-space marketplace pilot —
-  registration, submission, verification workflow, saved listings,
-  comparison, enquiries, reporting.
-- **Phase 2:** occupancy records, payment ledger (records only — no fund
-  custody), receipts, provider dashboard.
-- **Phase 3:** maintenance marketplace (local builders, electricians,
-  plumbers, cleaners).
+- **Phase 1–3 implemented slices:** marketplace pilot, registration,
+  submission, verification, saved listings/searches, comparison, enquiries
+  with private attachments, viewings, occupancy records, provider team
+  permissions, maintenance-service portal, email notification outbox, verifier
+  offline queue, admin cases/content/analytics/settings.
+- **Remaining Phase 2:** payment ledger (records only — no fund custody),
+  receipts and adjustment/dispute workflows.
+- **Remaining Phase 3+:** deeper maintenance messaging/reviews/documents,
+  production notification scheduling, E2E/RLS test expansion.
 - **Phase 4:** controlled residential expansion, only after written
   operational guidance from the relevant authorities.

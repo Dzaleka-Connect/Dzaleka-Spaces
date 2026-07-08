@@ -41,8 +41,10 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { EnquiryForm } from "@/components/enquiry-form";
+import { ListingGallery } from "@/components/listing-gallery";
 import { VerifiedBadge } from "@/components/verified-badge";
 import { getSessionUser } from "@/lib/auth";
+import { getListingMediaByListingId } from "@/lib/media";
 import { getListing } from "@/lib/listings";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
@@ -78,6 +80,8 @@ export default async function ListingPage({
   const status = searchParams ? await searchParams : {};
   const listing = await getListing(id);
   if (!listing) notFound();
+
+  const media = await getListingMediaByListingId(id);
 
   const user = await getSessionUser();
   let isSaved = false;
@@ -143,11 +147,7 @@ export default async function ListingPage({
 
       <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
         <div className="flex flex-col gap-6">
-          <div className="flex h-56 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 via-muted to-muted/40 sm:h-72">
-            <span className="text-sm text-muted-foreground">
-              Photographs added after field verification
-            </span>
-          </div>
+          <ListingGallery media={media} title={listing.title} />
 
           <Card>
             <CardHeader>

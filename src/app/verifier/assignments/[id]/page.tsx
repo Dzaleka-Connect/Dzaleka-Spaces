@@ -21,6 +21,7 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
+import { PhotoUpload } from "@/components/photo-upload";
 import { getSessionUser, isStaff } from "@/lib/auth";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
@@ -203,6 +204,17 @@ export default async function AssignmentDetailPage({
               </Field>
             </FieldGroup>
           </form>
+          {space?.id ? (
+            <div className="mt-6 border-t pt-6">
+              <PhotoUpload
+                spaceId={space.id}
+                bucket="verification-private"
+                isPublic={false}
+                label="Field evidence photos"
+                description="Private photos for the review team. GPS metadata is removed before upload."
+              />
+            </div>
+          ) : null}
         </CardContent>
       </Card>
     </div>
