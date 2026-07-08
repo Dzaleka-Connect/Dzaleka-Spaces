@@ -30,6 +30,9 @@ Enforced by Supabase RLS (see migrations) plus role checks in server code
 | Saved listings | – | Own | Own | Own | Own |
 | Provider team | – | – | Own team + scoped member access | – | All |
 | Maintenance tickets | – | Requester | Related space/request | – | All |
+| Maintenance messages | – | Ticket participant | Ticket participant | – | All |
+| Maintenance reviews | – | Own as requester/provider | Own as provider | – | All |
+| Maintenance documents | – | Ticket participant | Ticket participant | – | All |
 | Service-provider profiles | Active read | Active read | Active read | Active read | All |
 | Notification queue | – | Own delivery rows | Own delivery rows | – | All |
 | Moderation cases | – | – | – | Assigned/relevant staff | All |
@@ -45,6 +48,7 @@ Enforced by Supabase RLS (see migrations) plus role checks in server code
 | `/account` | Signed in |
 | `/provider` | Signed in (rows self-scope via RLS) |
 | `/trades/profile`, `/trades/quotes`, `/trades/work-orders` | Signed in |
+| `/trades/messages`, `/trades/reviews`, `/trades/documents` | Signed in (ticket/work-order participants via RLS) |
 | `/verifier` | `field_verifier`, `moderator` or `admin` |
 | `/admin` | `moderator` or `admin` (flags/roles: `admin` only) |
 

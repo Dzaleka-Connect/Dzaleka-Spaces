@@ -11,16 +11,16 @@ export default async function ListASpacePage() {
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">List a space</h1>
-        <p className="mt-1 text-muted-foreground">
+        <h1 className="text-4xl font-bold tracking-tight">List a space</h1>
+        <p className="mt-2 text-lg text-muted-foreground">
           Tell us about the shop, office, venue, workshop, storage or homestay
-          you manage. Every listing is checked in person before it is
-          published.
+          you manage. Include clear photos — every listing is checked in person
+          before it is published.
         </p>
       </div>
-      <div className="grid gap-4 rounded-xl border bg-muted/40 p-5 text-sm sm:grid-cols-2">
+      <div className="grid gap-4 rounded-xl border bg-muted/40 p-5 text-base sm:grid-cols-2">
         <div>
-          <h2 className="mb-1 font-medium">Who may submit</h2>
+          <h2 className="mb-1 text-lg font-medium">Who may submit</h2>
           <p className="text-muted-foreground">
             Anyone who currently manages a space or is authorised to offer it —
             venue operators, organisation managers, family representatives and
@@ -29,7 +29,7 @@ export default async function ListASpacePage() {
           </p>
         </div>
         <div>
-          <h2 className="mb-1 font-medium">What is not allowed</h2>
+          <h2 className="mb-1 text-lg font-medium">What is not allowed</h2>
           <p className="text-muted-foreground">
             Land sales, shelter sales presented as ownership, listings for
             spaces you are not authorised to offer, and discriminatory

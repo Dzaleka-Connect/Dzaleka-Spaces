@@ -15,7 +15,9 @@ against that larger target.
   `/compare`, enquiries (anonymous OK), private listing reports, info pages
   (`/how-it-works`, `/verification`, `/safety`), `/list-a-space` submission
   with authority declaration and optional photo upload (EXIF stripped client-side).
-- Auth: email OTP sign-in, roles (`user_roles`), role-gated portals.
+- Auth: email OTP and email/password sign-in (`/sign-in`, `/register`),
+  roles (`user_roles`), role-gated portals. Signed-in `/` redirects to the
+  role dashboard.
 - Seeker portal `/account`: profile, enquiries with threaded messages at
   `/account/enquiries/[id]`, viewings at `/account/viewings`, saved listings,
   saved searches at `/account/saved-searches`.
@@ -59,8 +61,10 @@ against that larger target.
   `/trades`, `/trades/profile`, `/trades/jobs`, `/trades/jobs/[id]`,
   `/trades/quotes`, `/trades/quotes/new`, `/trades/quotes/[id]`,
   `/trades/work-orders`, `/trades/work-orders/[id]`, `/trades/schedule`,
-  `/trades/messages`, `/trades/reviews`, `/trades/documents`,
-  `/trades/settings`.
+  `/trades/messages`, `/trades/messages/[ticketId]`, `/trades/reviews`,
+  `/trades/documents`, `/trades/settings`. Maintenance messages, reviews
+  after completed work orders, and private document uploads
+  (`maintenance-private` bucket) are live.
 - Notifications: Resend email adapter, server-only notification outbox,
   protected `/api/jobs/process-notifications`, saved-search enqueue cron
   function, `/admin/notifications`.
@@ -79,8 +83,8 @@ against that larger target.
    adjustments. Ledger only — no custody.
 3. **Payment ledger integration adapters** — typed disabled adapters for
    DzalekaPay/Airtel/TNM, then ledger-only records and receipts. No custody.
-4. **Maintenance depth** — maintenance message threads, review creation after
-   completed work orders, private evidence uploads and document exports.
+4. **Maintenance depth (remaining)** — richer requester ticket creation UI,
+   assignment workflows, and notification digests for maintenance updates.
 5. **Testing hardening** — RLS tests, storage policy tests, E2E flows,
    accessibility checks and dependency scanning.
 6. **Residential pilot (Phase 4)** — only after written operational

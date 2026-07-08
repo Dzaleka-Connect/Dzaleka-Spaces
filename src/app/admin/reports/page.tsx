@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { Flag, Info } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Empty,
   EmptyDescription,
@@ -21,6 +22,7 @@ import {
 import { canModerate, getSessionUser } from "@/lib/auth";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
+import { updateReportStatus } from "./actions";
 
 export const metadata: Metadata = {
   title: "Reports",
@@ -82,6 +84,7 @@ export default async function AdminReportsPage() {
               <TableHead>Status</TableHead>
               <TableHead>Details</TableHead>
               <TableHead>Created</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -103,6 +106,27 @@ export default async function AdminReportsPage() {
                   </TableCell>
                   <TableCell className="text-muted-foreground">
                     {new Date(report.created_at).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex justify-end gap-2">
+                      {report.status === "open" ? (
+                        <form action={updateReportStatus}>
+                          <input type="hidden" name="reportId" value={report.id} />
+                          <input type="hidden" name="status" value="closed" />
+                          <Button type="submit" size="sm" variant="outline">
+                            Close
+                          </Button>
+                        </form>
+                      ) : (
+                        <form action={updateReportStatus}>
+                          <input type="hidden" name="reportId" value={report.id} />
+                          <input type="hidden" name="status" value="open" />
+                          <Button type="submit" size="sm" variant="ghost">
+                            Reopen
+                          </Button>
+                        </form>
+                      )}
+                    </div>
                   </TableCell>
                 </TableRow>
               );

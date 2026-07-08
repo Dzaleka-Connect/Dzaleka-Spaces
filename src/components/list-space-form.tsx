@@ -5,7 +5,7 @@ import { CheckCircle2, Send } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { PhotoUpload } from "@/components/photo-upload";
+import { PhotoUpload, uploadSpacePhotos } from "@/components/photo-upload";
 import {
   Field,
   FieldDescription,
@@ -54,42 +54,77 @@ export function ListSpaceForm({ zones = [...ZONES] }: { zones?: string[] }) {
   const [zone, setZone] = useState<string | null>(null);
   const [authority, setAuthority] = useState<string | null>(null);
   const [billing, setBilling] = useState("monthly");
+  const [photos, setPhotos] = useState<File[]>([]);
   const [done, setDone] = useState(false);
   const [spaceId, setSpaceId] = useState<string | null>(null);
+  const [photosUploaded, setPhotosUploaded] = useState(false);
 
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (photos.length < 1) {
+      toast.error("Add at least one photo of the space before submitting.");
+      return;
+    }
+
     const formData = new FormData(event.currentTarget);
     if (category) formData.set("category", category);
     if (zone) formData.set("zone", zone);
     if (authority) formData.set("authority_basis", authority);
     formData.set("billing_period", billing);
+
     startTransition(async () => {
       const result = await submitSpace(formData);
-      if (result.ok) {
-        setDone(true);
-        if (result.spaceId) setSpaceId(result.spaceId);
-        toast.success(result.message);
-      } else {
+      if (!result.ok) {
         toast.error(result.message);
+        return;
       }
+
+      if (result.spaceId) {
+        const upload = await uploadSpacePhotos(result.spaceId, photos);
+        if (!upload.ok) {
+          setSpaceId(result.spaceId);
+          setPhotosUploaded(false);
+          setDone(true);
+          toast.error(
+            `Space saved, but photos failed: ${upload.message}. Please upload them below.`
+          );
+          return;
+        }
+        setPhotosUploaded(true);
+        setSpaceId(result.spaceId);
+      } else {
+        // Demo mode: no storage — treat selected photos as accepted.
+        setPhotosUploaded(true);
+      }
+
+      setDone(true);
+      toast.success(result.message);
     });
   }
 
   if (done) {
     return (
-      <div className="flex flex-col items-start gap-3 rounded-xl border p-6">
+      <div className="flex flex-col items-start gap-4 rounded-xl border p-6">
         <CheckCircle2 className="size-8 text-primary" />
-        <h2 className="text-lg font-semibold">Space submitted</h2>
-        <p className="text-sm text-muted-foreground">
+        <h2 className="text-xl font-semibold">Space submitted</h2>
+        <p className="text-base text-muted-foreground">
           Thank you. A field representative will contact you to arrange an
           in-person verification visit before your listing is published. There
           is no charge until verification is agreed.
         </p>
-        {spaceId ? (
+        {photosUploaded ? (
+          <p className="text-base text-muted-foreground">
+            {photos.length} photo{photos.length === 1 ? "" : "s"} attached for
+            review.
+          </p>
+        ) : spaceId ? (
           <PhotoUpload
             spaceId={spaceId}
-            description="Optional reference photos for the verifier. GPS metadata is removed before upload."
+            required
+            files={photos}
+            onFilesChange={setPhotos}
+            description="Photos are required for verification. GPS metadata is removed before upload."
+            onComplete={() => setPhotosUploaded(true)}
           />
         ) : null}
       </div>
@@ -118,7 +153,7 @@ export function ListSpaceForm({ zones = [...ZONES] }: { zones?: string[] }) {
               value={category}
               onValueChange={(v) => setCategory(v as string | null)}
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -139,7 +174,7 @@ export function ListSpaceForm({ zones = [...ZONES] }: { zones?: string[] }) {
               value={zone}
               onValueChange={(v) => setZone(v as string | null)}
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -178,9 +213,16 @@ export function ListSpaceForm({ zones = [...ZONES] }: { zones?: string[] }) {
             placeholder="Describe the space, its condition and any rules."
             required
             disabled={isPending}
-            className="min-h-24"
+            className="min-h-28"
           />
         </Field>
+
+        <PhotoUpload
+          required
+          files={photos}
+          onFilesChange={setPhotos}
+          description="At least one photo is required. Up to 5 images. GPS and camera metadata are removed before upload."
+        />
 
         <div className="grid gap-6 sm:grid-cols-3">
           <Field>
@@ -243,7 +285,7 @@ export function ListSpaceForm({ zones = [...ZONES] }: { zones?: string[] }) {
             value={authority}
             onValueChange={(v) => setAuthority(v as string | null)}
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -264,7 +306,7 @@ export function ListSpaceForm({ zones = [...ZONES] }: { zones?: string[] }) {
         </Field>
 
         <Field>
-          <Button type="submit" disabled={isPending}>
+          <Button type="submit" size="lg" disabled={isPending}>
             {isPending ? (
               <Spinner data-icon="inline-start" />
             ) : (

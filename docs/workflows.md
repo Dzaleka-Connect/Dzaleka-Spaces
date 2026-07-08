@@ -46,8 +46,11 @@ Seeker: /spaces
 - Open maintenance tickets appear in `/trades/jobs`; exact locations remain
   hidden until assignment.
 - Service providers submit quotes from `/trades/quotes/new`.
-- Accepted quotes become `/trades/work-orders`; completion evidence and review
-  depth are next-phase work.
+- Accepted quotes become `/trades/work-orders`. Providers mark work completed
+  with notes; requesters leave reviews at `/trades/reviews`.
+- Participants message on `/trades/messages/[ticketId]` (ticket participants
+  only). Private evidence uploads go to `maintenance-private` and are listed
+  at `/trades/documents`, downloaded via signed URLs after RLS checks.
 
 ## Notifications
 

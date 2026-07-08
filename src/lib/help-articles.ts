@@ -112,7 +112,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     sections: [
       {
         heading: "Signing in",
-        body: "Accounts use one-time email links — there is no password to remember or lose. The first link you use creates your account.",
+        body: "You can sign in with email and password, or request a one-time magic link. Creating an account on /register sets a password; magic links still work afterward if you prefer not to type it.",
       },
       {
         heading: "What others can see",

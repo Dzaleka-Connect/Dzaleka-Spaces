@@ -48,8 +48,7 @@ export function SiteFooter() {
           <div className="flex max-w-xs flex-col gap-2">
             <span className="font-semibold">Dzaleka Spaces</span>
             <p className="text-sm text-muted-foreground">
-              Trusted spaces for living, working and community life. A
-              community space marketplace connected to Dzaleka Refugee Camp.
+              Community space marketplace for Dzaleka Refugee Camp.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">

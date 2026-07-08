@@ -1,0 +1,159 @@
+import "server-only";
+
+import { canModerate, hasRole, isStaff } from "@/lib/auth-roles";
+import type { AppNavItem } from "@/lib/nav-config";
+import type { SessionUser } from "@/lib/session-user";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { createClient } from "@/lib/supabase/server";
+
+export type { AppNavItem, AppNavSubItem } from "@/lib/nav-config";
+
+async function ownsSpaces(userId: string): Promise<boolean> {
+  if (!isSupabaseConfigured()) return true;
+  const supabase = await createClient();
+  const { count } = await supabase
+    .from("spaces")
+    .select("id", { count: "exact", head: true })
+    .eq("provider_id", userId);
+  return (count ?? 0) > 0;
+}
+
+async function hasTradeProfile(userId: string): Promise<boolean> {
+  if (!isSupabaseConfigured()) return true;
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("service_provider_profiles")
+    .select("user_id")
+    .eq("user_id", userId)
+    .maybeSingle();
+  return Boolean(data);
+}
+
+/**
+ * Signed-in sidebar groups. Provider/Trades sections appear when relevant;
+ * staff always see verifier/admin portals.
+ */
+export async function getAppNav(user: SessionUser): Promise<AppNavItem[]> {
+  const [showProvider, showTrades] = await Promise.all([
+    ownsSpaces(user.id),
+    hasTradeProfile(user.id),
+  ]);
+
+  const items: AppNavItem[] = [
+    {
+      title: "Discover",
+      url: "/spaces",
+      icon: "building",
+      items: [
+        { title: "Browse spaces", url: "/spaces" },
+        { title: "Map", url: "/spaces/map" },
+        { title: "Zones", url: "/zones" },
+        { title: "Trades directory", url: "/trades" },
+        { title: "Help centre", url: "/help" },
+      ],
+    },
+    {
+      title: "Account",
+      url: "/account",
+      icon: "user",
+      items: [
+        { title: "Overview", url: "/account" },
+        { title: "Profile", url: "/account/profile" },
+        { title: "Enquiries", url: "/account/enquiries" },
+        { title: "Viewings", url: "/account/viewings" },
+        { title: "Saved spaces", url: "/account/saved-spaces" },
+        { title: "Saved searches", url: "/account/saved-searches" },
+        { title: "Occupancy", url: "/account/occupancy" },
+      ],
+    },
+  ];
+
+  if (showProvider || canModerate(user)) {
+    items.push({
+      title: "Provider",
+      url: "/provider",
+      icon: "home",
+      items: [
+        { title: "Dashboard", url: "/provider" },
+        { title: "Spaces", url: "/provider/spaces" },
+        { title: "Listings", url: "/provider/listings" },
+        { title: "Enquiries", url: "/provider/enquiries" },
+        { title: "Viewings", url: "/provider/viewings" },
+        { title: "Occupancies", url: "/provider/occupancies" },
+        { title: "Team", url: "/provider/team" },
+        { title: "List a space", url: "/list-a-space" },
+      ],
+    });
+  }
+
+  if (showTrades || canModerate(user)) {
+    items.push({
+      title: "Trades",
+      url: "/trades/jobs",
+      icon: "wrench",
+      items: [
+        { title: "Jobs", url: "/trades/jobs" },
+        { title: "Quotes", url: "/trades/quotes" },
+        { title: "Work orders", url: "/trades/work-orders" },
+        { title: "Messages", url: "/trades/messages" },
+        { title: "Reviews", url: "/trades/reviews" },
+        { title: "Documents", url: "/trades/documents" },
+        { title: "Schedule", url: "/trades/schedule" },
+        { title: "Trade profile", url: "/trades/profile" },
+      ],
+    });
+  } else {
+    items.push({
+      title: "Trades",
+      url: "/trades",
+      icon: "wrench",
+      items: [
+        { title: "Directory", url: "/trades" },
+        { title: "Create trade profile", url: "/trades/profile" },
+      ],
+    });
+  }
+
+  if (hasRole(user, "field_verifier") || isStaff(user)) {
+    items.push({
+      title: "Verifier",
+      url: "/verifier/assignments",
+      icon: "clipboard",
+      items: [
+        {
+          title: "Assignments",
+          url: "/verifier/assignments",
+        },
+        {
+          title: "Completed",
+          url: "/verifier/completed",
+        },
+        {
+          title: "Offline queue",
+          url: "/verifier/offline",
+        },
+      ],
+    });
+  }
+
+  if (canModerate(user)) {
+    items.push({
+      title: "Admin",
+      url: "/admin",
+      icon: "shield",
+      items: [
+        { title: "Overview", url: "/admin" },
+        { title: "Review queue", url: "/admin/review" },
+        { title: "Listings", url: "/admin/listings" },
+        { title: "Cases", url: "/admin/cases" },
+        { title: "Reports", url: "/admin/reports" },
+        { title: "Users", url: "/admin/users" },
+        { title: "Analytics", url: "/admin/analytics" },
+        { title: "Notifications", url: "/admin/notifications" },
+        { title: "Settings", url: "/admin/settings" },
+      ],
+    });
+  }
+
+  return items;
+}

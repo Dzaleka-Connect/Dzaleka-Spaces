@@ -1,13 +1,12 @@
+import "server-only";
+
 import { cache } from "react";
+import type { SessionUser } from "./session-user";
 import { isSupabaseConfigured } from "./supabase/config";
 import { createClient } from "./supabase/server";
 
-export interface SessionUser {
-  id: string;
-  email: string | null;
-  fullName: string | null;
-  roles: string[];
-}
+export type { SessionUser } from "./session-user";
+export { canModerate, getDashboardPath, hasRole, isStaff } from "./auth-roles";
 
 export const getSessionUser = cache(
   async (): Promise<SessionUser | null> => {
@@ -37,21 +36,3 @@ export const getSessionUser = cache(
     };
   }
 );
-
-export function isStaff(user: SessionUser | null): boolean {
-  return Boolean(
-    user?.roles.some((r) =>
-      ["moderator", "admin", "field_verifier"].includes(r)
-    )
-  );
-}
-
-export function hasRole(user: SessionUser | null, role: string): boolean {
-  return Boolean(user?.roles.includes(role));
-}
-
-export function canModerate(user: SessionUser | null): boolean {
-  return Boolean(
-    user?.roles.some((role) => role === "admin" || role === "moderator")
-  );
-}

@@ -16,6 +16,7 @@ import { SaveSearchButton } from "@/components/save-search-button";
 import { SpacesFilters } from "@/components/spaces-filters";
 import { getSessionUser } from "@/lib/auth";
 import { getListings } from "@/lib/listings";
+import { trackAnalyticsEvent } from "@/lib/track-analytics";
 import { getZones } from "@/lib/zones";
 
 export const metadata: Metadata = {
@@ -43,6 +44,19 @@ export default async function SpacesPage({ searchParams }: SpacesPageProps) {
     getZones(),
     getSessionUser(),
   ]);
+
+  if (params.q || params.category || params.zone || params.verified) {
+    await trackAnalyticsEvent("search", {
+      route: "/spaces",
+      properties: {
+        q: params.q ?? null,
+        category: params.category ?? null,
+        zone: params.zone ?? null,
+        verified: params.verified === "1",
+        result_count: listings.length,
+      },
+    });
+  }
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8">

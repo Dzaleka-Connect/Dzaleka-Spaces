@@ -51,12 +51,21 @@ export default async function TradeJobDetailPage({
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <p className="text-sm leading-relaxed">{job.description}</p>
-          <Button
-            render={<Link href={`/trades/quotes/new?ticketId=${job.id}`} />}
-            nativeButton={false}
-          >
-            Submit quote
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              render={<Link href={`/trades/quotes/new?ticketId=${job.id}`} />}
+              nativeButton={false}
+            >
+              Submit quote
+            </Button>
+            <Button
+              variant="outline"
+              render={<Link href={`/trades/messages/${job.id}`} />}
+              nativeButton={false}
+            >
+              Messages
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

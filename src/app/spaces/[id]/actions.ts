@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
+import { trackAnalyticsEvent } from "@/lib/track-analytics";
 
 export interface EnquiryResult {
   ok: boolean;
@@ -64,6 +65,11 @@ export async function submitEnquiry(
     sender_id: user?.id ?? null,
     sender_role: "seeker",
     body: message || "Enquiry sent",
+  });
+
+  await trackAnalyticsEvent("enquiry_sent", {
+    route: `/spaces/${listingId}`,
+    properties: { listing_id: listingId, channel },
   });
 
   return {
@@ -171,6 +177,11 @@ export async function reportListing(listingId: string, formData: FormData) {
     console.error("reportListing failed:", error.message);
     redirect(`/spaces/${listingId}?error=${encodeURIComponent(error.message)}`);
   }
+
+  await trackAnalyticsEvent("report_sent", {
+    route: `/spaces/${listingId}`,
+    properties: { listing_id: listingId },
+  });
 
   redirect(`/spaces/${listingId}?reported=1`);
 }

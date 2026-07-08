@@ -1,11 +1,11 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import {
   BadgeCheck,
   CalendarCheck,
   FileText,
   Search,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,17 +14,20 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ListingCard } from "@/components/listing-card";
+import { getDashboardPath, getSessionUser } from "@/lib/auth";
 import { getFeaturedListings } from "@/lib/listings";
 import { SPACE_CATEGORIES } from "@/lib/types";
 
 export default async function HomePage() {
+  const user = await getSessionUser();
+  if (user) redirect(getDashboardPath(user));
+
   const featured = await getFeaturedListings(3);
 
   return (
     <div className="flex flex-col">
-      <section className="border-b bg-muted/30">
+      <section className="border-b">
         <div className="mx-auto flex w-full max-w-6xl flex-col items-start gap-6 px-4 py-16 sm:py-24">
-          <Badge variant="secondary">Community space marketplace</Badge>
           <h1 className="max-w-2xl text-4xl font-bold tracking-tight sm:text-5xl">
             Find space. Confirm details. Manage it simply.
           </h1>

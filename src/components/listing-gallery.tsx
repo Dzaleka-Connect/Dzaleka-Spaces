@@ -10,7 +10,7 @@ export function ListingGallery({
 }) {
   if (media.length === 0) {
     return (
-      <div className="flex h-56 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 via-muted to-muted/40 sm:h-72">
+      <div className="flex h-56 items-center justify-center rounded-xl border bg-muted sm:h-72">
         <span className="text-sm text-muted-foreground">
           Photographs added after field verification
         </span>

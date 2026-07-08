@@ -34,6 +34,9 @@ verification and maintenance history when re-advertised.
 | `maintenance_tickets` | Maintenance requests/jobs | Requester, assigned service provider, staff; open jobs visible to service providers |
 | `maintenance_quotes` | Service-provider quotes | Service provider, requester, staff |
 | `maintenance_work_orders` | Assigned maintenance work | Service provider, requester, staff |
+| `maintenance_messages` | Ticket message threads | Ticket participants + staff |
+| `maintenance_reviews` | Reviews after completed work orders | Requester write; participants + staff read |
+| `maintenance_documents` | Private evidence metadata (`maintenance-private` bucket) | Ticket participants + staff |
 | `enquiry_messages` | Threaded enquiry messages | Enquiry participants + staff |
 | `enquiry_attachments` | Private message attachment metadata | Enquiry participants + staff |
 | `notification_queue` / `notification_deliveries` | Email outbox + provider attempts | Recipient own read; admin operations |

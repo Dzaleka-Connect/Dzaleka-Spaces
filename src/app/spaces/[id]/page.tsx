@@ -48,6 +48,7 @@ import { getListingMediaByListingId } from "@/lib/media";
 import { getListing } from "@/lib/listings";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
+import { trackAnalyticsEvent } from "@/lib/track-analytics";
 import {
   categoryLabel,
   facilityLabel,
@@ -80,6 +81,15 @@ export default async function ListingPage({
   const status = searchParams ? await searchParams : {};
   const listing = await getListing(id);
   if (!listing) notFound();
+
+  await trackAnalyticsEvent("listing_view", {
+    route: `/spaces/${listing.slug ?? listing.id}`,
+    properties: {
+      listing_id: listing.id,
+      category: listing.category,
+      zone: listing.zone,
+    },
+  });
 
   const media = await getListingMediaByListingId(id);
 

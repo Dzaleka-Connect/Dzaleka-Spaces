@@ -14,11 +14,11 @@ export default function RegisterPage() {
           Create an account
         </h1>
         <p className="mt-1 text-muted-foreground">
-          Enter your email and we&apos;ll send you a one-time link — it creates
-          your account the first time you use it. No password to remember.
+          Register with email and password. You can also sign in later with a
+          magic link if you prefer.
         </p>
       </div>
-      <LoginForm />
+      <LoginForm mode="register" />
       <p className="text-sm text-muted-foreground">
         Accounts let you save spaces, follow searches, message providers and
         keep occupancy records. Searching and browsing never require an

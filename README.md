@@ -45,6 +45,7 @@ immediately.
    node scripts/db-apply.mjs supabase/migrations/00005_occupancies.sql
    node scripts/db-apply.mjs supabase/migrations/00006_assisted_listings.sql
    node scripts/db-apply.mjs supabase/migrations/00007_operations_marketplace.sql
+   node scripts/db-apply.mjs supabase/migrations/00008_maintenance_depth.sql
    node scripts/db-apply.mjs supabase/seed.sql
    ```
 

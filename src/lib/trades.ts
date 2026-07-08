@@ -1,5 +1,7 @@
+import { isStaff } from "./auth-roles";
 import { isSupabaseConfigured } from "./supabase/config";
 import { createClient } from "./supabase/server";
+import type { SessionUser } from "./session-user";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export const TRADE_CATEGORIES = [
@@ -59,6 +61,52 @@ export interface WorkOrder {
   scheduledFor: string | null;
   completionNotes: string | null;
   createdAt: string;
+  serviceProviderId?: string;
+  requesterId?: string | null;
+}
+
+export interface MaintenanceMessage {
+  id: string;
+  ticketId: string;
+  workOrderId: string | null;
+  senderId: string;
+  senderRole: "requester" | "service_provider" | "staff";
+  body: string;
+  createdAt: string;
+}
+
+export interface MaintenanceThread {
+  ticketId: string;
+  ticketTitle: string;
+  status: string;
+  lastMessageAt: string | null;
+  lastBody: string | null;
+  messageCount: number;
+}
+
+export interface MaintenanceReview {
+  id: string;
+  workOrderId: string;
+  ticketId: string;
+  ticketTitle: string;
+  rating: number;
+  comment: string | null;
+  createdAt: string;
+  serviceProviderId: string;
+  reviewerId: string;
+}
+
+export interface MaintenanceDocument {
+  id: string;
+  ticketId: string;
+  ticketTitle: string;
+  workOrderId: string | null;
+  kind: string;
+  fileName: string;
+  contentType: string | null;
+  byteSize: number | null;
+  createdAt: string;
+  uploaderId: string;
 }
 
 export const DEMO_SERVICE_PROVIDERS: ServiceProviderProfile[] = [
@@ -254,7 +302,9 @@ export async function listMyWorkOrders(userId: string): Promise<WorkOrder[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("maintenance_work_orders")
-    .select("id, ticket_id, status, scheduled_for, completion_notes, created_at, maintenance_tickets(title)")
+    .select(
+      "id, ticket_id, service_provider_id, status, scheduled_for, completion_notes, created_at, maintenance_tickets(title, requester_id)"
+    )
     .eq("service_provider_id", userId)
     .order("created_at", { ascending: false });
 
@@ -265,16 +315,287 @@ export async function listMyWorkOrders(userId: string): Promise<WorkOrder[]> {
 
   return (data ?? []).map((row) => {
     const ticket = (row as any).maintenance_tickets;
+    const ticketRow = Array.isArray(ticket) ? ticket[0] : ticket;
     return {
-    id: row.id,
-    ticketId: row.ticket_id,
-    ticketTitle: Array.isArray(ticket)
-      ? ticket[0]?.title ?? "Work order"
-      : ticket?.title ?? "Work order",
-    status: row.status,
-    scheduledFor: row.scheduled_for,
-    completionNotes: row.completion_notes,
-    createdAt: row.created_at,
+      id: row.id,
+      ticketId: row.ticket_id,
+      ticketTitle: ticketRow?.title ?? "Work order",
+      status: row.status,
+      scheduledFor: row.scheduled_for,
+      completionNotes: row.completion_notes,
+      createdAt: row.created_at,
+      serviceProviderId: row.service_provider_id,
+      requesterId: ticketRow?.requester_id ?? null,
     };
   });
+}
+
+export async function listMyMaintenanceThreads(
+  userId: string
+): Promise<MaintenanceThread[]> {
+  if (!isSupabaseConfigured()) return [];
+
+  const supabase = await createClient();
+  const { data: tickets, error } = await supabase
+    .from("maintenance_tickets")
+    .select("id, title, status, updated_at")
+    .or(
+      `requester_id.eq.${userId},assigned_service_provider_id.eq.${userId}`
+    )
+    .order("updated_at", { ascending: false });
+
+  if (error) {
+    console.error("listMyMaintenanceThreads failed:", error.message);
+    return [];
+  }
+
+  const ticketRows = tickets ?? [];
+  if (ticketRows.length === 0) return [];
+
+  const ticketIds = ticketRows.map((t) => t.id);
+  const { data: messages } = await supabase
+    .from("maintenance_messages")
+    .select("ticket_id, body, created_at")
+    .in("ticket_id", ticketIds)
+    .order("created_at", { ascending: false });
+
+  const latestByTicket = new Map<
+    string,
+    { body: string; createdAt: string; count: number }
+  >();
+  for (const message of messages ?? []) {
+    const existing = latestByTicket.get(message.ticket_id);
+    if (!existing) {
+      latestByTicket.set(message.ticket_id, {
+        body: message.body,
+        createdAt: message.created_at,
+        count: 1,
+      });
+    } else {
+      existing.count += 1;
+    }
+  }
+
+  return ticketRows.map((ticket) => {
+    const latest = latestByTicket.get(ticket.id);
+    return {
+      ticketId: ticket.id,
+      ticketTitle: ticket.title,
+      status: ticket.status,
+      lastMessageAt: latest?.createdAt ?? null,
+      lastBody: latest?.body ?? null,
+      messageCount: latest?.count ?? 0,
+    };
+  });
+}
+
+export async function listMaintenanceMessages(
+  ticketId: string
+): Promise<MaintenanceMessage[]> {
+  if (!isSupabaseConfigured()) return [];
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("maintenance_messages")
+    .select(
+      "id, ticket_id, work_order_id, sender_id, sender_role, body, created_at"
+    )
+    .eq("ticket_id", ticketId)
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    console.error("listMaintenanceMessages failed:", error.message);
+    return [];
+  }
+
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    ticketId: row.ticket_id,
+    workOrderId: row.work_order_id,
+    senderId: row.sender_id,
+    senderRole: row.sender_role as MaintenanceMessage["senderRole"],
+    body: row.body,
+    createdAt: row.created_at,
+  }));
+}
+
+export async function getMaintenanceTicketAccess(
+  ticketId: string,
+  user: SessionUser
+): Promise<{
+  id: string;
+  title: string;
+  status: string;
+  requesterId: string | null;
+  assignedServiceProviderId: string | null;
+  role: "requester" | "service_provider" | "staff" | null;
+} | null> {
+  if (!isSupabaseConfigured()) return null;
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("maintenance_tickets")
+    .select("id, title, status, requester_id, assigned_service_provider_id")
+    .eq("id", ticketId)
+    .maybeSingle();
+
+  if (error || !data) {
+    if (error) console.error("getMaintenanceTicketAccess failed:", error.message);
+    return null;
+  }
+
+  let role: "requester" | "service_provider" | "staff" | null = null;
+  if (isStaff(user)) role = "staff";
+  else if (data.requester_id === user.id) role = "requester";
+  else if (data.assigned_service_provider_id === user.id) {
+    role = "service_provider";
+  }
+
+  return {
+    id: data.id,
+    title: data.title,
+    status: data.status,
+    requesterId: data.requester_id,
+    assignedServiceProviderId: data.assigned_service_provider_id,
+    role,
+  };
+}
+
+export async function listMyMaintenanceReviews(
+  userId: string
+): Promise<MaintenanceReview[]> {
+  if (!isSupabaseConfigured()) return [];
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("maintenance_reviews")
+    .select(
+      "id, work_order_id, ticket_id, rating, comment, created_at, service_provider_id, reviewer_id, maintenance_tickets(title)"
+    )
+    .or(`reviewer_id.eq.${userId},service_provider_id.eq.${userId}`)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("listMyMaintenanceReviews failed:", error.message);
+    return [];
+  }
+
+  return (data ?? []).map((row) => {
+    const ticket = (row as any).maintenance_tickets;
+    return {
+      id: row.id,
+      workOrderId: row.work_order_id,
+      ticketId: row.ticket_id,
+      ticketTitle: Array.isArray(ticket)
+        ? ticket[0]?.title ?? "Maintenance job"
+        : ticket?.title ?? "Maintenance job",
+      rating: row.rating,
+      comment: row.comment,
+      createdAt: row.created_at,
+      serviceProviderId: row.service_provider_id,
+      reviewerId: row.reviewer_id,
+    };
+  });
+}
+
+export async function listReviewableWorkOrders(
+  userId: string
+): Promise<WorkOrder[]> {
+  if (!isSupabaseConfigured()) return [];
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("maintenance_work_orders")
+    .select(
+      "id, ticket_id, service_provider_id, status, scheduled_for, completion_notes, created_at, maintenance_tickets!inner(title, requester_id)"
+    )
+    .eq("status", "completed")
+    .eq("maintenance_tickets.requester_id", userId)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("listReviewableWorkOrders failed:", error.message);
+    return [];
+  }
+
+  const orders = (data ?? []).map((row) => {
+    const ticket = (row as any).maintenance_tickets;
+    const ticketRow = Array.isArray(ticket) ? ticket[0] : ticket;
+    return {
+      id: row.id,
+      ticketId: row.ticket_id,
+      ticketTitle: ticketRow?.title ?? "Work order",
+      status: row.status,
+      scheduledFor: row.scheduled_for,
+      completionNotes: row.completion_notes,
+      createdAt: row.created_at,
+      serviceProviderId: row.service_provider_id,
+      requesterId: ticketRow?.requester_id ?? null,
+    } satisfies WorkOrder;
+  });
+
+  if (orders.length === 0) return [];
+
+  const { data: existing } = await supabase
+    .from("maintenance_reviews")
+    .select("work_order_id")
+    .in(
+      "work_order_id",
+      orders.map((order) => order.id)
+    );
+
+  const reviewed = new Set((existing ?? []).map((row) => row.work_order_id));
+  return orders.filter((order) => !reviewed.has(order.id));
+}
+
+export async function listMyMaintenanceDocuments(
+  userId: string
+): Promise<MaintenanceDocument[]> {
+  if (!isSupabaseConfigured()) return [];
+
+  const supabase = await createClient();
+  const { data: tickets, error: ticketError } = await supabase
+    .from("maintenance_tickets")
+    .select("id, title")
+    .or(
+      `requester_id.eq.${userId},assigned_service_provider_id.eq.${userId}`
+    );
+
+  if (ticketError) {
+    console.error("listMyMaintenanceDocuments tickets failed:", ticketError.message);
+    return [];
+  }
+
+  const ticketRows = tickets ?? [];
+  if (ticketRows.length === 0) return [];
+
+  const titleById = new Map(ticketRows.map((t) => [t.id, t.title]));
+  const { data, error } = await supabase
+    .from("maintenance_documents")
+    .select(
+      "id, ticket_id, work_order_id, kind, file_name, content_type, byte_size, created_at, uploader_id"
+    )
+    .in(
+      "ticket_id",
+      ticketRows.map((t) => t.id)
+    )
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("listMyMaintenanceDocuments failed:", error.message);
+    return [];
+  }
+
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    ticketId: row.ticket_id,
+    ticketTitle: titleById.get(row.ticket_id) ?? "Maintenance job",
+    workOrderId: row.work_order_id,
+    kind: row.kind,
+    fileName: row.file_name,
+    contentType: row.content_type,
+    byteSize: row.byte_size,
+    createdAt: row.created_at,
+    uploaderId: row.uploader_id,
+  }));
 }

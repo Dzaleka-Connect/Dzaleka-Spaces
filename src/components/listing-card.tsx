@@ -22,7 +22,7 @@ export function ListingCard({ listing }: { listing: Listing }) {
   return (
     <Link href={listingHref(listing)} className="group">
       <Card className="h-full gap-4 overflow-hidden pt-0 transition-shadow group-hover:shadow-md">
-        <div className="relative flex h-32 items-end bg-gradient-to-br from-primary/15 via-muted to-muted/40 p-3">
+        <div className="relative flex h-32 items-end bg-muted p-3">
           {listing.coverImageUrl ? (
             <Image
               src={listing.coverImageUrl}

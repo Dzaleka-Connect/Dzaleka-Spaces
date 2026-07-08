@@ -1,39 +1,65 @@
 import Link from "next/link";
 import { Building2, CircleUserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getSessionUser } from "@/lib/auth";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { MobilePublicNav } from "@/components/mobile-public-nav";
+import { getDashboardPath, getSessionUser } from "@/lib/auth";
+import { PUBLIC_HEADER_LINKS } from "@/lib/nav-config";
 
 export async function SiteHeader() {
   const user = await getSessionUser();
+  const homeHref = user ? getDashboardPath(user) : "/";
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
-      <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between gap-4 px-4">
-        <Link
-          href="/"
-          className="flex items-center gap-2 font-semibold whitespace-nowrap"
-        >
-          <Building2 className="size-5 shrink-0 text-primary" />
-          <span className="hidden sm:inline">Dzaleka Spaces</span>
-        </Link>
-        <nav className="flex items-center gap-1 sm:gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            render={<Link href="/spaces" />}
-            nativeButton={false}
+      <div
+        className={`mx-auto flex h-14 w-full items-center justify-between gap-3 px-4 ${
+          user ? "max-w-none" : "max-w-6xl"
+        }`}
+      >
+        <div className="flex min-w-0 items-center gap-2">
+          {user ? (
+            <SidebarTrigger className="-ml-1" />
+          ) : (
+            <MobilePublicNav links={PUBLIC_HEADER_LINKS} />
+          )}
+          <Link
+            href={homeHref}
+            className={`flex items-center gap-2 font-semibold whitespace-nowrap ${
+              user ? "md:hidden" : ""
+            }`}
           >
-            Browse spaces
-          </Button>
+            <Building2 className="size-5 shrink-0 text-primary" />
+            <span className="hidden sm:inline">Dzaleka Spaces</span>
+          </Link>
+        </div>
+
+        {!user ? (
+          <nav className="hidden items-center gap-1 md:flex">
+            {PUBLIC_HEADER_LINKS.map((link) => (
+              <Button
+                key={link.href}
+                variant="ghost"
+                size="sm"
+                render={<Link href={link.href} />}
+                nativeButton={false}
+              >
+                {link.label}
+              </Button>
+            ))}
+          </nav>
+        ) : null}
+
+        <div className="flex items-center gap-1 sm:gap-2">
           {user ? (
             <Button
               variant="ghost"
               size="sm"
-              render={<Link href="/account" />}
+              render={<Link href={homeHref} />}
               nativeButton={false}
             >
               <CircleUserRound data-icon="inline-start" />
-              Account
+              <span className="hidden sm:inline">Dashboard</span>
             </Button>
           ) : (
             <Button
@@ -53,7 +79,7 @@ export async function SiteHeader() {
           >
             List a space
           </Button>
-        </nav>
+        </div>
       </div>
     </header>
   );

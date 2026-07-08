@@ -34,8 +34,7 @@ export function SpacesMap({ markers }: { markers: MapMarker[] }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="relative h-[420px] overflow-hidden rounded-xl border bg-gradient-to-br from-emerald-50 to-sky-50 dark:from-emerald-950/30 dark:to-sky-950/30">
-        <div className="absolute inset-0 opacity-30 bg-[linear-gradient(to_right,#80808018_1px,transparent_1px),linear-gradient(to_bottom,#80808018_1px,transparent_1px)] bg-[size:24px_24px]" />
+      <div className="relative h-[420px] overflow-hidden rounded-xl border bg-muted">
         {markers.map((marker) => {
           const pos = position(marker);
           return (
