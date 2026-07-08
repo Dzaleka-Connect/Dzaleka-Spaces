@@ -1,0 +1,68 @@
+# Data model
+
+Schema source of truth: `supabase/migrations/`. This file explains intent.
+
+## Core principle
+
+A **space** is the physical room/shop/venue. A **listing** is an
+advertisement for it. They are separate so a space keeps its occupancy,
+verification and maintenance history when re-advertised.
+
+## Entities (migrations 00001–00003)
+
+| Table | Purpose | Visibility |
+| --- | --- | --- |
+| `profiles` | User profile (name, phone, whatsapp, language) | Own + staff; name public when behind a published listing |
+| `user_roles` | Role grants (`app_role` enum) | Own + staff; admin manages |
+| `zones` | Recognised Dzaleka areas (Kawale 1/2, Likuni 1/2, Lisungwi, Katudza, New Katubza, Zomba, Blantyre, Karonga, Dzaleka Hill, Other) | Public |
+| `landmarks` | Curated landmarks per zone | Public |
+| `spaces` | Physical space: category, zone_id, landmark text, facilities, capacity | Public when behind published listing; else provider + staff |
+| `space_internal` | Exact location (`exact_point` PostGIS geography), authority basis + notes | **Staff only** |
+| `listings` | Advertisement: title, price MWK, deposit, billing period, status, featured_until | Published are public; drafts provider + staff |
+| `space_media` | Photos (storage paths) | Public when listing published |
+| `verifications` | Field-verification records: status, checklist jsonb, verifier, verified_at, reverify_by | Staff + owning provider; public sees only badge via `listing_verified_at()` |
+| `enquiries` | Seeker → listing enquiries (anonymous allowed) | Enquirer + listing provider + staff |
+| `viewings` | Viewing appointments per enquiry | Follows enquiry |
+| `saved_listings` | User bookmarks | Own only |
+| `reports` | Safety/dispute reports | Insert by anyone; **read staff only** (protects reporters) |
+| `feature_flags` | Backend-controlled gates | Public read, admin write |
+| `audit_events` | Append-only audit log with before/after state, request_id | Admin read, staff insert |
+
+## Enums
+
+- `space_category`: community_venue, training_space, meeting_venue, office,
+  shop, workshop, storage, homestay, **room, shared_room,
+  family_accommodation, other** (residential values publish-blocked by
+  feature flag).
+- `listing_status`: draft, pending_review, published, paused, archived,
+  rejected, submitted, under_review, changes_requested, approved, matched,
+  expired.
+- `verification_status`: pending, scheduled, approved, rejected, expired.
+- `authority_basis`: current_recognised_occupier, organisation_manager,
+  venue_operator, family_representative, authorised_agent, other_documented.
+- `app_role`: seeker, provider, field_verifier, service_provider,
+  organisation_manager, moderator, admin, finance.
+
+## Database-enforced rules
+
+- One published listing per space (`one_published_listing_per_space` unique
+  index).
+- Publication trigger (`listing_publication_guard`): requires a zone, an
+  authority record in `space_internal`, and blocks residential categories
+  unless the matching feature flag is enabled.
+- `verifier_separation_guard`: a provider can never verify their own listing.
+- SECURITY DEFINER helpers that intentionally bypass RLS (all reveal only
+  booleans/timestamps): `has_role`, `is_staff`, `owns_space`,
+  `space_has_published_listing`, `listing_verified_at`, `feature_enabled`.
+
+## Public read path
+
+The marketplace reads the `public_listings` view (security_invoker), which
+flattens listing + space + zone name + provider display name + verified
+badge. Client code never queries base tables for public data.
+
+## Future entities (see docs/roadmap.md)
+
+Occupancies/charges/payment_records (Phase 2 ledger — no fund custody),
+maintenance tickets/quotes/work orders (Phase 3), notifications/queues,
+organisation accounts.
