@@ -92,12 +92,21 @@ export async function getListing(id: string): Promise<Listing | null> {
     return DEMO_LISTINGS.find((l) => l.id === id || l.slug === id) ?? null;
   }
 
+  const isUuid =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+      id,
+    );
+
   const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("public_listings")
-    .select("*")
-    .or(`id.eq.${id},slug.eq.${id}`)
-    .maybeSingle();
+  let query = supabase.from("public_listings").select("*");
+
+  if (isUuid) {
+    query = query.or(`id.eq.${id},slug.eq.${id}`);
+  } else {
+    query = query.eq("slug", id);
+  }
+
+  const { data, error } = await query.maybeSingle();
 
   if (error) {
     console.error("getListing failed:", error.message);
