@@ -1,0 +1,10 @@
+<svg width="1180" height="240" viewBox="0 0 1180 240" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Dzaleka Spaces">
+  <title>Dzaleka Spaces</title>
+  <g>
+    <path d="M70 168 Q52 202 62 212 Q76 203 100 182 Z" fill="#F1556A"/>
+    <circle cx="120" cy="112" r="86" fill="#F1556A"/>
+    <path d="M90 156 L90 120 L78 120 L120 82 L162 120 L150 120 L150 156 Z" fill="none" stroke="#ffffff" stroke-width="11" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M107 156 L107 134 Q107 122 120 122 Q133 122 133 134 L133 156" fill="none" stroke="#ffffff" stroke-width="11" stroke-linejoin="round" stroke-linecap="round"/>
+  </g>
+  <text x="272" y="152" font-family="'Poppins','Nunito Sans','Segoe UI',system-ui,-apple-system,sans-serif" font-size="112" font-weight="800" letter-spacing="-3" fill="#16181D">Dzaleka Spaces</text>
+</svg>

@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { BookOpen } from "lucide-react";
 import { ListSpaceForm } from "@/components/list-space-form";
 import { getZones } from "@/lib/zones";
 
@@ -17,6 +19,13 @@ export default async function ListASpacePage() {
           you manage. Include clear photos — every listing is checked in person
           before it is published.
         </p>
+        <Link
+          href="/help/provider-guide"
+          className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
+        >
+          <BookOpen className="size-4" />
+          Read the full provider guide first
+        </Link>
       </div>
       <div className="grid gap-4 rounded-xl border bg-muted/40 p-5 text-base sm:grid-cols-2">
         <div>

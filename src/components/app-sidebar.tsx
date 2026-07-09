@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Building2 } from "lucide-react";
+import Image from "next/image";
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
 import {
@@ -43,9 +43,14 @@ export function AppSidebar({
               tooltip="Dashboard"
               render={<Link href={homeHref} />}
             >
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                <Building2 className="size-4" />
-              </div>
+              <Image
+                src="/logo-mark-teal.svg"
+                alt=""
+                width={32}
+                height={32}
+                className="size-8 shrink-0"
+                unoptimized
+              />
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">Dzaleka Spaces</span>
               </div>

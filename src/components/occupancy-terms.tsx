@@ -1,4 +1,6 @@
-import { CheckCircle2, CircleDashed } from "lucide-react";
+import Link from "next/link";
+import { CheckCircle2, CircleDashed, Printer } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -45,12 +47,18 @@ export function OccupancyTerms({ occupancy }: { occupancy: OccupancyRecord }) {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Agreed terms</CardTitle>
-        <CardDescription>
-          This record documents the arrangement. It does not create or
-          transfer ownership of land or property.
-        </CardDescription>
+      <CardHeader className="flex-row items-start justify-between gap-4">
+        <div className="flex-1 space-y-1">
+          <CardTitle>Agreed terms</CardTitle>
+          <CardDescription>
+            This record documents the arrangement. It does not create or
+            transfer ownership of land or property.
+          </CardDescription>
+        </div>
+        <Button variant="outline" size="sm" render={<Link href={`/spaces/occupancy/${occupancy.id}/print`} />} nativeButton={false} className="shrink-0 gap-2">
+          <Printer className="size-4" />
+          <span>Print / PDF</span>
+        </Button>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <dl className="grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">

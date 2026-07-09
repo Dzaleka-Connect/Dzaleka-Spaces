@@ -95,3 +95,18 @@ export function formatMwk(amount: number): string {
 export function listingHref(listing: Pick<Listing, "id" | "slug">): string {
   return `/spaces/${listing.slug ?? listing.id}`;
 }
+
+export const TRADE_CATEGORIES = [
+  "Building repairs",
+  "Carpentry",
+  "Electrical",
+  "Plumbing",
+  "Roofing",
+  "Painting",
+  "Cleaning",
+  "Solar",
+  "Water systems",
+  "Locks and security",
+  "Other approved service",
+] as const;
+

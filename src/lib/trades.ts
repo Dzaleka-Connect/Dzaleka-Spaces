@@ -2,22 +2,9 @@ import { isStaff } from "./auth-roles";
 import { isSupabaseConfigured } from "./supabase/config";
 import { createClient } from "./supabase/server";
 import type { SessionUser } from "./session-user";
+import { TRADE_CATEGORIES } from "./types";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export const TRADE_CATEGORIES = [
-  "Building repairs",
-  "Carpentry",
-  "Electrical",
-  "Plumbing",
-  "Roofing",
-  "Painting",
-  "Cleaning",
-  "Solar",
-  "Water systems",
-  "Locks and security",
-  "Other approved service",
-] as const;
-
 export interface ServiceProviderProfile {
   userId: string;
   displayName: string;

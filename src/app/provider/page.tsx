@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Building, Info, Plus } from "lucide-react";
+import { ArrowRight, BookOpen, Building, Info, Plus } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -122,6 +122,21 @@ export default async function ProviderPage() {
           Add space
         </Button>
       </div>
+
+      <Link
+        href="/help/provider-guide"
+        className="flex items-center gap-3 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm transition-colors hover:bg-primary/10"
+      >
+        <BookOpen className="size-5 shrink-0 text-primary" />
+        <span className="flex-1">
+          <span className="font-medium">New here?</span>{" "}
+          <span className="text-muted-foreground">
+            The provider guide walks you through listing, verification,
+            enquiries, occupancy records and receipts.
+          </span>
+        </span>
+        <ArrowRight className="size-4 shrink-0 text-muted-foreground" />
+      </Link>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
         {[

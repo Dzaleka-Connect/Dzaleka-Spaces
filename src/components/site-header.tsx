@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Building2, CircleUserRound } from "lucide-react";
+import Image from "next/image";
+import { CircleUserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { MobilePublicNav } from "@/components/mobile-public-nav";
@@ -30,7 +31,15 @@ export async function SiteHeader() {
               user ? "md:hidden" : ""
             }`}
           >
-            <Building2 className="size-5 shrink-0 text-primary" />
+            <Image
+              src="/logo-mark-teal.svg"
+              alt=""
+              width={28}
+              height={28}
+              className="size-7 shrink-0"
+              unoptimized
+              priority
+            />
             <span className="hidden sm:inline">Dzaleka Spaces</span>
           </Link>
         </div>

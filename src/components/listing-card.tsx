@@ -1,11 +1,19 @@
 import Link from "next/link";
 import Image from "next/image";
-import { BadgeCheck, MapPin, Users } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import {
+  BadgeCheck,
+  Boxes,
+  Building2,
+  GraduationCap,
+  Hammer,
+  Home,
+  MapPin,
+  Store,
+  Users2,
+} from "lucide-react";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -18,17 +26,26 @@ import {
   type Listing,
 } from "@/lib/types";
 
+const CATEGORY_ICON: Record<string, typeof Store> = {
+  community_venue: Users2,
+  training_space: GraduationCap,
+  meeting_venue: Users2,
+  office: Building2,
+  shop: Store,
+  workshop: Hammer,
+  storage: Boxes,
+  homestay: Home,
+};
+
 export function ListingCard({ listing }: { listing: Listing }) {
+  const Icon = CATEGORY_ICON[listing.category] ?? Building2;
+  const period = listing.billingPeriod === "daily" ? "day" : "month";
+  const extraFacilities = Math.max(0, listing.facilities.length - 2);
+
   return (
     <Link href={listingHref(listing)} className="group">
-      <Card
-        className={`h-full gap-2 overflow-hidden pt-0 shadow-sm transition-[box-shadow] ${
-          listing.verified
-            ? "ring-1 ring-success/25 group-hover:shadow-md group-hover:ring-success/40"
-            : "group-hover:shadow-md group-hover:ring-1 group-hover:ring-primary/25"
-        }`}
-      >
-        <div className="relative flex aspect-[5/3] items-end bg-gradient-to-br from-primary/8 via-muted to-accent/12 p-3">
+      <Card className="h-full gap-0 overflow-hidden pt-0 shadow-sm transition-shadow group-hover:shadow-md">
+        <div className="relative aspect-[4/3] bg-muted">
           {listing.coverImageUrl ? (
             <Image
               src={listing.coverImageUrl}
@@ -38,56 +55,58 @@ export function ListingCard({ listing }: { listing: Listing }) {
               sizes="(max-width: 768px) 100vw, 33vw"
             />
           ) : (
-            <MapPin className="absolute right-3 top-3 size-8 text-primary/20" />
+            <div className="flex h-full items-center justify-center">
+              <Icon className="size-10 text-muted-foreground/25" />
+            </div>
           )}
-          <div className="relative flex w-full items-center justify-between gap-2">
-            <Badge className="border-transparent bg-background/85 text-foreground shadow-sm backdrop-blur">
-              {categoryLabel(listing.category)}
-            </Badge>
-            {listing.featured ? (
-              <Badge className="border-transparent bg-featured text-featured-foreground shadow-sm">
-                Featured
-              </Badge>
-            ) : null}
-          </div>
+          {listing.featured ? (
+            <span className="absolute left-3 top-3 rounded-full bg-featured px-2.5 py-1 text-xs font-medium text-featured-foreground shadow-sm">
+              Featured
+            </span>
+          ) : null}
           {listing.verified ? (
-            <Badge className="absolute right-3 top-3 gap-1 border-success/30 bg-success/15 text-success shadow-sm backdrop-blur">
-              <BadgeCheck className="text-success" />
+            <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-background/90 px-2 py-1 text-xs font-medium text-success shadow-sm backdrop-blur">
+              <BadgeCheck className="size-3.5" />
               Verified
-            </Badge>
+            </span>
           ) : null}
         </div>
-        <CardHeader className="gap-0.5 pb-0">
-          <CardTitle className="line-clamp-2 text-base">
+
+        <CardHeader className="gap-1 pt-4">
+          <div className="flex items-baseline justify-between gap-2">
+            <span className="text-lg font-bold tracking-tight">
+              {formatMwk(listing.priceMwk)}
+              <span className="text-sm font-normal text-muted-foreground">
+                {" "}
+                / {period}
+              </span>
+            </span>
+          </div>
+          <CardTitle className="line-clamp-1 text-base font-semibold">
             {listing.title}
           </CardTitle>
-          <CardDescription className="flex items-center gap-1">
+        </CardHeader>
+
+        <CardContent className="pb-0">
+          <p className="flex items-center gap-1 text-sm text-muted-foreground">
             <MapPin className="size-3.5 shrink-0" />
             <span className="truncate">
               {listing.zone} · {listing.landmark}
             </span>
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-wrap items-center gap-1.5">
-          {listing.capacity ? (
-            <Badge variant="outline">
-              <Users />
-              Up to {listing.capacity}
-            </Badge>
-          ) : null}
-          {listing.facilities.slice(0, 3).map((f) => (
-            <Badge key={f} variant="secondary">
-              {facilityLabel(f)}
-            </Badge>
-          ))}
+          </p>
         </CardContent>
-        <CardFooter className="mt-auto items-baseline justify-between">
-          <span className="text-lg font-bold text-primary">
-            {formatMwk(listing.priceMwk)}
-          </span>
-          <span className="text-sm text-muted-foreground">
-            per {listing.billingPeriod === "daily" ? "day" : "month"}
-          </span>
+
+        <CardFooter className="mt-auto pt-3">
+          <p className="text-xs text-muted-foreground">
+            {categoryLabel(listing.category)}
+            {listing.capacity ? ` · up to ${listing.capacity}` : ""}
+            {listing.facilities.length > 0
+              ? ` · ${listing.facilities
+                  .slice(0, 2)
+                  .map((f) => facilityLabel(f))
+                  .join(", ")}${extraFacilities > 0 ? ` +${extraFacilities}` : ""}`
+              : ""}
+          </p>
         </CardFooter>
       </Card>
     </Link>

@@ -7,6 +7,42 @@ export interface HelpArticle {
 
 export const HELP_ARTICLES: HelpArticle[] = [
   {
+    slug: "provider-guide",
+    title: "Provider guide: using the system well",
+    summary:
+      "A step-by-step guide for space providers — from listing to verification, enquiries, occupancy and payments.",
+    sections: [
+      {
+        heading: "1. Create your account",
+        body: "Sign in with your email — you get a one-time link, so there's no password to lose. Your name is shown to people you deal with and on your published listings; add a phone or WhatsApp number in Account → Profile so enquiries can reach you. No smartphone? Ask for an assisted listing and a field representative will do the visit and set-up with you.",
+      },
+      {
+        heading: "2. Submit a space",
+        body: "Open 'List a space'. Describe the space honestly, choose its category and zone, add a nearby landmark (only the zone and landmark are shown publicly — never the exact location), set a fair price and deposit, and tick the facilities that are really there. You must state your authority to offer the space — how you came to manage it. This is checked in person and never shown publicly; it never claims ownership.",
+      },
+      {
+        heading: "3. Get verified",
+        body: "After you submit, a field representative arranges a visit to confirm the space exists, that photographs match, the facilities and price are right, and your authority to offer it. A separate reviewer then approves and publishes it — the person who visits never publishes their own visit. Track where each listing sits in Provider → Verifications. Keep your listing accurate; a re-check date is set and stale listings are paused.",
+      },
+      {
+        heading: "4. Handle enquiries and viewings",
+        body: "Enquiries appear in Provider → Enquiries. Reply through the channel the person asked for, and offer a viewing time. Only share directions once a viewing is confirmed. Never ask anyone to pay before they have seen the space — it breaks the rules and loses trust.",
+      },
+      {
+        heading: "5. Record the arrangement",
+        body: "When someone takes the space, create an occupancy record (Provider → Occupancies). It captures the amount, deposit, start date, notice period and any conditions, and both sides confirm it — so there is one shared, written record. This documents the arrangement; it does not create or transfer ownership.",
+      },
+      {
+        heading: "6. Record payments and give receipts",
+        body: "During the pilot the platform records payments — it never holds your money. Log each payment (cash, Airtel Money, TNM Mpamba or a DzalekaPay reference) against the occupancy and issue a receipt. Both sides then see the same history, which prevents most disputes.",
+      },
+      {
+        heading: "Getting the most from it",
+        body: "Add clear photos and an honest description — verified, well-described spaces get far more enquiries. Keep availability up to date so you are not chasing people for a space that is taken. Invite trusted helpers through Provider → Team with only the permissions they need. And use the Report button if anyone behaves badly; reports are confidential.",
+      },
+    ],
+  },
+  {
     slug: "searching",
     title: "Searching for a space",
     summary: "Find spaces by zone, landmark, category, budget and facilities.",

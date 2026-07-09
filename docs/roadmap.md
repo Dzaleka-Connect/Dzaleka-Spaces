@@ -71,8 +71,16 @@ against that larger target.
 - Enquiry messaging polish: private attachments in `message-private`,
   `enquiry_attachments`, signed download route.
 - Slug URLs: `listings.slug` and `/spaces/[id-or-slug]` compatibility.
-- Hardening/docs: CI workflow, `npm run typecheck`, threat model, DPIA
-  template, notification/verifier/backup runbooks.
+- Hardening/docs: nonce-based strict CSP + full security-header set in
+  `src/proxy.ts` (verified: Next stamps the per-request nonce on every
+  script); `scripts/test-rls.mjs` (`npm run test:rls`) asserting anon-exposure
+  boundaries and workflow guards in rolled-back transactions, wired into CI
+  (skips without `DIRECT_URL`); CI workflow with lint/typecheck/build/RLS;
+  full documentation set under `docs/` (architecture, security, privacy,
+  deployment, operations).
+- Build fix: `@supabase/storage-js` >= 2.110 hard-imports the unpublished
+  `iceberg-js`; aliased to `src/lib/stubs/iceberg-js.ts` via Turbopack
+  `resolveAlias`.
 
 ## Next (in the doc's recommended order)
 
@@ -85,8 +93,9 @@ against that larger target.
    DzalekaPay/Airtel/TNM, then ledger-only records and receipts. No custody.
 4. **Maintenance depth (remaining)** — richer requester ticket creation UI,
    assignment workflows, and notification digests for maintenance updates.
-5. **Testing hardening** — RLS tests, storage policy tests, E2E flows,
-   accessibility checks and dependency scanning.
+5. **Testing depth** — storage-policy tests, Playwright E2E of the core
+   journey, automated accessibility checks and dependency scanning (RLS +
+   workflow-guard tests already in `scripts/test-rls.mjs`).
 6. **Residential pilot (Phase 4)** — only after written operational
    guidance; flip `residential_listings` flag.
 

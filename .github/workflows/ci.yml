@@ -30,3 +30,11 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      # Skips automatically when DIRECT_URL is not configured as a secret.
+      - name: RLS and workflow-guard tests
+        run: npm run test:rls
+        env:
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}

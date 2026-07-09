@@ -15,7 +15,11 @@ export default function AboutPage() {
       sections={[
         {
           heading: "Why it exists",
-          body: "Dzaleka was established for around 10,000 people and is now home to more than 50,000. Space is scarce and arrangements are made through word of mouth, WhatsApp groups and handwritten signs — with no way to confirm that a listing is real, fairly priced, or offered by someone with the authority to offer it. Dzaleka Spaces adds structure and trust: in-person verification, zone-and-landmark discovery, written occupancy records and payment receipts.",
+          body: "Dzaleka, in Malawi's Dowa District about 41 km from Lilongwe, was established in 1994 and designed for roughly 12,000 people. It now holds well over 50,000 — 57,438 were recorded in March 2025 — with around 300 new arrivals a month, mostly from the DR Congo, Burundi, Rwanda and Somalia. That pressure makes space scarce, and arrangements are made through word of mouth, WhatsApp groups and handwritten signs, with no way to confirm that a listing is real, fairly priced, or offered by someone authorised to offer it. Dzaleka Spaces adds structure and trust: in-person verification, zone-and-landmark discovery, written occupancy records and payment receipts.",
+        },
+        {
+          heading: "Built for the camp's real economy",
+          body: "Residents cannot legally work outside the camp or own land, so a dense informal economy has grown inside it — clothes shops, bars, workshops, craft collectives, training rooms and community venues. Dzaleka Spaces is designed around that reality: it helps existing spaces be discovered and managed, rather than pretending the camp is a formal property market.",
         },
         {
           heading: "What we are not",

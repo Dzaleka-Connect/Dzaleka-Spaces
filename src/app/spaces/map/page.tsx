@@ -1,8 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Map, Info } from "lucide-react";
+import { Map, MapPinned } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 import { SpacesMap } from "@/components/spaces-map";
 import { featureEnabled } from "@/lib/features";
 import { getPublicMapMarkers } from "@/lib/map";
@@ -15,7 +22,6 @@ export const metadata: Metadata = {
 
 export default async function SpacesMapPage() {
   const mapEnabled = await featureEnabled("public_map");
-  const markers = await getPublicMapMarkers();
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8">
@@ -27,36 +33,50 @@ export default async function SpacesMapPage() {
             shown publicly.
           </p>
         </div>
-        <Button
-          variant="outline"
-          render={<Link href="/spaces" />}
-          nativeButton={false}
-        >
-          List view
+        <Button render={<Link href="/spaces" />} nativeButton={false}>
+          Browse the list instead
         </Button>
       </div>
 
-      {!mapEnabled ? (
-        <Alert>
-          <Info />
-          <AlertTitle>Map search is not enabled</AlertTitle>
-          <AlertDescription>
-            An administrator can enable the public_map feature flag. The preview
-            below uses demo positioning when the flag is off in production.
-          </AlertDescription>
-        </Alert>
-      ) : null}
-
-      <SpacesMap markers={markers} />
-
-      <Alert>
-        <Map />
-        <AlertTitle>Privacy-safe map</AlertTitle>
-        <AlertDescription>
-          Pins are jittered within zone centres for discovery only. Authorised
-          directions are shared after a confirmed viewing.
-        </AlertDescription>
-      </Alert>
+      {mapEnabled ? (
+        <>
+          <SpacesMap markers={await getPublicMapMarkers()} />
+          <Alert>
+            <Map />
+            <AlertTitle>Privacy-safe map</AlertTitle>
+            <AlertDescription>
+              Pins are placed at zone centres for discovery only. Authorised
+              directions are shared after a confirmed viewing.
+            </AlertDescription>
+          </Alert>
+        </>
+      ) : (
+        <Empty className="rounded-xl border border-dashed bg-muted/30 py-16">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <MapPinned />
+            </EmptyMedia>
+            <EmptyTitle>Map view is coming soon</EmptyTitle>
+            <EmptyDescription>
+              The approximate zone map is not switched on yet. In the meantime,
+              browse every available space as a list and filter by zone,
+              category, budget and facilities.
+            </EmptyDescription>
+          </EmptyHeader>
+          <div className="flex flex-wrap justify-center gap-3">
+            <Button render={<Link href="/spaces" />} nativeButton={false}>
+              Browse spaces
+            </Button>
+            <Button
+              variant="outline"
+              render={<Link href="/zones" />}
+              nativeButton={false}
+            >
+              Browse by zone
+            </Button>
+          </div>
+        </Empty>
+      )}
     </div>
   );
 }

@@ -69,6 +69,7 @@ export async function getAppNav(user: SessionUser): Promise<AppNavItem[]> {
       ? [{ title: "Trades directory", url: "/trades" }]
       : []),
     { title: "Help centre", url: "/help" },
+    { title: "Safety centre", url: "/safety" },
   ];
 
   const items: AppNavItem[] = [
@@ -103,6 +104,7 @@ export async function getAppNav(user: SessionUser): Promise<AppNavItem[]> {
         { title: "Dashboard", url: "/provider" },
         { title: "Spaces", url: "/provider/spaces" },
         { title: "Listings", url: "/provider/listings" },
+        { title: "Verifications", url: "/provider/verifications" },
         { title: "Enquiries", url: "/provider/enquiries" },
         { title: "Viewings", url: "/provider/viewings" },
         { title: "Occupancies", url: "/provider/occupancies" },
@@ -173,12 +175,17 @@ export async function getAppNav(user: SessionUser): Promise<AppNavItem[]> {
         { title: "Overview", url: "/admin" },
         { title: "Review queue", url: "/admin/review" },
         { title: "Listings", url: "/admin/listings" },
+        { title: "Occupancies", url: "/admin/occupancies" },
         { title: "Cases", url: "/admin/cases" },
         { title: "Reports", url: "/admin/reports" },
         { title: "Users", url: "/admin/users" },
+        { title: "Content", url: "/admin/content/pages" },
         { title: "Analytics", url: "/admin/analytics" },
         { title: "Notifications", url: "/admin/notifications" },
         { title: "Settings", url: "/admin/settings" },
+        ...(hasRole(user, "admin")
+          ? [{ title: "Audit log", url: "/admin/audit" }]
+          : []),
       ],
     });
   }

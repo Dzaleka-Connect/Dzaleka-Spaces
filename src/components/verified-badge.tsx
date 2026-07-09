@@ -15,10 +15,12 @@ export function VerifiedBadge({ verifiedAt }: { verifiedAt?: string | null }) {
   return (
     <Dialog>
       <DialogTrigger
-        render={<Badge variant="secondary" className="cursor-pointer" />}
+        render={
+          <Badge className="cursor-pointer border-success/30 bg-success/12 text-success hover:bg-success/20" />
+        }
         nativeButton={false}
       >
-        <BadgeCheck className="text-primary" />
+        <BadgeCheck className="text-success" />
         Verified space
       </DialogTrigger>
       <DialogContent>

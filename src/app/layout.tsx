@@ -32,6 +32,10 @@ export const metadata: Metadata = {
   description:
     "Find verified information about available shops, offices, venues, workshops, storage and approved homestays in Dzaleka. View before paying and keep a record of your arrangement.",
   manifest: "/manifest.webmanifest",
+  icons: {
+    icon: "/icon.svg",
+    apple: "/icon-maskable.svg",
+  },
 };
 
 function userDisplay(user: {

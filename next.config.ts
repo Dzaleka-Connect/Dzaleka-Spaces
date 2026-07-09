@@ -12,6 +12,12 @@ const nextConfig: NextConfig = {
   },
   turbopack: {
     root: import.meta.dirname,
+    resolveAlias: {
+      // @supabase/storage-js >= 2.110 hard-imports iceberg-js for an Iceberg
+      // analytics catalog we never use. Alias it to a local stub so the
+      // bundle resolves without the (unpublished) dependency.
+      "iceberg-js": "./src/lib/stubs/iceberg-js.ts",
+    },
   },
   async redirects() {
     return [
