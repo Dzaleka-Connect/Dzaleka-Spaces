@@ -171,14 +171,11 @@ async function main() {
         await client.query("select set_config('request.jwt.claims', $1, true)", [
           JSON.stringify({ sub: uid, aal, role: "authenticated" }),
         ]);
-        const own = await client.query(
-          "select count(*) c from user_roles where user_id = $1",
-          [uid]
-        );
+        const own = await client.query("select count(*) c from user_roles where user_id = $1", [
+          uid,
+        ]);
         const flags = await client.query("select count(*) c from feature_flags");
-        const internal = await client.query(
-          "select count(*) c from space_internal"
-        );
+        const internal = await client.query("select count(*) c from space_internal");
         await client.query("rollback");
         return {
           own: Number(own.rows[0].c),
