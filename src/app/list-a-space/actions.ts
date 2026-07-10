@@ -1,7 +1,21 @@
 "use server";
 
+import { randomUUID } from "node:crypto";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
+
+/** Mirrors the DB function `listing_slug_from_title(title, listing_id)`. */
+function listingSlug(title: string, listingId: string): string {
+  return (
+    (title || "listing")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "") +
+    "-" +
+    listingId.slice(0, 8)
+  );
+}
 
 export interface SubmitSpaceResult {
   ok: boolean;
@@ -41,6 +55,7 @@ export async function submitSpace(formData: FormData): Promise<SubmitSpaceResult
 
   const supabase = await createClient();
   const { data: claimsData, error: claimsError } = await supabase.auth.getClaims();
+
 
   if (claimsError || !claimsData?.claims?.sub) {
     return {
@@ -87,9 +102,14 @@ export async function submitSpace(formData: FormData): Promise<SubmitSpaceResult
     console.error("submitSpace authority insert failed:", internalError.message);
   }
 
+  const listingId = randomUUID();
+  const slug = listingSlug(title, listingId);
+
   const { error: listingError } = await supabase.from("listings").insert({
+    id: listingId,
     space_id: space.id,
     title,
+    slug,
     price_mwk: price,
     deposit_mwk: deposit,
     billing_period: billingPeriod,
