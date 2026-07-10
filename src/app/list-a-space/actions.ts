@@ -40,16 +40,16 @@ export async function submitSpace(formData: FormData): Promise<SubmitSpaceResult
   }
 
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: claimsData, error: claimsError } = await supabase.auth.getClaims();
 
-  if (!user) {
+  if (claimsError || !claimsData?.claims?.sub) {
     return {
       ok: false,
       message: "Please sign in before listing a space.",
     };
   }
+
+  const userId = claimsData.claims.sub;
 
   const { data: zoneRow, error: zoneError } = await supabase
     .from("zones")
@@ -64,7 +64,7 @@ export async function submitSpace(formData: FormData): Promise<SubmitSpaceResult
   const { data: space, error: spaceError } = await supabase
     .from("spaces")
     .insert({
-      provider_id: user.id,
+      provider_id: userId,
       category,
       zone_id: zoneRow.id,
       landmark,
