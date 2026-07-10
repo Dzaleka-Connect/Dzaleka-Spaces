@@ -42,22 +42,22 @@ export function MobilePublicNav({ links }: MobilePublicNavProps) {
               <Link
                 key={link.href}
                 href={link.href}
-                className="flex items-center gap-2 rounded-md px-2 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
+                className="flex items-center gap-3 rounded-md px-3 py-2.5 text-base text-foreground/80 hover:bg-muted hover:text-foreground"
               >
-                <Icon className="size-4 shrink-0" />
+                <Icon className="size-5 shrink-0 text-muted-foreground" />
                 {link.label}
               </Link>
             );
           })}
           <Link
             href="/list-a-space"
-            className="flex items-center gap-2 rounded-md px-2 py-2 text-sm font-medium hover:bg-muted"
+            className="flex items-center gap-3 rounded-md px-3 py-2.5 text-base font-medium text-primary hover:bg-muted"
           >
             List a space
           </Link>
           <Link
             href="/sign-in"
-            className="flex items-center gap-2 rounded-md px-2 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
+            className="flex items-center gap-3 rounded-md px-3 py-2.5 text-base text-foreground/80 hover:bg-muted hover:text-foreground"
           >
             Sign in
           </Link>

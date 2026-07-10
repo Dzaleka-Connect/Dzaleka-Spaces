@@ -11,14 +11,21 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { redirect } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { ListingCard } from "@/components/listing-card";
+import { getDashboardPath, getSessionUser } from "@/lib/auth";
 import { getFeaturedListings } from "@/lib/listings";
 import { listServiceProviders } from "@/lib/trades";
 import { SPACE_CATEGORIES } from "@/lib/types";
 import { getZoneSummaries } from "@/lib/zones";
 
 export default async function HomePage() {
+  // The marketing homepage is for visitors. Signed-in users land on their
+  // role dashboard — the same destination the header brand link already uses.
+  const user = await getSessionUser();
+  if (user) redirect(getDashboardPath(user));
+
   const [featured, zones, serviceProviders] = await Promise.all([
     getFeaturedListings(3),
     getZoneSummaries(),

@@ -151,6 +151,56 @@ async function main() {
 
   await client.query("rollback");
 
+  // Regression guard for the 00010 -> 00013 staff MFA bootstrap lockout.
+  // A staff account that has not yet enrolled in MFA (aal1) must still be able
+  // to read its OWN roles and the public feature flags, otherwise the app sees
+  // an empty role list, hides the staff navigation, and never offers the MFA
+  // enrolment that would unlock it. Sensitive tables must stay closed at aal1.
+  console.log("Staff MFA bootstrap:");
+  {
+    const staff = await client.query(
+      "select user_id from user_roles where role in ('admin','moderator') limit 1"
+    );
+    if (!staff.rows.length) {
+      console.log("  skip  no staff account present");
+    } else {
+      const uid = staff.rows[0].user_id;
+      const probe = async (aal) => {
+        await client.query("begin");
+        await client.query("set local role authenticated");
+        await client.query("select set_config('request.jwt.claims', $1, true)", [
+          JSON.stringify({ sub: uid, aal, role: "authenticated" }),
+        ]);
+        const own = await client.query(
+          "select count(*) c from user_roles where user_id = $1",
+          [uid]
+        );
+        const flags = await client.query("select count(*) c from feature_flags");
+        const internal = await client.query(
+          "select count(*) c from space_internal"
+        );
+        await client.query("rollback");
+        return {
+          own: Number(own.rows[0].c),
+          flags: Number(flags.rows[0].c),
+          internal: Number(internal.rows[0].c),
+        };
+      };
+
+      const aal1 = await probe("aal1");
+      const aal2 = await probe("aal2");
+
+      assert("staff at aal1 can read their own roles", aal1.own > 0);
+      assert("staff at aal1 can read feature flags", aal1.flags > 0);
+      assert(
+        "staff at aal1 cannot read space_internal",
+        aal1.internal === 0,
+        `${aal1.internal} rows leaked`
+      );
+      assert("staff at aal2 can read space_internal", aal2.internal >= 0);
+    }
+  }
+
   console.log("Database security catalogue:");
 
   const migrations = await client.query(
