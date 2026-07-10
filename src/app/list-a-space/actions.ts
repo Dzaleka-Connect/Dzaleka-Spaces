@@ -56,7 +56,6 @@ export async function submitSpace(formData: FormData): Promise<SubmitSpaceResult
   const supabase = await createClient();
   const { data: claimsData, error: claimsError } = await supabase.auth.getClaims();
 
-
   if (claimsError || !claimsData?.claims?.sub) {
     return {
       ok: false,

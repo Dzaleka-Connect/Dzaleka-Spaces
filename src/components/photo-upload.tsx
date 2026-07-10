@@ -31,6 +31,12 @@ export async function uploadSpacePhotos(
   const isPublic = options.isPublic ?? true;
   const supabase = createClient();
 
+  // Ensure session recovery from storage/cookies has completed
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  console.log("[uploadSpacePhotos] Active session user:", session?.user?.id || "None (Anonymous)");
+
   try {
     for (let i = 0; i < files.length; i++) {
       const stripped = await stripImageMetadata(files[i]);
