@@ -1,4 +1,4 @@
-const CACHE_NAME = "dzaleka-spaces-v4";
+const CACHE_NAME = "dzaleka-spaces-v5";
 const STATIC_ASSETS = [
   "/offline.html",
   "/manifest.webmanifest",
@@ -37,8 +37,10 @@ self.addEventListener("fetch", (event) => {
         (cached) =>
           cached ||
           fetch(event.request).then((response) => {
-            if (response.ok)
-              caches.open(CACHE_NAME).then((cache) => cache.put(event.request, response.clone()));
+            if (response.ok) {
+              const clone = response.clone();
+              caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+            }
             return response;
           })
       )
