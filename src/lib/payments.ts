@@ -11,11 +11,17 @@ export type PaymentMethod =
   | "organisation"
   | "other";
 
-export type PaymentStatus =
-  | "pending_confirmation"
-  | "confirmed"
-  | "disputed"
-  | "rejected";
+export const PAYMENT_METHODS: readonly PaymentMethod[] = [
+  "cash",
+  "airtel_money",
+  "tnm_mpamba",
+  "dzalekapay",
+  "bank_transfer",
+  "organisation",
+  "other",
+];
+
+export type PaymentStatus = "pending_confirmation" | "confirmed" | "disputed" | "rejected";
 
 export type ChargeStatus = "unpaid" | "partially_paid" | "paid" | "void";
 
@@ -44,6 +50,11 @@ export interface PaymentRecord {
   status: PaymentStatus;
   notes: string | null;
   createdAt: string;
+  confirmedAt?: string | null;
+  receiptNumber?: string | null;
+  receiptVerificationCode?: string | null;
+  receiptIssuedAt?: string | null;
+  disputeReason?: string | null;
   spaceTitle?: string;
   spaceZone?: string;
 }
@@ -64,6 +75,31 @@ export interface LedgerBalance {
   totalDepositPaidMwk: number;
 }
 
+function mapPayment(p: any): PaymentRecord {
+  const receiptValue = p.payment_receipts;
+  const receipt = Array.isArray(receiptValue) ? receiptValue[0] : receiptValue;
+
+  return {
+    id: p.id,
+    occupancyId: p.occupancy_id,
+    payerId: p.payer_id,
+    amountMwk: p.amount_mwk,
+    paymentDate: p.payment_date,
+    method: p.method,
+    externalReference: p.external_reference,
+    providerConfirmedAt: p.provider_confirmed_at,
+    payerConfirmedAt: p.payer_confirmed_at,
+    status: p.status,
+    notes: p.notes,
+    createdAt: p.created_at,
+    confirmedAt: p.confirmed_at ?? null,
+    receiptNumber: receipt?.receipt_number ?? null,
+    receiptVerificationCode: receipt?.verification_code ?? null,
+    receiptIssuedAt: receipt?.issued_at ?? null,
+    disputeReason: p.dispute_reason ?? null,
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Charges APIs
 // ---------------------------------------------------------------------------
@@ -72,32 +108,37 @@ export async function createCharge(
   occupancyId: string,
   amountMwk: number,
   dueDate: string,
-  description?: string
+  description: string | undefined,
+  idempotencyKey: string
 ): Promise<{ ok: boolean; error?: string; charge?: ChargeRecord }> {
   if (!isSupabaseConfigured()) {
     return { ok: false, error: "Database not configured." };
   }
 
   const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("charges")
-    .insert({
-      occupancy_id: occupancyId,
-      amount_mwk: amountMwk,
-      due_date: dueDate,
-      description: description ?? null,
-      status: "unpaid",
-    })
-    .select("id, occupancy_id, amount_mwk, due_date, status, description, created_at")
-    .single();
+  const { data: chargeId, error } = await supabase.rpc("ledger_create_charge", {
+    occupancy: occupancyId,
+    amount_mwk: amountMwk,
+    due_on: dueDate,
+    charge_description: description ?? null,
+    idempotency: idempotencyKey,
+  });
 
   if (error) {
     console.error("createCharge failed:", error.message);
     return { ok: false, error: error.message };
   }
 
-  // Attempt to auto-allocate any confirmed unallocated payments
-  await runAutoAllocationForOccupancy(occupancyId);
+  const { data, error: chargeError } = await supabase
+    .from("charges")
+    .select("id, occupancy_id, amount_mwk, due_date, status, description, created_at")
+    .eq("id", chargeId)
+    .single();
+
+  if (chargeError || !data) {
+    console.error("createCharge lookup failed:", chargeError?.message);
+    return { ok: false, error: "The charge was created but could not be loaded." };
+  }
 
   return {
     ok: true,
@@ -113,9 +154,7 @@ export async function createCharge(
   };
 }
 
-export async function listChargesForOccupancy(
-  occupancyId: string
-): Promise<ChargeRecord[]> {
+export async function listChargesForOccupancy(occupancyId: string): Promise<ChargeRecord[]> {
   if (!isSupabaseConfigured()) return [];
 
   const supabase = await createClient();
@@ -142,19 +181,18 @@ export async function listChargesForOccupancy(
 }
 
 export async function voidCharge(
-  chargeId: string
+  chargeId: string,
+  reason = "Voided by the space provider"
 ): Promise<{ ok: boolean; error?: string }> {
-  if (!isSupabaseConfigured()) return { ok: false, error: "Database not configured." };
+  if (!isSupabaseConfigured()) {
+    return { ok: false, error: "Database not configured." };
+  }
 
   const supabase = await createClient();
-  
-  // First, delete allocations associated with this charge
-  await supabase.from("payment_allocations").delete().eq("charge_id", chargeId);
-
-  const { error } = await supabase
-    .from("charges")
-    .update({ status: "void" })
-    .eq("id", chargeId);
+  const { error } = await supabase.rpc("ledger_void_charge", {
+    charge: chargeId,
+    reason,
+  });
 
   if (error) {
     console.error("voidCharge failed:", error.message);
@@ -176,107 +214,62 @@ export async function recordPayment(
   method: PaymentMethod,
   externalReference?: string,
   notes?: string,
-  initiallyConfirmedBy: "provider" | "payer" = "provider"
+  initiallyConfirmedBy: "provider" | "payer" = "provider",
+  idempotencyKey?: string
 ): Promise<{ ok: boolean; error?: string; payment?: PaymentRecord }> {
   if (!isSupabaseConfigured()) {
     return { ok: false, error: "Database not configured." };
   }
 
-  const isProvider = initiallyConfirmedBy === "provider";
-  const now = new Date().toISOString();
-
-  const status: PaymentStatus = "pending_confirmation"; // Double confirmation required
-
   const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("payment_records")
-    .insert({
-      occupancy_id: occupancyId,
-      payer_id: payerId,
-      amount_mwk: amountMwk,
-      payment_date: paymentDate,
-      method,
-      external_reference: externalReference ?? null,
-      notes: notes ?? null,
-      status,
-      provider_confirmed_at: isProvider ? now : null,
-      payer_confirmed_at: !isProvider ? now : null,
-    })
-    .select("*")
-    .single();
+  void payerId;
+  void initiallyConfirmedBy;
+  const { data: paymentId, error } = await supabase.rpc("ledger_record_payment", {
+    occupancy: occupancyId,
+    amount_mwk: amountMwk,
+    paid_on: paymentDate,
+    payment_method: method,
+    external_reference: externalReference || null,
+    payment_notes: notes || null,
+    idempotency: idempotencyKey ?? crypto.randomUUID(),
+  });
 
   if (error) {
     console.error("recordPayment failed:", error.message);
     return { ok: false, error: error.message };
   }
 
-  return {
-    ok: true,
-    payment: {
-      id: data.id,
-      occupancyId: data.occupancy_id,
-      payerId: data.payer_id,
-      amountMwk: data.amount_mwk,
-      paymentDate: data.payment_date,
-      method: data.method,
-      externalReference: data.external_reference,
-      providerConfirmedAt: data.provider_confirmed_at,
-      payerConfirmedAt: data.payer_confirmed_at,
-      status: data.status,
-      notes: data.notes,
-      createdAt: data.created_at,
-    },
-  };
+  const { data, error: readError } = await supabase
+    .from("payment_records")
+    .select("*")
+    .eq("id", paymentId)
+    .single();
+
+  if (readError) {
+    console.error("recordPayment read-back failed:", readError.message);
+    return { ok: false, error: "Payment was recorded but could not be loaded." };
+  }
+
+  return { ok: true, payment: mapPayment(data) };
 }
 
 export async function confirmPayment(
   paymentId: string,
   confirmerRole: "provider" | "occupant"
 ): Promise<{ ok: boolean; error?: string }> {
-  if (!isSupabaseConfigured()) return { ok: false, error: "Database not configured." };
+  if (!isSupabaseConfigured()) {
+    return { ok: false, error: "Database not configured." };
+  }
 
   const supabase = await createClient();
-  const now = new Date().toISOString();
-
-  // Fetch the current payment details
-  const { data: payment, error: fetchErr } = await supabase
-    .from("payment_records")
-    .select("*")
-    .eq("id", paymentId)
-    .maybeSingle();
-
-  if (fetchErr || !payment) {
-    return { ok: false, error: fetchErr?.message ?? "Payment not found." };
-  }
-
-  const updates: any = {};
-  if (confirmerRole === "provider") {
-    updates.provider_confirmed_at = now;
-  } else {
-    updates.payer_confirmed_at = now;
-  }
-
-  // If both parties have now confirmed, mark status as confirmed
-  if (
-    (confirmerRole === "provider" && payment.payer_confirmed_at) ||
-    (confirmerRole === "occupant" && payment.provider_confirmed_at)
-  ) {
-    updates.status = "confirmed";
-  }
-
-  const { error } = await supabase
-    .from("payment_records")
-    .update(updates)
-    .eq("id", paymentId);
+  void confirmerRole;
+  const { error } = await supabase.rpc("ledger_confirm_payment", {
+    payment: paymentId,
+  });
 
   if (error) {
     console.error("confirmPayment failed:", error.message);
     return { ok: false, error: error.message };
-  }
-
-  // If status is newly confirmed, run auto-allocation
-  if (updates.status === "confirmed" || payment.status === "confirmed") {
-    await runAutoAllocationForOccupancy(payment.occupancy_id);
   }
 
   return { ok: true };
@@ -286,16 +279,15 @@ export async function rejectPayment(
   paymentId: string,
   notes?: string
 ): Promise<{ ok: boolean; error?: string }> {
-  if (!isSupabaseConfigured()) return { ok: false, error: "Database not configured." };
+  if (!isSupabaseConfigured()) {
+    return { ok: false, error: "Database not configured." };
+  }
 
   const supabase = await createClient();
-  const { error } = await supabase
-    .from("payment_records")
-    .update({
-      status: "rejected",
-      notes: notes ? `Rejected: ${notes}` : "Rejected by party",
-    })
-    .eq("id", paymentId);
+  const { error } = await supabase.rpc("ledger_reject_payment", {
+    payment: paymentId,
+    reason: notes || "Rejected by the space provider",
+  });
 
   if (error) {
     console.error("rejectPayment failed:", error.message);
@@ -309,16 +301,15 @@ export async function disputePayment(
   paymentId: string,
   notes: string
 ): Promise<{ ok: boolean; error?: string }> {
-  if (!isSupabaseConfigured()) return { ok: false, error: "Database not configured." };
+  if (!isSupabaseConfigured()) {
+    return { ok: false, error: "Database not configured." };
+  }
 
   const supabase = await createClient();
-  const { error } = await supabase
-    .from("payment_records")
-    .update({
-      status: "disputed",
-      notes: `Disputed: ${notes}`,
-    })
-    .eq("id", paymentId);
+  const { error } = await supabase.rpc("ledger_dispute_payment", {
+    payment: paymentId,
+    reason: notes,
+  });
 
   if (error) {
     console.error("disputePayment failed:", error.message);
@@ -328,15 +319,13 @@ export async function disputePayment(
   return { ok: true };
 }
 
-export async function listPaymentsForOccupancy(
-  occupancyId: string
-): Promise<PaymentRecord[]> {
+export async function listPaymentsForOccupancy(occupancyId: string): Promise<PaymentRecord[]> {
   if (!isSupabaseConfigured()) return [];
 
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("payment_records")
-    .select("*")
+    .select("*, payment_receipts(receipt_number, verification_code, issued_at)")
     .eq("occupancy_id", occupancyId)
     .order("payment_date", { ascending: false });
 
@@ -345,29 +334,14 @@ export async function listPaymentsForOccupancy(
     return [];
   }
 
-  return (data ?? []).map((p) => ({
-    id: p.id,
-    occupancyId: p.occupancy_id,
-    payerId: p.payer_id,
-    amountMwk: p.amount_mwk,
-    paymentDate: p.payment_date,
-    method: p.method,
-    externalReference: p.external_reference,
-    providerConfirmedAt: p.provider_confirmed_at,
-    payerConfirmedAt: p.payer_confirmed_at,
-    status: p.status,
-    notes: p.notes,
-    createdAt: p.created_at,
-  }));
+  return (data ?? []).map(mapPayment);
 }
 
 // ---------------------------------------------------------------------------
 // Balance & Ledgers APIs
 // ---------------------------------------------------------------------------
 
-export async function getOccupancyBalance(
-  occupancyId: string
-): Promise<LedgerBalance> {
+export async function getOccupancyBalance(occupancyId: string): Promise<LedgerBalance> {
   const result: LedgerBalance = {
     totalChargedMwk: 0,
     totalPaidMwk: 0,
@@ -434,15 +408,15 @@ export async function getOccupancyBalance(
 // Cross-Occupancy / Profile APIs
 // ---------------------------------------------------------------------------
 
-export async function listAllChargesForProvider(
-  providerId: string
-): Promise<ChargeRecord[]> {
+export async function listAllChargesForProvider(providerId: string): Promise<ChargeRecord[]> {
   if (!isSupabaseConfigured()) return [];
 
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("charges")
-    .select("id, occupancy_id, amount_mwk, due_date, status, description, created_at, occupancies!inner(provider_id, spaces(category, landmark, zones(name)))")
+    .select(
+      "id, occupancy_id, amount_mwk, due_date, status, description, created_at, occupancies!inner(provider_id, spaces(category, landmark, zones(name)))"
+    )
     .eq("occupancies.provider_id", providerId)
     .order("due_date", { ascending: false });
 
@@ -464,15 +438,15 @@ export async function listAllChargesForProvider(
   }));
 }
 
-export async function listAllPaymentsForProvider(
-  providerId: string
-): Promise<PaymentRecord[]> {
+export async function listAllPaymentsForProvider(providerId: string): Promise<PaymentRecord[]> {
   if (!isSupabaseConfigured()) return [];
 
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("payment_records")
-    .select("*, occupancies!inner(provider_id, spaces(category, landmark, zones(name)))")
+    .select(
+      "*, payment_receipts(receipt_number, verification_code, issued_at), occupancies!inner(provider_id, spaces(category, landmark, zones(name)))"
+    )
     .eq("occupancies.provider_id", providerId)
     .order("payment_date", { ascending: false });
 
@@ -482,26 +456,13 @@ export async function listAllPaymentsForProvider(
   }
 
   return (data ?? []).map((p: any) => ({
-    id: p.id,
-    occupancyId: p.occupancy_id,
-    payerId: p.payer_id,
-    amountMwk: p.amount_mwk,
-    paymentDate: p.payment_date,
-    method: p.method,
-    externalReference: p.external_reference,
-    providerConfirmedAt: p.provider_confirmed_at,
-    payerConfirmedAt: p.payer_confirmed_at,
-    status: p.status,
-    notes: p.notes,
-    createdAt: p.created_at,
+    ...mapPayment(p),
     spaceTitle: p.occupancies?.spaces?.landmark ?? "Space",
     spaceZone: p.occupancies?.spaces?.zones?.name ?? "",
   }));
 }
 
-export async function listAllChargesForOccupant(
-  occupantId: string
-): Promise<ChargeRecord[]> {
+export async function listAllChargesForOccupant(occupantId: string): Promise<ChargeRecord[]> {
   if (!isSupabaseConfigured()) return [];
 
   const supabase = await createClient();
@@ -517,7 +478,9 @@ export async function listAllChargesForOccupant(
 
   const { data, error } = await supabase
     .from("charges")
-    .select("id, occupancy_id, amount_mwk, due_date, status, description, created_at, occupancies!inner(spaces(category, landmark, zones(name)))")
+    .select(
+      "id, occupancy_id, amount_mwk, due_date, status, description, created_at, occupancies!inner(spaces(category, landmark, zones(name)))"
+    )
     .in("occupancy_id", ids)
     .order("due_date", { ascending: false });
 
@@ -539,9 +502,7 @@ export async function listAllChargesForOccupant(
   }));
 }
 
-export async function listAllPaymentsForOccupant(
-  occupantId: string
-): Promise<PaymentRecord[]> {
+export async function listAllPaymentsForOccupant(occupantId: string): Promise<PaymentRecord[]> {
   if (!isSupabaseConfigured()) return [];
 
   const supabase = await createClient();
@@ -556,7 +517,9 @@ export async function listAllPaymentsForOccupant(
 
   const { data, error } = await supabase
     .from("payment_records")
-    .select("*, occupancies!inner(spaces(category, landmark, zones(name)))")
+    .select(
+      "*, payment_receipts(receipt_number, verification_code, issued_at), occupancies!inner(spaces(category, landmark, zones(name)))"
+    )
     .in("occupancy_id", ids)
     .order("payment_date", { ascending: false });
 
@@ -566,91 +529,10 @@ export async function listAllPaymentsForOccupant(
   }
 
   return (data ?? []).map((p: any) => ({
-    id: p.id,
-    occupancyId: p.occupancy_id,
-    payerId: p.payer_id,
-    amountMwk: p.amount_mwk,
-    paymentDate: p.payment_date,
-    method: p.method,
-    externalReference: p.external_reference,
-    providerConfirmedAt: p.provider_confirmed_at,
-    payerConfirmedAt: p.payer_confirmed_at,
-    status: p.status,
-    notes: p.notes,
-    createdAt: p.created_at,
+    ...mapPayment(p),
     spaceTitle: p.occupancies?.spaces?.landmark ?? "Space",
     spaceZone: p.occupancies?.spaces?.zones?.name ?? "",
   }));
-}
-
-// ---------------------------------------------------------------------------
-// Auto Allocation Engine (FIFO)
-// ---------------------------------------------------------------------------
-
-export async function runAutoAllocationForOccupancy(
-  occupancyId: string
-): Promise<void> {
-  if (!isSupabaseConfigured()) return;
-
-  const supabase = await createClient();
-
-  // 1. Get total confirmed payments
-  const { data: confirmedPayments } = await supabase
-    .from("payment_records")
-    .select("id, amount_mwk")
-    .eq("occupancy_id", occupancyId)
-    .eq("status", "confirmed");
-
-  if (!confirmedPayments || confirmedPayments.length === 0) return;
-
-  // 2. Get active charges (excluding void) ordered oldest to newest
-  const { data: charges } = await supabase
-    .from("charges")
-    .select("id, amount_mwk")
-    .eq("occupancy_id", occupancyId)
-    .neq("status", "void")
-    .order("due_date", { ascending: true });
-
-  if (!charges || charges.length === 0) return;
-
-  // 3. Clear existing allocations for confirmed payments & charges for this occupancy
-  // to run a clean, correct FIFO allocation rebuild
-  const paymentIds = confirmedPayments.map((p) => p.id);
-  await supabase
-    .from("payment_allocations")
-    .delete()
-    .in("payment_id", paymentIds);
-
-  // 4. Perform FIFO Allocation
-  let chargeIdx = 0;
-  let chargeRemaining = charges[0].amount_mwk;
-
-  for (const payment of confirmedPayments) {
-    let paymentRemaining = payment.amount_mwk;
-
-    while (paymentRemaining > 0 && chargeIdx < charges.length) {
-      const charge = charges[chargeIdx];
-      const allocateAmt = Math.min(paymentRemaining, chargeRemaining);
-
-      if (allocateAmt > 0) {
-        await supabase.from("payment_allocations").insert({
-          payment_id: payment.id,
-          charge_id: charge.id,
-          amount_mwk: allocateAmt,
-        });
-
-        paymentRemaining -= allocateAmt;
-        chargeRemaining -= allocateAmt;
-      }
-
-      if (chargeRemaining === 0) {
-        chargeIdx++;
-        if (chargeIdx < charges.length) {
-          chargeRemaining = charges[chargeIdx].amount_mwk;
-        }
-      }
-    }
-  }
 }
 
 export async function getPaymentForUser(
@@ -662,7 +544,9 @@ export async function getPaymentForUser(
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("payment_records")
-    .select("*, occupancies!inner(provider_id, spaces(category, landmark, zones(name)), occupancy_parties(user_id))")
+    .select(
+      "*, payment_receipts(receipt_number, verification_code, issued_at), occupancies!inner(provider_id, spaces(category, landmark, zones(name)), occupancy_parties(user_id))"
+    )
     .eq("id", paymentId)
     .maybeSingle();
 
@@ -679,20 +563,8 @@ export async function getPaymentForUser(
   if (!matchesUser) return null;
 
   return {
-    id: data.id,
-    occupancyId: data.occupancy_id,
-    payerId: data.payer_id,
-    amountMwk: data.amount_mwk,
-    paymentDate: data.payment_date,
-    method: data.method,
-    externalReference: data.external_reference,
-    providerConfirmedAt: data.provider_confirmed_at,
-    payerConfirmedAt: data.payer_confirmed_at,
-    status: data.status,
-    notes: data.notes,
-    createdAt: data.created_at,
+    ...mapPayment(data),
     spaceTitle: data.occupancies?.spaces?.landmark ?? "Space",
     spaceZone: data.occupancies?.spaces?.zones?.name ?? "",
   };
 }
-

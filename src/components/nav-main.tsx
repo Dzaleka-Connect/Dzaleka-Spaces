@@ -4,11 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronRight } from "lucide-react";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -49,13 +45,7 @@ export function NavMain({ items }: { items: AppNavItem[] }) {
 // Controlled Collapsible: an uncontrolled one warns when `defaultOpen` changes
 // on navigation. We open the section that matches the current path and let the
 // user toggle any section open/closed themselves.
-function NavCollapsible({
-  item,
-  pathname,
-}: {
-  item: AppNavItem;
-  pathname: string;
-}) {
+function NavCollapsible({ item, pathname }: { item: AppNavItem; pathname: string }) {
   const Icon = NAV_ICONS[item.icon];
   const isActive = item.items.some((sub) => pathMatches(pathname, sub.url));
   const [open, setOpen] = React.useState(isActive);
@@ -70,15 +60,9 @@ function NavCollapsible({
   }
 
   return (
-    <Collapsible
-      open={open}
-      onOpenChange={setOpen}
-      className="group/collapsible"
-    >
+    <Collapsible open={open} onOpenChange={setOpen} className="group/collapsible">
       <SidebarMenuItem>
-        <CollapsibleTrigger
-          render={<SidebarMenuButton tooltip={item.title} />}
-        >
+        <CollapsibleTrigger render={<SidebarMenuButton tooltip={item.title} />}>
           <Icon />
           <span>{item.title}</span>
           <ChevronRight className="ml-auto transition-transform duration-200 group-data-open/collapsible:rotate-90" />

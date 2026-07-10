@@ -127,18 +127,12 @@ export async function listProviderEnquiries(providerId: string) {
   if (!isSupabaseConfigured()) return [];
 
   const supabase = await createClient();
-  const { data: spaces } = await supabase
-    .from("spaces")
-    .select("id")
-    .eq("provider_id", providerId);
+  const { data: spaces } = await supabase.from("spaces").select("id").eq("provider_id", providerId);
 
   const spaceIds = (spaces ?? []).map((s) => s.id);
   if (spaceIds.length === 0) return [];
 
-  const { data: listings } = await supabase
-    .from("listings")
-    .select("id")
-    .in("space_id", spaceIds);
+  const { data: listings } = await supabase.from("listings").select("id").in("space_id", spaceIds);
 
   const listingIds = (listings ?? []).map((l) => l.id);
   if (listingIds.length === 0) return [];

@@ -11,15 +11,15 @@ export default function AboutPage() {
   return (
     <ContentPage
       title="About Dzaleka Spaces"
-      intro="Dzaleka Spaces helps people find trusted places to live, work, meet and operate businesses in Dzaleka Refugee Camp — while giving space providers simple tools to manage occupancy, payments and maintenance."
+      intro="Dzaleka Spaces helps people find shops, workspaces and community venues in Dzaleka Refugee Camp while giving space providers tools to manage occupancy records, payment records and maintenance."
       sections={[
         {
           heading: "Why it exists",
-          body: "Dzaleka, in Malawi's Dowa District about 41 km from Lilongwe, was established in 1994 and designed for roughly 12,000 people. It now holds well over 50,000 — 57,438 were recorded in March 2025 — with around 300 new arrivals a month, mostly from the DR Congo, Burundi, Rwanda and Somalia. That pressure makes space scarce, and arrangements are made through word of mouth, WhatsApp groups and handwritten signs, with no way to confirm that a listing is real, fairly priced, or offered by someone authorised to offer it. Dzaleka Spaces adds structure and trust: in-person verification, zone-and-landmark discovery, written occupancy records and payment receipts.",
+          body: "Commercial and community spaces in Dzaleka are often discovered through personal networks, messaging groups and signs. That makes it difficult to compare current details or know whether a provider has stated authority to offer a space. Dzaleka Spaces adds field-checked listing information, zone-and-landmark discovery, written occupancy records and dual-confirmed payment receipts.",
         },
         {
           heading: "Built for the camp's real economy",
-          body: "Residents cannot legally work outside the camp or own land, so a dense informal economy has grown inside it — clothes shops, bars, workshops, craft collectives, training rooms and community venues. Dzaleka Spaces is designed around that reality: it helps existing spaces be discovered and managed, rather than pretending the camp is a formal property market.",
+          body: "Dzaleka has shops, workshops, craft collectives, training rooms and community venues serving residents and organisations. The platform is designed around those real operating needs: it helps existing spaces be discovered and documented without presenting the camp as a conventional property market.",
         },
         {
           heading: "What we are not",

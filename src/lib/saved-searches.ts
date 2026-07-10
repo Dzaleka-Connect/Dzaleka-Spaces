@@ -2,16 +2,13 @@ import type { ListingFilters } from "./types";
 import { isSupabaseConfigured } from "./supabase/config";
 import { createClient } from "./supabase/server";
 
-export {
-  criteriaToSearchParams,
-  filtersToCriteria,
-} from "./search-criteria";
+export { criteriaToSearchParams, filtersToCriteria } from "./search-criteria";
 
 export interface SavedSearch {
   id: string;
   name: string;
   criteria: ListingFilters;
-  channel: "email" | "whatsapp" | "in_app";
+  channel: "email" | "in_app";
   frequency: "daily" | "weekly" | "instant";
   paused: boolean;
   createdAt: string;

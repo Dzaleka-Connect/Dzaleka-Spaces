@@ -3,7 +3,14 @@ import { redirect } from "next/navigation";
 import { AlertCircle } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { getSessionUser } from "@/lib/auth";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
@@ -36,22 +43,25 @@ export default async function AdminPaymentsPage() {
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Payments Audit</h1>
+        <h1 className="text-3xl font-bold">Payments Audit</h1>
         <p className="mt-1 text-muted-foreground text-sm">
-          Monitor system transaction records, confirmation timestamps, and unresolved payment disputes.
+          Monitor system transaction records, confirmation timestamps, and unresolved payment
+          disputes.
         </p>
       </div>
 
       <Card>
         <CardHeader>
           <CardTitle>System Payment Log</CardTitle>
-          <CardDescription>Comprehensive ledger of reported tenant payments.</CardDescription>
+          <CardDescription>Comprehensive ledger of reported occupant payments.</CardDescription>
         </CardHeader>
         <CardContent>
           {payments.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <AlertCircle className="size-8 text-muted-foreground mb-2" />
-              <p className="text-sm font-semibold text-foreground">No payments recorded in system</p>
+              <p className="text-sm font-semibold text-foreground">
+                No payments recorded in system
+              </p>
             </div>
           ) : (
             <Table>
@@ -74,11 +84,15 @@ export default async function AdminPaymentsPage() {
                     <TableCell>
                       <div className="flex flex-col">
                         <span>{p.occupancies?.spaces?.landmark}</span>
-                        <span className="text-xs text-muted-foreground">{p.occupancies?.spaces?.zones?.name}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {p.occupancies?.spaces?.zones?.name}
+                        </span>
                       </div>
                     </TableCell>
                     <TableCell className="capitalize">{p.method.replace("_", " ")}</TableCell>
-                    <TableCell className="font-mono text-xs">{p.external_reference ?? "—"}</TableCell>
+                    <TableCell className="font-mono text-xs">
+                      {p.external_reference ?? "—"}
+                    </TableCell>
                     <TableCell className="font-semibold">{formatMwk(p.amount_mwk)}</TableCell>
                     <TableCell>{new Date(p.payment_date).toLocaleDateString()}</TableCell>
                     <TableCell>

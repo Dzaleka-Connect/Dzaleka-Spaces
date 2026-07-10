@@ -57,7 +57,7 @@ export default async function AdminReportsPage() {
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Reports</h1>
+        <h1 className="text-3xl font-bold">Reports</h1>
         <p className="mt-1 text-muted-foreground">
           Private listing reports. Reporter details stay staff-only.
         </p>
@@ -89,9 +89,7 @@ export default async function AdminReportsPage() {
           </TableHeader>
           <TableBody>
             {(reports ?? []).map((report) => {
-              const listing = Array.isArray(report.listings)
-                ? report.listings[0]
-                : report.listings;
+              const listing = Array.isArray(report.listings) ? report.listings[0] : report.listings;
               return (
                 <TableRow key={report.id}>
                   <TableCell className="font-medium">

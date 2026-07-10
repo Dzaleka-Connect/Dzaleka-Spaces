@@ -1,85 +1,171 @@
-# Data model
+# Data Model
 
-Schema source of truth: `supabase/migrations/`. This file explains intent.
+Schema source of truth: `supabase/migrations/*.sql`. Applied versions and
+SHA-256 checksums are recorded in `app_schema_migrations` by
+`scripts/db-apply.mjs`.
 
-## Core principle
+## Core separation
 
-A **space** is the physical room/shop/venue. A **listing** is an
-advertisement for it. They are separate so a space keeps its occupancy,
-verification and maintenance history when re-advertised.
+A `space` is the long-lived physical record. A `listing` is one advertisement
+for that space. Occupancy, authority review, verification, viewing,
+maintenance, and finance history remain attached to the space even when a
+listing is archived and replaced.
 
-## Entities (migrations 00001–00003)
+Exact location and authority evidence are never flattened into the public
+listing path.
 
-| Table | Purpose | Visibility |
-| --- | --- | --- |
-| `profiles` | User profile (name, phone, whatsapp, language) | Own + staff; name public when behind a published listing |
-| `user_roles` | Role grants (`app_role` enum) | Own + staff; admin manages |
-| `zones` | Recognised Dzaleka areas (Kawale 1/2, Likuni 1/2, Lisungwi, Katudza, New Katubza, Zomba, Blantyre, Karonga, Dzaleka Hill, Other) | Public |
-| `landmarks` | Curated landmarks per zone | Public |
-| `spaces` | Physical space: category, zone_id, landmark text, facilities, capacity | Public when behind published listing; else provider + staff |
-| `space_internal` | Exact location (`exact_point` PostGIS geography), authority basis + notes | **Staff only** |
-| `listings` | Advertisement: title, price MWK, deposit, billing period, status, featured_until | Published are public; drafts provider + staff |
-| `space_media` | Photos (storage paths) | Public when listing published |
-| `verifications` | Field-verification records: status, checklist jsonb, verifier, verified_at, reverify_by | Staff + owning provider; public sees only badge via `listing_verified_at()` |
-| `enquiries` | Seeker → listing enquiries (anonymous allowed) | Enquirer + listing provider + staff |
-| `viewings` | Viewing appointments per enquiry | Follows enquiry |
-| `saved_listings` | User bookmarks | Own only |
-| `reports` | Safety/dispute reports | Insert by anyone; **read staff only** (protects reporters) |
-| `feature_flags` | Backend-controlled gates | Public read, admin write |
-| `audit_events` | Append-only audit log with before/after state, request_id | Admin read; staff and participants insert their own rows |
-| `occupancies` | Phase 2 arrangement records: terms, dates, amounts (documentation only — no money handled) | Provider, occupant parties, staff |
-| `occupancy_parties` | Provider/occupant parties with confirmation state and method (in_app / in_person / staff_assisted) | Same as parent occupancy |
-| `provider_team_members` | Scoped provider-team permissions | Provider, member, staff |
-| `service_provider_profiles` | Maintenance-service provider profiles | Active public; own + staff |
-| `maintenance_tickets` | Maintenance requests/jobs | Requester, assigned service provider, staff; open jobs visible to service providers |
-| `maintenance_quotes` | Service-provider quotes | Service provider, requester, staff |
-| `maintenance_work_orders` | Assigned maintenance work | Service provider, requester, staff |
-| `maintenance_messages` | Ticket message threads | Ticket participants + staff |
-| `maintenance_reviews` | Reviews after completed work orders | Requester write; participants + staff read |
-| `maintenance_documents` | Private evidence metadata (`maintenance-private` bucket) | Ticket participants + staff |
-| `enquiry_messages` | Threaded enquiry messages | Enquiry participants + staff |
-| `enquiry_attachments` | Private message attachment metadata | Enquiry participants + staff |
-| `notification_queue` / `notification_deliveries` | Email outbox + provider attempts | Recipient own read; admin operations |
-| `moderation_cases` / `case_events` | Staff case management | Staff; restricted cases admin/assignee |
-| `content_pages` | Database-managed public content | Published public; admin edit |
-| `analytics_events` | Privacy-safe event records | Insert public/auth; admin read |
-| `verifier_sync_events` | Offline verifier sync events | Verifier own + staff |
+## Identity and organisations
 
-## Enums
+| Relation                                                                       | Purpose                                         | Access                                                                     |
+| ------------------------------------------------------------------------------ | ----------------------------------------------- | -------------------------------------------------------------------------- |
+| `profiles`                                                                     | Name, optional contact/language, account status | Own row; authorised staff; limited published provider display through view |
+| `user_roles`                                                                   | `app_role` grants                               | Own read; administrator management; audit required                         |
+| `user_security_settings`                                                       | Security preferences and state                  | User and authorised staff                                                  |
+| `notification_preferences`                                                     | Email/in-app preferences                        | Own row                                                                    |
+| `organisations` / `organisation_members`                                       | Organisation status and scoped membership       | Members and staff                                                          |
+| `provider_team_members`                                                        | Provider delegates and permission JSON          | Provider, member and staff                                                 |
+| `admin_user_directory`, `admin_provider_directory`, `admin_verifier_directory` | Staff-only operational views                    | Moderator/admin with MFA                                                   |
 
-- `space_category`: community_venue, training_space, meeting_venue, office,
-  shop, workshop, storage, homestay, **room, shared_room,
-  family_accommodation, other** (residential values publish-blocked by
-  feature flag).
-- `listing_status`: draft, pending_review, published, paused, archived,
-  rejected, submitted, under_review, changes_requested, approved, matched,
-  expired.
-- `verification_status`: pending, scheduled, approved, rejected, expired.
-- `authority_basis`: current_recognised_occupier, organisation_manager,
-  venue_operator, family_representative, authorised_agent, other_documented.
-- `app_role`: seeker, provider, field_verifier, service_provider,
-  organisation_manager, moderator, admin, finance.
+`profiles.account_status` is `active`, `restricted`, `suspended`, or `closed`.
+Suspended/closed accounts are routed to security and cannot enter operational
+portals.
 
-## Database-enforced rules
+## Spaces, listings and verification
 
-- One published listing per space (`one_published_listing_per_space` unique
-  index).
-- Publication trigger (`listing_publication_guard`): requires a zone, an
-  authority record in `space_internal`, and blocks residential categories
-  unless the matching feature flag is enabled.
-- `verifier_separation_guard`: a provider can never verify their own listing.
-- SECURITY DEFINER helpers that intentionally bypass RLS (all reveal only
-  booleans/timestamps): `has_role`, `is_staff`, `owns_space`,
-  `space_has_published_listing`, `listing_verified_at`, `feature_enabled`.
+| Relation                   | Purpose                                                     | Access                                                            |
+| -------------------------- | ----------------------------------------------------------- | ----------------------------------------------------------------- |
+| `zones` / `landmarks`      | Managed approximate public reference data                   | Public read; staff write                                          |
+| `spaces`                   | Category, zone, landmark, description, facilities, capacity | Public only through published view; provider/team/staff otherwise |
+| `space_internal`           | Exact point, authority basis/notes, restricted evidence     | Staff only                                                        |
+| `listings`                 | Advertisement terms and workflow state                      | Published through view; provider/team/staff otherwise             |
+| `space_media`              | Public/private media metadata and approval                  | Public only for approved public objects                           |
+| `listing_status_history`   | Append-only listing state history                           | Provider/staff according to parent scope                          |
+| `verification_assignments` | Assigned verifier, due time, state and result               | Assigned verifier and staff                                       |
+| `verifications`            | Checklist, recommendation, supervisor decision and expiry   | Provider sees status; evidence remains staff/private              |
+| `verification_evidence`    | File registry link, coordinates/notes and evidence kind     | Assigned verifier and authorised reviewers                        |
+| `file_uploads`             | Storage path, MIME, size, scan/quarantine state             | Participants/staff according to parent workflow                   |
 
-## Public read path
+`listing_status` includes `draft`, `submitted`, `automated_review`,
+`authority_review`, `verification_pending`, `verification_scheduled`,
+`verification_completed`, `supervisor_review`, `approved`, `published`,
+`changes_requested`, `rejected`, `paused`, `matched`, `stale`, `expired`,
+`suspended`, and `archived` values used by the guarded state machine.
 
-The marketplace reads the `public_listings` view (security_invoker), which
-flattens listing + space + zone name + provider display name + verified
-badge. Client code never queries base tables for public data.
+Publication requires all of the following in the database trigger:
 
-## Remaining entities (see docs/roadmap.md)
+- moderator or administrator caller;
+- managed zone;
+- non-residential category unless externally approved flags are enabled;
+- authority-to-offer record in `space_internal`;
+- approved verification with `verified_at`;
+- approved public media in `listing-public`.
 
-Charges/payment_records/receipts/adjustments/disputes (Phase 2 ledger — no
-fund custody), organisation accounts and production notification delivery
-webhook events.
+## Discovery, enquiries and viewings
+
+| Relation                            | Purpose                                     | Access                                       |
+| ----------------------------------- | ------------------------------------------- | -------------------------------------------- |
+| `public_listings`                   | Invoker-rights flattened public search view | Anonymous/authenticated read                 |
+| `saved_listings` / `saved_searches` | Personal discovery and alert settings       | Owner only                                   |
+| `enquiries` / `enquiry_messages`    | Seeker-provider thread                      | Participants and staff                       |
+| `enquiry_attachments`               | Private attachment metadata                 | Participants and staff                       |
+| `viewings`                          | Requested/accepted viewing lifecycle        | Enquiry participants and staff               |
+| `viewing_private_details`           | Released directions and meeting contact     | Audited RPC for confirmed participants/staff |
+| `viewing_safety_checkins`           | Departing/arrived/safe/needs-help events    | Participant and authorised staff             |
+| `reports`                           | Listing/safety reports                      | Reporter insert; staff read                  |
+
+`search_public_listings(...)` performs database-side filters, ranking, sorting,
+pagination, and total count without accepting raw PostgREST filter syntax.
+
+## Occupancy and finance records
+
+The platform is non-custodial. These relations document obligations and
+external payments; they never represent a platform wallet or escrow.
+
+| Relation                            | Purpose                                               | Mutation rule                                              |
+| ----------------------------------- | ----------------------------------------------------- | ---------------------------------------------------------- |
+| `occupancies` / `occupancy_parties` | Terms, dates, parties, confirmation and lifecycle     | Participant/server actions with RLS and audit              |
+| `charges`                           | Scheduled amount and due date                         | Created/voided through ledger RPCs; idempotent per creator |
+| `payment_records`                   | External payment reference and dual confirmation      | Append-only amount/method; state through RPCs              |
+| `payment_allocations`               | FIFO allocation from confirmed payment to charges     | Internal RPC only; append-only                             |
+| `payment_receipts`                  | Receipt number/code issued after both parties confirm | Internal RPC only; immutable                               |
+| `payment_disputes`                  | Dispute reason and resolution state                   | Participant/staff RPCs; history retained                   |
+| `payment_adjustments`               | Additive correction rather than rewriting history     | Finance/admin RPC only; immutable                          |
+| `provider_expenses`                 | Provider-private operating notes                      | Provider/team permission scope                             |
+
+Critical RPCs include `ledger_create_charge`, `ledger_record_payment`,
+`ledger_confirm_payment`, `ledger_dispute_payment`, `ledger_reject_payment`,
+`ledger_void_charge`, and `ledger_create_adjustment`. Direct payment mutation is
+revoked. Idempotency keys prevent retry duplicates.
+
+## Maintenance marketplace
+
+| Relation                                                       | Purpose                                            | Access                                                     |
+| -------------------------------------------------------------- | -------------------------------------------------- | ---------------------------------------------------------- |
+| `service_provider_profiles` / `service_provider_work_examples` | Public active trade profile and moderated examples | Public active profile; own/staff write                     |
+| `maintenance_tickets`                                          | Request, triage and open job                       | Requester/provider/staff; privacy-safe open-job projection |
+| `maintenance_quotes`                                           | Quote terms                                        | Requester, quoting provider and staff                      |
+| `maintenance_work_orders`                                      | Assignment, schedule, progress and completion      | Job parties and staff                                      |
+| `maintenance_messages`                                         | Work thread                                        | Job parties and staff                                      |
+| `maintenance_documents`                                        | Private evidence/quote/completion files            | Job parties and staff                                      |
+| `maintenance_reviews`                                          | Post-completion review                             | Eligible requester writes; scoped read/public moderation   |
+
+Exact work directions are not exposed with open jobs. They become available
+only after authorised assignment.
+
+## Administration, privacy and analytics
+
+| Relation                            | Purpose                                         | Access                                               |
+| ----------------------------------- | ----------------------------------------------- | ---------------------------------------------------- |
+| `moderation_cases` / `case_events`  | Safety, authority, fraud and dispute cases      | Staff; restricted cases narrow further               |
+| `content_pages`                     | Draft/published managed content                 | Published public; admin write                        |
+| `system_settings` / `feature_flags` | Versioned configuration and gates               | Staff read/admin write; protected flag trigger       |
+| `audit_events`                      | Append-only actor/action/before/after record    | Admin/MFA read; controlled inserts; no update/delete |
+| `analytics_events`                  | Validated privacy-safe product events           | Public/auth insert; admin read                       |
+| `privacy_requests`                  | Access/correction/deletion/restriction requests | Requester and authorised staff                       |
+
+Protected flags cannot be enabled by any application role. They include
+residential publication, payment/custody/mobile-money processing, and SMS,
+WhatsApp, or web-push delivery.
+
+## Email delivery
+
+| Relation                  | Purpose                                     | Access                                                   |
+| ------------------------- | ------------------------------------------- | -------------------------------------------------------- |
+| `notification_templates`  | Subject/body catalogue                      | Staff-managed                                            |
+| `notification_queue`      | Idempotent outbox, retry and lock state     | Recipient read; service worker mutation; admin oversight |
+| `notification_deliveries` | Each Resend attempt and provider message ID | Recipient/admin scoped read                              |
+| `email_delivery_events`   | Signed, deduplicated provider events        | Moderator/admin with MFA                                 |
+
+`claim_notification_batch()` uses `FOR UPDATE SKIP LOCKED` and is executable by
+`service_role` only. `record_resend_delivery_event()` accepts verified webhook
+events from the server-only route, deduplicates the Svix ID, updates delivery
+state, and fails the queue row for permanent delivery failures.
+
+## Storage
+
+| Bucket                 | Public | Purpose                            |
+| ---------------------- | ------ | ---------------------------------- |
+| `listing-public`       | Yes    | Approved marketplace images only   |
+| `verification-private` | No     | Field evidence and voice notes     |
+| `message-private`      | No     | Enquiry attachments                |
+| `maintenance-private`  | No     | Maintenance evidence and documents |
+
+Public images are re-encoded to remove metadata. Verification images are
+re-encoded server-side; audio and other private files remain quarantined until
+scanner approval. Private downloads use short-lived signed URLs after RLS
+access checks.
+
+## Database enforcement summary
+
+- RLS enabled on every private relation; every update policy includes
+  `WITH CHECK`.
+- SECURITY DEFINER functions set `search_path = public`, return limited data,
+  and have explicit execute grants.
+- Staff-sensitive policies require `staff_mfa_satisfied()`.
+- Listing transitions, publication, residential gates and protected flags are
+  triggers, not UI conventions.
+- Payment, allocation, receipt, adjustment and audit history is append-only.
+- One active verification assignment and one published listing per space are
+  enforced by partial unique indexes.
+- Anonymous reads use `public_listings`; exact location and authority evidence
+  do not appear in its columns.

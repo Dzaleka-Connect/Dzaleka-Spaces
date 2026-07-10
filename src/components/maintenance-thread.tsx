@@ -59,8 +59,8 @@ export function MaintenanceThread({
       <div className="flex max-h-96 flex-col gap-3 overflow-y-auto rounded-lg border p-3">
         {messages.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            No messages yet. Keep job updates here — do not share exact
-            household coordinates in chat.
+            No messages yet. Keep job updates here — do not share exact household coordinates in
+            chat.
           </p>
         ) : (
           messages.map((message) => {
@@ -102,11 +102,7 @@ export function MaintenanceThread({
           </Field>
           <Field>
             <Button type="submit" disabled={isPending}>
-              {isPending ? (
-                <Spinner data-icon="inline-start" />
-              ) : (
-                <Send data-icon="inline-start" />
-              )}
+              {isPending ? <Spinner data-icon="inline-start" /> : <Send data-icon="inline-start" />}
               Send
             </Button>
           </Field>

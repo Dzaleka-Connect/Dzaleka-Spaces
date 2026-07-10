@@ -5,13 +5,7 @@ import { Info, MessageSquare } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Empty,
   EmptyDescription,
@@ -55,10 +49,7 @@ export default async function AccountEnquiriesPage() {
 
   const listingIds = [...new Set((enquiries ?? []).map((e) => e.listing_id))];
   const { data: listingTitles } = listingIds.length
-    ? await supabase
-        .from("public_listings")
-        .select("id, title")
-        .in("id", listingIds)
+    ? await supabase.from("public_listings").select("id, title").in("id", listingIds)
     : { data: [] };
   const titleById = new Map(
     (listingTitles ?? []).map((listing) => [listing.id, listing.title as string])
@@ -68,16 +59,10 @@ export default async function AccountEnquiriesPage() {
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Your enquiries</h1>
-          <p className="mt-1 text-muted-foreground">
-            Listing enquiries you sent while signed in.
-          </p>
+          <h1 className="text-3xl font-bold">Your enquiries</h1>
+          <p className="mt-1 text-muted-foreground">Listing enquiries you sent while signed in.</p>
         </div>
-        <Button
-          variant="outline"
-          render={<Link href="/account" />}
-          nativeButton={false}
-        >
+        <Button variant="outline" render={<Link href="/account" />} nativeButton={false}>
           Account
         </Button>
       </div>
@@ -90,8 +75,7 @@ export default async function AccountEnquiriesPage() {
             </EmptyMedia>
             <EmptyTitle>No enquiries yet</EmptyTitle>
             <EmptyDescription>
-              Browse spaces and send an enquiry to start a viewing
-              conversation.
+              Browse spaces and send an enquiry to start a viewing conversation.
             </EmptyDescription>
           </EmptyHeader>
         </Empty>
@@ -112,13 +96,9 @@ export default async function AccountEnquiriesPage() {
               </CardHeader>
               <CardContent className="flex flex-col gap-3">
                 {enquiry.message ? (
-                  <p className="text-sm text-muted-foreground">
-                    {enquiry.message}
-                  </p>
+                  <p className="text-sm text-muted-foreground">{enquiry.message}</p>
                 ) : (
-                  <p className="text-sm text-muted-foreground">
-                    No message was added.
-                  </p>
+                  <p className="text-sm text-muted-foreground">No message was added.</p>
                 )}
                 <Button
                   variant="outline"

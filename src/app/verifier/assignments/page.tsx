@@ -5,13 +5,7 @@ import { CheckCircle2, ClipboardList, Info } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Empty,
   EmptyDescription,
@@ -55,33 +49,21 @@ export default async function AssignmentsPage({
 
   const supabase = await createClient();
   const { data: pending } = await supabase
-    .from("listings")
+    .from("verification_assignments")
     .select(
-      "id, title, price_mwk, billing_period, status, created_at, spaces(category, landmark, zone_id, zones(name))"
+      "id, status, due_at, listing_id, listings(id, title, price_mwk, billing_period, status, spaces(category, landmark, zone_id, zones(name)))"
     )
-    .in("status", ["pending_review", "changes_requested"])
-    .order("created_at", { ascending: true });
-
-  const listingIds = (pending ?? []).map((l) => l.id);
-  const { data: existingChecklists } = listingIds.length
-    ? await supabase
-        .from("verifications")
-        .select("listing_id, status")
-        .in("listing_id", listingIds)
-    : { data: [] };
-  const hasChecklist = new Set(
-    (existingChecklists ?? []).map((v) => v.listing_id)
-  );
+    .eq("verifier_id", user.id)
+    .in("status", ["assigned", "downloaded", "in_progress"])
+    .order("due_at", { ascending: true });
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">
-          Verification assignments
-        </h1>
+        <h1 className="text-3xl font-bold">Verification assignments</h1>
         <p className="mt-1 text-muted-foreground">
-          Listings awaiting an in-person field visit. You collect evidence; a
-          reviewer decides publication.
+          Listings awaiting an in-person field visit. You collect evidence; a reviewer decides
+          publication.
         </p>
       </div>
 
@@ -90,8 +72,7 @@ export default async function AssignmentsPage({
           <CheckCircle2 />
           <AlertTitle>Checklist submitted</AlertTitle>
           <AlertDescription>
-            Your field checklist was recorded and is awaiting a reviewer
-            decision.
+            Your field checklist was recorded and is awaiting a reviewer decision.
           </AlertDescription>
         </Alert>
       ) : null}
@@ -110,34 +91,30 @@ export default async function AssignmentsPage({
         </Empty>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
-          {(pending ?? []).map((l) => {
+          {(pending ?? []).map((assignment) => {
             /* eslint-disable @typescript-eslint/no-explicit-any */
+            const l = assignment.listings as any;
             const space = l.spaces as any;
             return (
-              <Card key={l.id}>
+              <Card key={assignment.id}>
                 <CardHeader>
                   <div className="flex flex-wrap items-center gap-1.5">
+                    <Badge variant="outline">{categoryLabel(space?.category)}</Badge>
+                    <Badge variant="secondary">{l.status.replace(/_/g, " ")}</Badge>
                     <Badge variant="outline">
-                      {categoryLabel(space?.category)}
+                      Due {new Date(assignment.due_at).toLocaleDateString("en-MW")}
                     </Badge>
-                    <Badge variant="secondary">
-                      {l.status.replace(/_/g, " ")}
-                    </Badge>
-                    {hasChecklist.has(l.id) ? (
-                      <Badge>Checklist submitted</Badge>
-                    ) : null}
                   </div>
                   <CardTitle className="text-base">{l.title}</CardTitle>
                   <CardDescription>
-                    {space?.zones?.name} · {space?.landmark} ·{" "}
-                    {formatMwk(l.price_mwk)}/
+                    {space?.zones?.name} · {space?.landmark} · {formatMwk(l.price_mwk)}/
                     {l.billing_period === "daily" ? "day" : "mo"}
                   </CardDescription>
                 </CardHeader>
                 <CardFooter>
                   <Button
                     size="sm"
-                    render={<Link href={`/verifier/assignments/${l.id}`} />}
+                    render={<Link href={`/verifier/assignments/${assignment.id}`} />}
                     nativeButton={false}
                   >
                     Open assignment

@@ -5,19 +5,12 @@ import { Send } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Field,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import type { EnquiryDetail } from "@/lib/enquiries";
-import {
-  closeEnquiry,
-  sendEnquiryMessage,
-} from "@/app/account/enquiries/actions";
+import { closeEnquiry, sendEnquiryMessage } from "@/app/account/enquiries/actions";
 
 export function EnquiryThread({
   enquiry,
@@ -35,11 +28,7 @@ export function EnquiryThread({
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     startTransition(async () => {
-      const result = await sendEnquiryMessage(
-        enquiry.id,
-        formData,
-        viewerRole
-      );
+      const result = await sendEnquiryMessage(enquiry.id, formData, viewerRole);
       if (result.ok && result.message) {
         setMessages((prev) => [
           ...prev,
@@ -74,9 +63,7 @@ export function EnquiryThread({
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-2">
         <Badge variant="outline">{enquiry.channel}</Badge>
-        <Badge
-          variant={enquiry.status === "open" ? "secondary" : "outline"}
-        >
+        <Badge variant={enquiry.status === "open" ? "secondary" : "outline"}>
           {enquiry.status}
         </Badge>
       </div>
@@ -86,9 +73,7 @@ export function EnquiryThread({
           <li
             key={m.id}
             className={`flex flex-col gap-1 rounded-lg p-2 text-sm ${
-              m.senderRole === viewerRole
-                ? "ml-8 bg-primary/10"
-                : "mr-8 bg-muted"
+              m.senderRole === viewerRole ? "ml-8 bg-primary/10" : "mr-8 bg-muted"
             }`}
           >
             <span className="text-xs font-medium capitalize text-muted-foreground">
@@ -99,9 +84,7 @@ export function EnquiryThread({
               <div className="flex flex-wrap gap-1.5">
                 {m.attachments.map((attachment) => (
                   <Badge key={attachment.id} variant="outline">
-                    <a href={`/api/enquiry-attachments/${attachment.id}`}>
-                      {attachment.fileName}
-                    </a>
+                    <a href={`/api/enquiry-attachments/${attachment.id}`}>{attachment.fileName}</a>
                   </Badge>
                 ))}
               </div>
@@ -148,12 +131,7 @@ export function EnquiryThread({
                 )}
                 Send
               </Button>
-              <Button
-                type="button"
-                variant="outline"
-                disabled={isPending}
-                onClick={onClose}
-              >
+              <Button type="button" variant="outline" disabled={isPending} onClick={onClose}>
                 Close enquiry
               </Button>
             </div>

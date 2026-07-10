@@ -55,7 +55,7 @@ export default async function AdminNotificationsPage() {
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Notifications</h1>
+        <h1 className="text-3xl font-bold">Notifications</h1>
         <p className="mt-1 text-muted-foreground">
           Email outbox state for Resend-backed transactional notifications.
         </p>

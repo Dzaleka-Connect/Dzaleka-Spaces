@@ -33,9 +33,7 @@ function textToHtml(text: string): string {
     .join("");
 }
 
-export async function sendTransactionalEmail(
-  email: TransactionalEmail
-): Promise<EmailSendResult> {
+export async function sendTransactionalEmail(email: TransactionalEmail): Promise<EmailSendResult> {
   if (!isEmailConfigured()) {
     return { ok: false, disabled: true, error: "Email is not configured." };
   }
@@ -45,9 +43,7 @@ export async function sendTransactionalEmail(
     {
       from: fromAddress()!,
       to: [email.to],
-      replyTo: process.env.EMAIL_REPLY_TO
-        ? [process.env.EMAIL_REPLY_TO]
-        : undefined,
+      replyTo: process.env.EMAIL_REPLY_TO ? [process.env.EMAIL_REPLY_TO] : undefined,
       subject: email.subject,
       text: email.text,
       html: email.html ?? textToHtml(email.text),

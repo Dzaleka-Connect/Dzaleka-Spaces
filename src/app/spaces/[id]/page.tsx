@@ -15,13 +15,7 @@ import {
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -32,12 +26,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
+import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { EnquiryForm } from "@/components/enquiry-form";
@@ -49,11 +38,7 @@ import { getListing } from "@/lib/listings";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 import { trackAnalyticsEvent } from "@/lib/track-analytics";
-import {
-  categoryLabel,
-  facilityLabel,
-  formatMwk,
-} from "@/lib/types";
+import { categoryLabel, facilityLabel, formatMwk } from "@/lib/types";
 import { reportListing, saveListing } from "./actions";
 
 interface ListingPageProps {
@@ -65,18 +50,33 @@ interface ListingPageProps {
   }>;
 }
 
-export async function generateMetadata({
-  params,
-}: ListingPageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: ListingPageProps): Promise<Metadata> {
   const { id } = await params;
   const listing = await getListing(id);
-  return { title: listing?.title ?? "Space not found" };
+  if (!listing) return { title: "Space not found" };
+
+  const description = `${categoryLabel(listing.category)} in ${listing.zone}, near ${listing.landmark}. View the checked listing details and arrange a viewing before paying.`;
+  const image = listing.coverImageUrl ?? "/dzaleka-marketplace.jpeg";
+
+  return {
+    title: listing.title,
+    description,
+    openGraph: {
+      type: "website",
+      title: listing.title,
+      description,
+      images: [{ url: image, alt: listing.coverImageUrl ? listing.title : "Dzaleka marketplace" }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: listing.title,
+      description,
+      images: [image],
+    },
+  };
 }
 
-export default async function ListingPage({
-  params,
-  searchParams,
-}: ListingPageProps) {
+export default async function ListingPage({ params, searchParams }: ListingPageProps) {
   const { id } = await params;
   const status = searchParams ? await searchParams : {};
   const listing = await getListing(id);
@@ -121,7 +121,7 @@ export default async function ListingPage({
           )}
           {listing.featured ? <Badge>Featured</Badge> : null}
         </div>
-        <h1 className="text-3xl font-bold tracking-tight">{listing.title}</h1>
+        <h1 className="text-3xl font-bold">{listing.title}</h1>
         <p className="flex items-center gap-1.5 text-muted-foreground">
           <MapPin className="size-4" />
           {listing.zone} · {listing.landmark}
@@ -139,9 +139,7 @@ export default async function ListingPage({
         <Alert>
           <CheckCircle2 />
           <AlertTitle>Space saved</AlertTitle>
-          <AlertDescription>
-            You can find it again from your saved spaces.
-          </AlertDescription>
+          <AlertDescription>You can find it again from your saved spaces.</AlertDescription>
         </Alert>
       ) : null}
       {status.reported ? (
@@ -149,8 +147,7 @@ export default async function ListingPage({
           <CheckCircle2 />
           <AlertTitle>Report received</AlertTitle>
           <AlertDescription>
-            Staff can review the listing report without exposing your details
-            to the provider.
+            Staff can review the listing report without exposing your details to the provider.
           </AlertDescription>
         </Alert>
       ) : null}
@@ -210,9 +207,9 @@ export default async function ListingPage({
             <ShieldAlert />
             <AlertTitle>View before paying</AlertTitle>
             <AlertDescription>
-              Always view a space in person before paying rent or a deposit.
-              Dzaleka Spaces never asks for payment to arrange a viewing, and
-              verification does not establish ownership of land or property.
+              Always view a space in person before paying rent or a deposit. Dzaleka Spaces never
+              asks for payment to arrange a viewing, and verification does not establish ownership
+              of land or property.
             </AlertDescription>
           </Alert>
         </div>
@@ -227,16 +224,12 @@ export default async function ListingPage({
                 </span>
               </CardTitle>
               {listing.depositMwk ? (
-                <CardDescription>
-                  Deposit: {formatMwk(listing.depositMwk)}
-                </CardDescription>
+                <CardDescription>Deposit: {formatMwk(listing.depositMwk)}</CardDescription>
               ) : (
                 <CardDescription>No deposit required</CardDescription>
               )}
               {listing.providerName ? (
-                <CardDescription>
-                  Provided by {listing.providerName}
-                </CardDescription>
+                <CardDescription>Provided by {listing.providerName}</CardDescription>
               ) : null}
             </CardHeader>
             <CardContent>
@@ -270,8 +263,8 @@ export default async function ListingPage({
             <CardHeader>
               <CardTitle>Report listing</CardTitle>
               <CardDescription>
-                Use this for false information, unauthorised listing concerns,
-                harassment, privacy issues or unsafe conditions.
+                Use this for false information, unauthorised listing concerns, harassment, privacy
+                issues or unsafe conditions.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -284,16 +277,13 @@ export default async function ListingPage({
                   <DialogHeader>
                     <DialogTitle>Report this listing</DialogTitle>
                     <DialogDescription>
-                      Reports are staff-only. The provider is not told who
-                      submitted the report.
+                      Reports are staff-only. The provider is not told who submitted the report.
                     </DialogDescription>
                   </DialogHeader>
                   <form action={reportAction}>
                     <FieldGroup>
                       <Field>
-                        <FieldLabel htmlFor="report-details">
-                          What should staff review?
-                        </FieldLabel>
+                        <FieldLabel htmlFor="report-details">What should staff review?</FieldLabel>
                         <Textarea
                           id="report-details"
                           name="details"
@@ -302,8 +292,8 @@ export default async function ListingPage({
                           placeholder="Describe the concern. Do not include identity document numbers."
                         />
                         <FieldDescription>
-                          For immediate safety concerns, use the approved local
-                          protection and support pathways as well.
+                          For immediate safety concerns, use the approved local protection and
+                          support pathways as well.
                         </FieldDescription>
                       </Field>
                       <DialogFooter showCloseButton>

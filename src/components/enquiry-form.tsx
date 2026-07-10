@@ -4,12 +4,7 @@ import { useState, useTransition } from "react";
 import { Send } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
+import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
@@ -42,8 +37,8 @@ export function EnquiryForm({ listingId }: { listingId: string }) {
   if (sent) {
     return (
       <p className="text-sm text-muted-foreground">
-        Your enquiry has been sent. The provider will contact you to arrange a
-        viewing. Remember: view the space before paying anything.
+        Your enquiry has been sent. The provider will contact you to arrange a viewing. Remember:
+        view the space before paying anything.
       </p>
     );
   }
@@ -57,13 +52,7 @@ export function EnquiryForm({ listingId }: { listingId: string }) {
         </Field>
         <Field>
           <FieldLabel htmlFor="enq-contact">Phone or WhatsApp number</FieldLabel>
-          <Input
-            id="enq-contact"
-            name="contact"
-            type="tel"
-            required
-            disabled={isPending}
-          />
+          <Input id="enq-contact" name="contact" type="tel" required disabled={isPending} />
         </Field>
         <Field>
           <FieldLabel>How should the provider reply?</FieldLabel>
@@ -91,11 +80,7 @@ export function EnquiryForm({ listingId }: { listingId: string }) {
         </Field>
         <Field>
           <Button type="submit" disabled={isPending}>
-            {isPending ? (
-              <Spinner data-icon="inline-start" />
-            ) : (
-              <Send data-icon="inline-start" />
-            )}
+            {isPending ? <Spinner data-icon="inline-start" /> : <Send data-icon="inline-start" />}
             Send enquiry
           </Button>
         </Field>

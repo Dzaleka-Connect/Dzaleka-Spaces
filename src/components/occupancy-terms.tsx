@@ -1,13 +1,7 @@
 import Link from "next/link";
 import { CheckCircle2, CircleDashed, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import type { OccupancyRecord } from "@/lib/occupancies";
 import { categoryLabel, formatMwk } from "@/lib/types";
@@ -24,23 +18,13 @@ export function OccupancyTerms({ occupancy }: { occupancy: OccupancyRecord }) {
         occupancy.billingPeriod === "daily" ? "day" : "month"
       }`,
     ],
-    [
-      "Deposit",
-      occupancy.depositAmountMwk
-        ? formatMwk(occupancy.depositAmountMwk)
-        : "None",
-    ],
+    ["Deposit", occupancy.depositAmountMwk ? formatMwk(occupancy.depositAmountMwk) : "None"],
     ["Start date", occupancy.startDate],
     ["Expected end", occupancy.expectedEndDate ?? "Open-ended"],
-    [
-      "Payment due day",
-      occupancy.paymentDueDay ? `Day ${occupancy.paymentDueDay}` : "Not set",
-    ],
+    ["Payment due day", occupancy.paymentDueDay ? `Day ${occupancy.paymentDueDay}` : "Not set"],
     [
       "Notice period",
-      occupancy.noticePeriodDays != null
-        ? `${occupancy.noticePeriodDays} days`
-        : "Not set",
+      occupancy.noticePeriodDays != null ? `${occupancy.noticePeriodDays} days` : "Not set",
     ],
     ["Included services", occupancy.includedServices ?? "None recorded"],
   ];
@@ -51,11 +35,17 @@ export function OccupancyTerms({ occupancy }: { occupancy: OccupancyRecord }) {
         <div className="flex-1 space-y-1">
           <CardTitle>Agreed terms</CardTitle>
           <CardDescription>
-            This record documents the arrangement. It does not create or
-            transfer ownership of land or property.
+            This record documents the arrangement. It does not create or transfer ownership of land
+            or property.
           </CardDescription>
         </div>
-        <Button variant="outline" size="sm" render={<Link href={`/spaces/occupancy/${occupancy.id}/print`} />} nativeButton={false} className="shrink-0 gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          render={<Link href={`/spaces/occupancy/${occupancy.id}/print`} />}
+          nativeButton={false}
+          className="shrink-0 gap-2"
+        >
           <Printer className="size-4" />
           <span>Print / PDF</span>
         </Button>

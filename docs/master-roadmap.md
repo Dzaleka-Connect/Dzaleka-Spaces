@@ -1,9 +1,22 @@
 # Master Roadmap
 
-This file records the full roadmap from the master development prompt. It is
-intentionally broader than the current MVP implementation. Use
-`docs/roadmap.md` for current build status and this file for the complete
-production target.
+This file records the full roadmap from the master development prompt. The
+non-residential, non-custodial, email-only pilot implementation is represented
+in the current codebase; `docs/roadmap.md` tracks release gates and deliberately
+disabled scope, while `docs/route-matrix.md` maps every required route.
+
+Implementation status as of 10 July 2026:
+
+- Required route surface: implemented through explicit pages or allowlisted
+  role-gated portal route handlers.
+- Core provider -> verifier -> moderator -> seeker workflow: implemented with
+  database state guards and audit history.
+- Occupancy, finance-record, maintenance, case/content/admin and offline
+  verifier workflows: implemented.
+- Hardening/testing/documentation baseline: implemented; named operator
+  evidence remains a release gate in `docs/production-readiness.md`.
+- Residential, fund-processing, SMS, WhatsApp and push delivery: intentionally
+  disabled and database-locked.
 
 ## Product Boundary
 
@@ -398,12 +411,13 @@ Required storage buckets:
 ```text
 listing-public
 verification-private
-provider-private
-occupancy-private
+message-private
 maintenance-private
-case-private
-user-private
 ```
+
+Provider, occupancy and case records are structured database records rather
+than general-purpose file buckets. New private file classes require an explicit
+bucket/policy/DPIA change rather than being placed in a catch-all bucket.
 
 Storage must enforce RLS, file validation, malware scanning where integrated,
 EXIF/GPS stripping for public images, signed URLs for private content and
@@ -425,9 +439,10 @@ separate backup/export because database backups do not include uploaded files.
   overpayments and idempotent external adapters.
 - Maintenance workflow: ticket, media, triage, quote, work order, schedule,
   progress, completion evidence, confirmation, review and problem reporting.
-- Notifications: email, SMS, WhatsApp and web push adapters with preferences,
-  templates, queues, delivery logs, retries and no sensitive lock-screen
-  content by default.
+- Notifications: Resend email plus in-app records with preferences, templates,
+  concurrent-safe queue claims, signed delivery webhooks, retries and no
+  sensitive subject/preview content. SMS, WhatsApp and web push are explicitly
+  outside the current pilot and locked off.
 
 ## Platform Requirements
 
@@ -488,20 +503,21 @@ Flags must be enforced server-side and in database workflow functions.
 
 ## External Integrations
 
-Adapters are required for:
+The current release requires a production adapter for:
 
-- Email delivery.
-- SMS.
-- WhatsApp.
-- Web push.
-- DzalekaPay.
-- Airtel Money.
-- TNM Mpamba.
-- Map tiles.
-- Geocoding.
-- Error monitoring.
-- Analytics.
-- Malware scanning.
+- Resend transactional email and signed delivery events.
+
+The following integrations are deliberately disabled or replaced with a local
+privacy-preserving implementation during the pilot:
+
+- SMS, WhatsApp and web push delivery.
+- DzalekaPay, Airtel Money and TNM Mpamba payment initiation/verification.
+- Third-party map tiles and geocoding; public discovery uses curated zones and
+  landmarks.
+
+Deployment integrations still required as operator configuration are error
+monitoring/uptime alerting and malware scanning for quarantined non-image
+uploads. Privacy-safe analytics is first-party in `analytics_events`.
 
 Every adapter must include typed configuration, health status, timeout, retry,
 idempotency, structured errors, secret-safe logging, disabled state, test
@@ -518,6 +534,8 @@ docs/architecture/data-model.md
 docs/architecture/permissions.md
 docs/architecture/workflows.md
 docs/architecture/integrations.md
+docs/route-matrix.md
+docs/production-readiness.md
 docs/security/threat-model.md
 docs/security/rls-model.md
 docs/security/file-upload-security.md
@@ -534,6 +552,8 @@ docs/operations/verifier-guide.md
 docs/operations/backup-and-restore.md
 docs/operations/monitoring.md
 docs/operations/support-guide.md
+docs/operations/notification-runbook.md
+docs/operations/verifier-offline-runbook.md
 ```
 
 ## Implementation Phases

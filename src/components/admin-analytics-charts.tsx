@@ -12,13 +12,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ChartContainer,
   ChartLegend,
@@ -82,20 +76,13 @@ export function AdminAnalyticsCharts({
       <Card className="lg:col-span-3">
         <CardHeader>
           <CardTitle>Activity trend</CardTitle>
-          <CardDescription>
-            Privacy-safe events over the last {rangeDays} days
-          </CardDescription>
+          <CardDescription>Privacy-safe events over the last {rangeDays} days</CardDescription>
         </CardHeader>
         <CardContent>
           <ChartContainer config={trendConfig} className="aspect-auto h-72 w-full">
             <AreaChart data={daily} margin={{ left: 8, right: 8, top: 8 }}>
               <CartesianGrid vertical={false} />
-              <XAxis
-                dataKey="label"
-                tickLine={false}
-                axisLine={false}
-                minTickGap={24}
-              />
+              <XAxis dataKey="label" tickLine={false} axisLine={false} minTickGap={24} />
               <YAxis tickLine={false} axisLine={false} width={32} />
               <ChartTooltip content={<ChartTooltipContent />} />
               <ChartLegend content={<ChartLegendContent />} />
@@ -146,21 +133,10 @@ export function AdminAnalyticsCharts({
           <CardDescription>Share of tracked events</CardDescription>
         </CardHeader>
         <CardContent>
-          <ChartContainer
-            config={breakdownConfig}
-            className="mx-auto aspect-square max-h-72"
-          >
+          <ChartContainer config={breakdownConfig} className="mx-auto aspect-square max-h-72">
             <PieChart>
-              <ChartTooltip
-                content={<ChartTooltipContent nameKey="key" hideLabel />}
-              />
-              <Pie
-                data={breakdown}
-                dataKey="value"
-                nameKey="key"
-                innerRadius={55}
-                strokeWidth={2}
-              >
+              <ChartTooltip content={<ChartTooltipContent nameKey="key" hideLabel />} />
+              <Pie data={breakdown} dataKey="value" nameKey="key" innerRadius={55} strokeWidth={2}>
                 {breakdown.map((item) => (
                   <Cell key={item.key} fill={item.fill} />
                 ))}
@@ -189,13 +165,7 @@ export function AdminAnalyticsCharts({
               margin={{ left: 8, right: 16, top: 8, bottom: 8 }}
             >
               <CartesianGrid horizontal={false} />
-              <YAxis
-                dataKey="step"
-                type="category"
-                tickLine={false}
-                axisLine={false}
-                width={100}
-              />
+              <YAxis dataKey="step" type="category" tickLine={false} axisLine={false} width={100} />
               <XAxis type="number" tickLine={false} axisLine={false} />
               <ChartTooltip content={<ChartTooltipContent hideLabel />} />
               <Bar dataKey="value" radius={6}>

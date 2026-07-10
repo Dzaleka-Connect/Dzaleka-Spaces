@@ -10,12 +10,7 @@ import {
   ShieldAlert,
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const metadata: Metadata = {
   title: "Safety centre",
@@ -68,7 +63,7 @@ export default function SafetyPage() {
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-8 px-4 py-12">
       <div className="flex flex-col gap-3">
-        <h1 className="text-3xl font-bold tracking-tight">Safety centre</h1>
+        <h1 className="text-3xl font-bold">Safety centre</h1>
         <p className="max-w-2xl text-muted-foreground">
           Simple rules that protect you when finding or offering a space.
         </p>
@@ -90,9 +85,9 @@ export default function SafetyPage() {
         <ShieldAlert />
         <AlertTitle>The golden rule</AlertTitle>
         <AlertDescription>
-          If someone asks you to pay before you have viewed a space, or asks
-          for your identity documents to “secure” it, stop and report the
-          listing. Reporting is free, private and never counted against you.
+          If someone asks you to pay before you have viewed a space, or asks for your identity
+          documents to “secure” it, stop and report the listing. Reporting is free, private and
+          never counted against you.
         </AlertDescription>
       </Alert>
     </div>

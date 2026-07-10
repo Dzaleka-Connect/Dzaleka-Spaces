@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- Node 20.19+, 22.13+ or 24+ (see `package.json` engines).
+- Node 24, matching CI and current dependency requirements.
 - No `psql` or Supabase CLI required — SQL is applied with a Node script.
 
 ## Setup
@@ -13,19 +13,21 @@ cp .env.example .env.local   # fill in Supabase + optional Resend
 npm run dev
 ```
 
-Without Supabase env vars the app runs in **demo mode** with sample data, so
-the whole UI is browsable immediately.
+Without Supabase env vars public data helpers run in **demo mode** with sample
+data. Authenticated write and staff workflows require Supabase.
 
 ## Database changes
 
 Migrations live in `supabase/migrations/*.sql`, applied in order:
 
 ```bash
-node scripts/db-apply.mjs supabase/migrations/00007_operations_marketplace.sql
+node scripts/db-apply.mjs supabase/migrations/00012_email_delivery_events.sql --check
+node scripts/db-apply.mjs supabase/migrations/00012_email_delivery_events.sql
 ```
 
-`db-apply.mjs` uses `DIRECT_URL` (session-mode pooler) from `.env.local` and
-runs the file in a single transaction. Seed sample data with
+`db-apply.mjs` uses `DIRECT_URL` from `.env.local`, takes an advisory lock,
+runs one transaction, and records a version/checksum. Never edit an applied
+migration. Seed sample data with
 `node scripts/db-apply.mjs supabase/seed.sql`.
 
 Grant yourself admin after signing in once:
@@ -37,8 +39,8 @@ node scripts/grant-admin.mjs you@example.com
 ## Checks before pushing
 
 ```bash
-npm run lint
-npm run typecheck
+npm run check
+npm run test:e2e
 npm run build
 npm run test:rls   # needs DIRECT_URL; skips otherwise
 ```

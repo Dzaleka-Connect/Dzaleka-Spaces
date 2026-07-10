@@ -11,9 +11,7 @@ export interface ConfirmResult {
 }
 
 // The occupant confirms the arrangement from their own account.
-export async function confirmOccupancy(
-  occupancyId: string
-): Promise<ConfirmResult> {
+export async function confirmOccupancy(occupancyId: string): Promise<ConfirmResult> {
   const user = await getSessionUser();
   if (!user) redirect("/sign-in");
 

@@ -4,21 +4,12 @@ import { Info, Users } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { getSessionUser } from "@/lib/auth";
-import {
-  createAdminClient,
-  isSupabaseAdminConfigured,
-} from "@/lib/supabase/admin";
+import { createAdminClient, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { inviteProviderTeamMember } from "./actions";
 
@@ -63,7 +54,9 @@ export default async function ProviderTeamPage({
     const supabase = createAdminClient();
     const { data } = await supabase
       .from("provider_team_members")
-      .select("id, member_id, permissions, status, profiles!provider_team_members_member_id_fkey(full_name, email)")
+      .select(
+        "id, member_id, permissions, status, profiles!provider_team_members_member_id_fkey(full_name, email)"
+      )
       .eq("provider_id", user.id)
       .order("invited_at", { ascending: false });
     members = (data ?? []) as unknown as TeamMember[];
@@ -72,10 +65,10 @@ export default async function ProviderTeamPage({
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Provider team</h1>
+        <h1 className="text-3xl font-bold">Provider team</h1>
         <p className="mt-1 text-muted-foreground">
-          Grant scoped access to people helping manage your spaces. Permissions
-          are enforced by the database helper used by provider workflows.
+          Grant scoped access to people helping manage your spaces. Permissions are enforced by the
+          database helper used by provider workflows.
         </p>
       </div>
 
@@ -104,36 +97,29 @@ export default async function ProviderTeamPage({
           </CardHeader>
           <CardContent className="flex flex-col gap-3">
             {members.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No team members have been added.
-              </p>
+              <p className="text-sm text-muted-foreground">No team members have been added.</p>
             ) : (
               members.map((member) => (
-                <div
-                  key={member.id}
-                  className="flex flex-col gap-2 rounded-lg border p-3"
-                >
+                <div key={member.id} className="flex flex-col gap-2 rounded-lg border p-3">
                   {(() => {
                     const profile = Array.isArray(member.profiles)
                       ? member.profiles[0]
                       : member.profiles;
                     return (
                       <>
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="font-medium">
-                      {profile?.full_name ||
-                        profile?.email ||
-                        member.member_id}
-                    </p>
-                    <Badge variant="outline">{member.status}</Badge>
-                  </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {member.permissions.map((permission) => (
-                      <Badge key={permission} variant="secondary">
-                        {permission.replace(/_/g, " ")}
-                      </Badge>
-                    ))}
-                  </div>
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <p className="font-medium">
+                            {profile?.full_name || profile?.email || member.member_id}
+                          </p>
+                          <Badge variant="outline">{member.status}</Badge>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {member.permissions.map((permission) => (
+                            <Badge key={permission} variant="secondary">
+                              {permission.replace(/_/g, " ")}
+                            </Badge>
+                          ))}
+                        </div>
                       </>
                     );
                   })()}

@@ -36,8 +36,7 @@ export default async function AdminOccupanciesPage() {
           <Info />
           <AlertTitle>Demo mode</AlertTitle>
           <AlertDescription>
-            Occupancy administration is available once a Supabase project is
-            connected.
+            Occupancy administration is available once a Supabase project is connected.
           </AlertDescription>
         </Alert>
       </div>
@@ -61,10 +60,10 @@ export default async function AdminOccupanciesPage() {
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Occupancies</h1>
+        <h1 className="text-3xl font-bold">Occupancies</h1>
         <p className="mt-1 text-muted-foreground">
-          Read-only oversight of occupancy records. Access is limited and
-          audited; the parties themselves manage their records.
+          Read-only oversight of occupancy records. Access is limited and audited; the parties
+          themselves manage their records.
         </p>
       </div>
 
@@ -104,22 +103,15 @@ export default async function AdminOccupanciesPage() {
                   <TableCell>
                     {occupant?.full_name ?? "—"}
                     {occupant?.confirmed_at ? (
-                      <span className="ml-1 text-xs text-muted-foreground">
-                        (confirmed)
-                      </span>
+                      <span className="ml-1 text-xs text-muted-foreground">(confirmed)</span>
                     ) : null}
                   </TableCell>
                   <TableCell>
-                    {formatMwk(o.agreed_amount_mwk)}/
-                    {o.billing_period === "daily" ? "day" : "mo"}
+                    {formatMwk(o.agreed_amount_mwk)}/{o.billing_period === "daily" ? "day" : "mo"}
                   </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {o.start_date}
-                  </TableCell>
+                  <TableCell className="text-muted-foreground">{o.start_date}</TableCell>
                   <TableCell>
-                    <OccupancyStatusBadge
-                      status={o.status as OccupancyStatus}
-                    />
+                    <OccupancyStatusBadge status={o.status as OccupancyStatus} />
                   </TableCell>
                 </TableRow>
               );

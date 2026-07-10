@@ -28,8 +28,7 @@ export default async function AccountOccupancyPage() {
           <Info />
           <AlertTitle>Demo mode</AlertTitle>
           <AlertDescription>
-            Occupancy records are available once a Supabase project is
-            connected.
+            Occupancy records are available once a Supabase project is connected.
           </AlertDescription>
         </Alert>
       </div>
@@ -44,7 +43,7 @@ export default async function AccountOccupancyPage() {
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">My occupancy</h1>
+        <h1 className="text-3xl font-bold">My occupancy</h1>
         <p className="mt-1 text-muted-foreground">
           Written records of arrangements where you are the occupant.
         </p>
@@ -58,17 +57,15 @@ export default async function AccountOccupancyPage() {
             </EmptyMedia>
             <EmptyTitle>No occupancy records</EmptyTitle>
             <EmptyDescription>
-              When a provider records an arrangement with you, it appears here
-              for you to review and confirm.
+              When a provider records an arrangement with you, it appears here for you to review and
+              confirm.
             </EmptyDescription>
           </EmptyHeader>
         </Empty>
       ) : (
         <div className="flex flex-col gap-8">
           {occupancies.map((o) => {
-            const myParty = o.parties.find(
-              (p) => p.userId === user.id && p.role === "occupant"
-            );
+            const myParty = o.parties.find((p) => p.userId === user.id && p.role === "occupant");
             return (
               <div key={o.id} className="flex flex-col gap-4">
                 <div>
@@ -80,9 +77,8 @@ export default async function AccountOccupancyPage() {
                 !myParty.confirmedAt ? (
                   <div className="flex flex-col gap-2">
                     <p className="text-sm text-muted-foreground">
-                      Check every term above before confirming. Only confirm
-                      once you have viewed the space and agree with what is
-                      written.
+                      Check every term above before confirming. Only confirm once you have viewed
+                      the space and agree with what is written.
                     </p>
                     <div>
                       <OccupantConfirmButton occupancyId={o.id} />

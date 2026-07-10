@@ -5,13 +5,7 @@ import { Heart, Info, LogOut, MessageSquare } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Empty,
   EmptyDescription,
@@ -55,22 +49,15 @@ export default async function AccountPage() {
 
   const listingIds = [...new Set((enquiries ?? []).map((e) => e.listing_id))];
   const { data: listingTitles } = listingIds.length
-    ? await supabase
-        .from("public_listings")
-        .select("id, title")
-        .in("id", listingIds)
+    ? await supabase.from("public_listings").select("id, title").in("id", listingIds)
     : { data: [] };
-  const titleById = new Map(
-    (listingTitles ?? []).map((l) => [l.id, l.title as string])
-  );
+  const titleById = new Map((listingTitles ?? []).map((l) => [l.id, l.title as string]));
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            {user.fullName || "Your account"}
-          </h1>
+          <h1 className="text-3xl font-bold">{user.fullName || "Your account"}</h1>
           <p className="mt-1 text-muted-foreground">{user.email}</p>
           <div className="mt-2 flex flex-wrap gap-1.5">
             {user.roles.map((role) => (
@@ -92,9 +79,7 @@ export default async function AccountPage() {
         <Card>
           <CardHeader>
             <CardTitle>Saved spaces</CardTitle>
-            <CardDescription>
-              Compare spaces you want to review again.
-            </CardDescription>
+            <CardDescription>Compare spaces you want to review again.</CardDescription>
           </CardHeader>
           <CardContent>
             <Button
@@ -111,9 +96,7 @@ export default async function AccountPage() {
         <Card>
           <CardHeader>
             <CardTitle>Saved searches</CardTitle>
-            <CardDescription>
-              Named filters with optional match alerts.
-            </CardDescription>
+            <CardDescription>Named filters with optional match alerts.</CardDescription>
           </CardHeader>
           <CardContent>
             <Button
@@ -129,9 +112,7 @@ export default async function AccountPage() {
         <Card>
           <CardHeader>
             <CardTitle>Viewings</CardTitle>
-            <CardDescription>
-              Upcoming and past viewing appointments.
-            </CardDescription>
+            <CardDescription>Upcoming and past viewing appointments.</CardDescription>
           </CardHeader>
           <CardContent>
             <Button
@@ -165,9 +146,7 @@ export default async function AccountPage() {
         <Card>
           <CardHeader>
             <CardTitle>Provider tools</CardTitle>
-            <CardDescription>
-              Manage the spaces and listings you offer.
-            </CardDescription>
+            <CardDescription>Manage the spaces and listings you offer.</CardDescription>
           </CardHeader>
           <CardContent>
             <Button
@@ -184,9 +163,7 @@ export default async function AccountPage() {
           <Card>
             <CardHeader>
               <CardTitle>Field verification</CardTitle>
-              <CardDescription>
-                Assignments awaiting an in-person visit.
-              </CardDescription>
+              <CardDescription>Assignments awaiting an in-person visit.</CardDescription>
             </CardHeader>
             <CardContent>
               <Button
@@ -204,9 +181,7 @@ export default async function AccountPage() {
           <Card>
             <CardHeader>
               <CardTitle>Administration</CardTitle>
-              <CardDescription>
-                Review queue, metrics and feature flags.
-              </CardDescription>
+              <CardDescription>Review queue, metrics and feature flags.</CardDescription>
             </CardHeader>
             <CardContent>
               <Button
@@ -225,9 +200,7 @@ export default async function AccountPage() {
       <Card>
         <CardHeader>
           <CardTitle>Your enquiries</CardTitle>
-          <CardDescription>
-            Enquiries you sent while signed in.
-          </CardDescription>
+          <CardDescription>Enquiries you sent while signed in.</CardDescription>
         </CardHeader>
         <CardContent>
           {(enquiries ?? []).length === 0 ? (
@@ -245,10 +218,7 @@ export default async function AccountPage() {
           ) : (
             <ul className="flex flex-col gap-3">
               {(enquiries ?? []).map((e) => (
-                <li
-                  key={e.id}
-                  className="flex flex-col gap-1 rounded-lg border p-3"
-                >
+                <li key={e.id} className="flex flex-col gap-1 rounded-lg border p-3">
                   <div className="flex items-center justify-between gap-2">
                     <Link
                       href={`/account/enquiries/${e.id}`}
@@ -258,11 +228,7 @@ export default async function AccountPage() {
                     </Link>
                     <Badge variant="outline">{e.channel}</Badge>
                   </div>
-                  {e.message ? (
-                    <p className="text-sm text-muted-foreground">
-                      {e.message}
-                    </p>
-                  ) : null}
+                  {e.message ? <p className="text-sm text-muted-foreground">{e.message}</p> : null}
                   <p className="text-xs text-muted-foreground">
                     {new Date(e.created_at).toLocaleDateString()}
                   </p>

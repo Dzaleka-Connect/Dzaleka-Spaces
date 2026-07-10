@@ -2,9 +2,15 @@
 
 import { revalidatePath } from "next/cache";
 import { getSessionUser } from "@/lib/auth";
-import { recordPayment, confirmPayment, disputePayment, type PaymentMethod } from "@/lib/payments";
+import {
+  PAYMENT_METHODS,
+  recordPayment,
+  confirmPayment,
+  disputePayment,
+  type PaymentMethod,
+} from "@/lib/payments";
 
-export async function tenantRecordPaymentAction(prevState: unknown, formData: FormData) {
+export async function occupantRecordPaymentAction(prevState: unknown, formData: FormData) {
   const user = await getSessionUser();
   if (!user) return { ok: false, message: "Unauthorized." };
 
@@ -14,6 +20,7 @@ export async function tenantRecordPaymentAction(prevState: unknown, formData: Fo
   const method = formData.get("method") as string;
   const externalReference = formData.get("externalReference") as string;
   const notes = formData.get("notes") as string;
+  const idempotencyKey = String(formData.get("idempotencyKey") ?? "");
 
   if (!occupancyId || !amountStr || !paymentDate || !method) {
     return { ok: false, message: "Missing required fields." };
@@ -22,6 +29,16 @@ export async function tenantRecordPaymentAction(prevState: unknown, formData: Fo
   const amount = parseInt(amountStr, 10);
   if (isNaN(amount) || amount <= 0) {
     return { ok: false, message: "Amount must be greater than zero." };
+  }
+  if (!PAYMENT_METHODS.includes(method as PaymentMethod)) {
+    return { ok: false, message: "Choose a valid payment method." };
+  }
+  if (
+    !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+      idempotencyKey
+    )
+  ) {
+    return { ok: false, message: "This payment form has expired. Reload and try again." };
   }
 
   const res = await recordPayment(
@@ -32,7 +49,8 @@ export async function tenantRecordPaymentAction(prevState: unknown, formData: Fo
     method as PaymentMethod,
     externalReference,
     notes,
-    "payer"
+    "payer",
+    idempotencyKey
   );
 
   if (!res.ok) {
@@ -44,7 +62,7 @@ export async function tenantRecordPaymentAction(prevState: unknown, formData: Fo
   return { ok: true, message: "Payment reported successfully. Awaiting provider confirmation." };
 }
 
-export async function tenantConfirmPaymentAction(paymentId: string) {
+export async function occupantConfirmPaymentAction(paymentId: string) {
   const user = await getSessionUser();
   if (!user) return { ok: false, message: "Unauthorized." };
 
@@ -58,7 +76,7 @@ export async function tenantConfirmPaymentAction(paymentId: string) {
   return { ok: true, message: "Payment confirmed." };
 }
 
-export async function tenantDisputePaymentAction(paymentId: string, reason: string) {
+export async function occupantDisputePaymentAction(paymentId: string, reason: string) {
   const user = await getSessionUser();
   if (!user) return { ok: false, message: "Unauthorized." };
 

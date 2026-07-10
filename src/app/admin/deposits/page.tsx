@@ -3,7 +3,14 @@ import { redirect } from "next/navigation";
 import { AlertCircle } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { getSessionUser } from "@/lib/auth";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
@@ -38,7 +45,7 @@ export default async function AdminDepositsPage() {
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Security Deposits</h1>
+        <h1 className="text-3xl font-bold">Security Deposits</h1>
         <p className="mt-1 text-muted-foreground text-sm">
           Monitor deposit amounts recorded in active arrangement agreements.
         </p>
@@ -47,13 +54,17 @@ export default async function AdminDepositsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Deposits Registry</CardTitle>
-          <CardDescription>Oversight of security deposits agreed between parties (non-custodial).</CardDescription>
+          <CardDescription>
+            Oversight of security deposits agreed between parties (non-custodial).
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {occupancies.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <AlertCircle className="size-8 text-muted-foreground mb-2" />
-              <p className="text-sm font-semibold text-foreground">No deposits recorded in system</p>
+              <p className="text-sm font-semibold text-foreground">
+                No deposits recorded in system
+              </p>
             </div>
           ) : (
             <Table>
@@ -75,7 +86,9 @@ export default async function AdminDepositsPage() {
                     <TableCell>
                       <div className="flex flex-col">
                         <span>{o.spaces?.landmark}</span>
-                        <span className="text-xs text-muted-foreground">{o.spaces?.zones?.name}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {o.spaces?.zones?.name}
+                        </span>
                       </div>
                     </TableCell>
                     <TableCell className="font-semibold text-amber-600 dark:text-amber-400">

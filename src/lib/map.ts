@@ -21,11 +21,11 @@ const ZONE_CENTRES: Record<string, { lat: number; lng: number }> = {
   "Likuni 2": { lat: -14.366, lng: 34.127 },
   Lisungwi: { lat: -14.375, lng: 34.122 },
   Katudza: { lat: -14.378, lng: 34.135 },
-  "New Katubza": { lat: -14.380, lng: 34.130 },
+  "New Katubza": { lat: -14.38, lng: 34.13 },
   Zomba: { lat: -14.372, lng: 34.118 },
   Blantyre: { lat: -14.369, lng: 34.133 },
   Karonga: { lat: -14.376, lng: 34.126 },
-  "Dzaleka Hill": { lat: -14.365, lng: 34.120 },
+  "Dzaleka Hill": { lat: -14.365, lng: 34.12 },
   "Other recognised area": { lat: -14.374, lng: 34.128 },
 };
 
@@ -44,9 +44,7 @@ export async function getPublicMapMarkers(): Promise<MapMarker[]> {
   const listings = await getListings();
 
   return listings.map((listing) => {
-    const centre =
-      ZONE_CENTRES[listing.zone] ??
-      ZONE_CENTRES["Other recognised area"];
+    const centre = ZONE_CENTRES[listing.zone] ?? ZONE_CENTRES["Other recognised area"];
     const offset = jitter(listing.id);
     return {
       listingId: listing.id,

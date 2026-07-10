@@ -1,12 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {
-  ChevronsUpDown,
-  CircleUserRound,
-  LogOut,
-  Settings,
-} from "lucide-react";
+import { ChevronsUpDown, CircleUserRound, LogOut, Settings } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -48,15 +43,11 @@ export function NavUser({ user }: NavUserProps) {
             }
           >
             <Avatar className="size-8 rounded-lg">
-              <AvatarFallback className="rounded-lg">
-                {user.initials}
-              </AvatarFallback>
+              <AvatarFallback className="rounded-lg">{user.initials}</AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="truncate font-medium">{user.name}</span>
-              <span className="truncate text-xs text-muted-foreground">
-                {user.email}
-              </span>
+              <span className="truncate text-xs text-muted-foreground">{user.email}</span>
             </div>
             <ChevronsUpDown className="ml-auto size-4" />
           </DropdownMenuTrigger>
@@ -70,15 +61,11 @@ export function NavUser({ user }: NavUserProps) {
               <DropdownMenuLabel className="p-0 font-normal">
                 <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                   <Avatar className="size-8 rounded-lg">
-                    <AvatarFallback className="rounded-lg">
-                      {user.initials}
-                    </AvatarFallback>
+                    <AvatarFallback className="rounded-lg">{user.initials}</AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-medium">{user.name}</span>
-                    <span className="truncate text-xs text-muted-foreground">
-                      {user.email}
-                    </span>
+                    <span className="truncate text-xs text-muted-foreground">{user.email}</span>
                   </div>
                 </div>
               </DropdownMenuLabel>
@@ -93,13 +80,14 @@ export function NavUser({ user }: NavUserProps) {
                 <Settings />
                 Profile
               </DropdownMenuItem>
+              <DropdownMenuItem render={<Link href="/account/security" />}>
+                <Settings />
+                Security
+              </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <form action="/auth/signout" method="post">
-              <DropdownMenuItem
-                variant="destructive"
-                render={<button type="submit" />}
-              >
+              <DropdownMenuItem variant="destructive" render={<button type="submit" />}>
                 <LogOut />
                 Sign out
               </DropdownMenuItem>

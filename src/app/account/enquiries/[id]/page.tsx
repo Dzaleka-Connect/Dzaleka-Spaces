@@ -2,13 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EnquiryThread } from "@/components/enquiry-thread";
 import { ViewingActions } from "@/components/viewing-actions";
 import { getSessionUser } from "@/lib/auth";
@@ -22,11 +16,7 @@ export const metadata: Metadata = {
   title: "Enquiry",
 };
 
-export default async function EnquiryDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function EnquiryDetailPage({ params }: { params: Promise<{ id: string }> }) {
   if (!isSupabaseConfigured()) redirect("/account/enquiries");
 
   const user = await getSessionUser();
@@ -73,9 +63,7 @@ export default async function EnquiryDetailPage({
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            {enquiry.listingTitle}
-          </h1>
+          <h1 className="text-2xl font-bold">{enquiry.listingTitle}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Enquiry with {isSeeker ? "provider" : enquiry.seekerName}
           </p>
@@ -83,11 +71,7 @@ export default async function EnquiryDetailPage({
         <Button
           variant="outline"
           size="sm"
-          render={
-            <Link
-              href={isSeeker ? "/account/enquiries" : "/provider/enquiries"}
-            />
-          }
+          render={<Link href={isSeeker ? "/account/enquiries" : "/provider/enquiries"} />}
           nativeButton={false}
         >
           Back
@@ -116,16 +100,12 @@ export default async function EnquiryDetailPage({
         <CardHeader>
           <CardTitle>Viewing</CardTitle>
           <CardDescription>
-            Request or confirm an in-person viewing. Exact directions are shared
-            only after confirmation — never pay before you visit.
+            Request or confirm an in-person viewing. Exact directions are shared only after
+            confirmation — never pay before you visit.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ViewingActions
-            enquiryId={enquiry.id}
-            viewing={viewing}
-            role={viewerRole}
-          />
+          <ViewingActions enquiryId={enquiry.id} viewing={viewing} role={viewerRole} />
         </CardContent>
       </Card>
     </div>

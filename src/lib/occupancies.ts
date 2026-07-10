@@ -111,9 +111,7 @@ async function attachParties(
   );
 }
 
-export async function listOccupanciesForProvider(
-  userId: string
-): Promise<OccupancyRecord[]> {
+export async function listOccupanciesForProvider(userId: string): Promise<OccupancyRecord[]> {
   if (!isSupabaseConfigured()) return [];
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -128,9 +126,7 @@ export async function listOccupanciesForProvider(
   return attachParties(supabase, data ?? []);
 }
 
-export async function listOccupanciesForOccupant(
-  userId: string
-): Promise<OccupancyRecord[]> {
+export async function listOccupanciesForOccupant(userId: string): Promise<OccupancyRecord[]> {
   if (!isSupabaseConfigured()) return [];
   const supabase = await createClient();
   const { data: partyRows } = await supabase
@@ -169,8 +165,6 @@ export async function getOccupancyForUser(
     return null;
   }
   const [record] = await attachParties(supabase, [data]);
-  const involved =
-    record.providerId === userId ||
-    record.parties.some((p) => p.userId === userId);
+  const involved = record.providerId === userId || record.parties.some((p) => p.userId === userId);
   return involved ? record : null;
 }

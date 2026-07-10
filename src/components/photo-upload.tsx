@@ -37,12 +37,10 @@ export async function uploadSpacePhotos(
       const ext = files[i].type === "image/png" ? "png" : "jpg";
       const path = `${spaceId}/${crypto.randomUUID()}.${ext}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from(bucket)
-        .upload(path, stripped, {
-          contentType: stripped.type,
-          upsert: false,
-        });
+      const { error: uploadError } = await supabase.storage.from(bucket).upload(path, stripped, {
+        contentType: stripped.type,
+        upsert: false,
+      });
 
       if (uploadError) {
         throw new Error(uploadError.message);
@@ -104,13 +102,9 @@ export function PhotoUpload({
   const [done, setDone] = useState(false);
 
   const files = controlledFiles ?? internalFiles;
-  const resolvedLabel =
-    label ?? (required ? "Photos" : "Photos (optional)");
+  const resolvedLabel = label ?? (required ? "Photos" : "Photos (optional)");
 
-  const previews = useMemo(
-    () => files.map((file) => URL.createObjectURL(file)),
-    [files]
-  );
+  const previews = useMemo(() => files.map((file) => URL.createObjectURL(file)), [files]);
 
   useEffect(() => {
     return () => {
@@ -213,7 +207,7 @@ export function PhotoUpload({
           type="button"
           disabled={uploading}
           onClick={() => inputRef.current?.click()}
-          className="mb-3 flex min-h-36 w-full flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-input bg-muted/30 px-4 py-8 text-center transition-colors hover:bg-muted/50"
+          className="mb-3 flex min-h-36 w-full flex-col items-center justify-center gap-2 rounded-md border border-dashed border-input bg-muted/30 px-4 py-8 text-center transition-colors hover:bg-muted/50"
         >
           <ImagePlus className="size-8 text-muted-foreground" />
           <span className="text-base font-medium">

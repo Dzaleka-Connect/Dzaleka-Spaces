@@ -4,13 +4,7 @@ import { redirect } from "next/navigation";
 import { MessageSquare } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Empty,
   EmptyDescription,
@@ -39,24 +33,16 @@ export default async function ProviderEnquiriesPage() {
   const { data: listings } = listingIds.length
     ? await supabase.from("listings").select("id, title").in("id", listingIds)
     : { data: [] };
-  const titleById = new Map(
-    (listings ?? []).map((l) => [l.id, l.title as string])
-  );
+  const titleById = new Map((listings ?? []).map((l) => [l.id, l.title as string]));
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Enquiries</h1>
-          <p className="mt-1 text-muted-foreground">
-            Respond and arrange viewings with seekers.
-          </p>
+          <h1 className="text-3xl font-bold">Enquiries</h1>
+          <p className="mt-1 text-muted-foreground">Respond and arrange viewings with seekers.</p>
         </div>
-        <Button
-          variant="outline"
-          render={<Link href="/provider" />}
-          nativeButton={false}
-        >
+        <Button variant="outline" render={<Link href="/provider" />} nativeButton={false}>
           Dashboard
         </Button>
       </div>
@@ -69,8 +55,7 @@ export default async function ProviderEnquiriesPage() {
             </EmptyMedia>
             <EmptyTitle>No enquiries yet</EmptyTitle>
             <EmptyDescription>
-              Enquiries appear here when someone asks about your published
-              listings.
+              Enquiries appear here when someone asks about your published listings.
             </EmptyDescription>
           </EmptyHeader>
         </Empty>

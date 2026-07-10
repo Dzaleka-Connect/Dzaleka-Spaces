@@ -2,15 +2,17 @@
 
 ## What to watch
 
-- **Availability** — homepage and `/spaces` respond 200; auth works.
+- **Availability** — `https://spaces.dzaleka.com`, `/spaces`, `/services`,
+  auth callback and webhook/worker health respond as expected.
 - **Errors** — server action / route handler error rate; client console errors.
-- **Notifications** — `notification_queue` depth and `notification_deliveries`
-  failure rate; email disabled-state is expected, hard failures are not.
+- **Notifications** — ready/processing age, failed queue rows, delivery state,
+  webhook 4xx/5xx and bounce/complaint rate.
 - **Cron** — expiry, re-verification, notification drain and log-pruning jobs
   ran on schedule.
 - **Database** — connection pool saturation, slow queries, RLS-denied spikes
   (possible probing).
-- **Storage** — signed-URL error rate; unexpected public-bucket growth.
+- **Storage** — signed-URL error rate, quarantine age/backlog, unexpected
+  public-bucket growth and backup age.
 
 ## Signals in the product
 
@@ -23,8 +25,13 @@
 - Synthetic check on `/` and `/spaces`.
 - Periodic `npm run test:rls` against production as a live guard assertion.
 - Confirm security headers on responses (CSP nonce present, HSTS in prod).
+- `/admin/system` checks database queries, server-side worker configuration and
+  email adapter configuration without displaying secret values.
 
-## To wire before production
+## Operator configuration
 
-- Error monitoring (Sentry adapter placeholder), structured request-ID logs,
-  uptime alerts and a queue/job dashboard. Track these in the roadmap.
+Configure Render/Cloudflare/Supabase/Resend monitoring with restricted access,
+redaction and alerts for the signals above. Record the provider, alert
+threshold, escalation destination, named on-call owner and test date in the
+production environment record. Avoid client-side session replay or analytics
+that could capture exact locations, messages, forms or evidence.

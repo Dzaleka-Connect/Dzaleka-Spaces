@@ -1,29 +1,46 @@
 # Integrations
 
-Every external adapter has: typed config from env, a `disabled` state, a
-configured-check, structured errors, secret-safe logging, and (where relevant)
-idempotency.
+## Active runtime integrations
 
-## Active
+| Integration                           | Module/route                                   | Configuration                       | Control                                                          |
+| ------------------------------------- | ---------------------------------------------- | ----------------------------------- | ---------------------------------------------------------------- |
+| Supabase Auth/Data API/Storage        | `src/lib/supabase/*`                           | URL, publishable key, server secret | Browser/server clients separated; RLS remains authoritative      |
+| Supabase Postgres operator connection | `scripts/db-apply.mjs`, `scripts/test-rls.mjs` | `DIRECT_URL`                        | TLS, transaction, advisory lock, checksum ledger, rollback tests |
+| Resend send API                       | `src/lib/email/resend.ts`                      | API key, sender, reply address      | Stable idempotency key; structured disabled/error result         |
+| Resend delivery webhook               | `/api/webhooks/resend`                         | API key and webhook signing secret  | Raw-body Svix verification; service-only idempotent RPC          |
+| Render                                | Production Next.js runtime                     | Hosting environment                 | `APP_ENV=production` fail-fast validation                        |
+| Cloudflare                            | DNS, TLS and edge transport                    | Operator-managed                    | HTTPS, HSTS and origin/header verification                       |
 
-| Integration | Module | Config | Notes |
-| --- | --- | --- | --- |
-| Supabase | `src/lib/supabase/*` | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | DB, auth, storage, realtime |
-| Email (Resend) | `src/lib/email/resend.ts` | `RESEND_API_KEY`, `EMAIL_FROM`, `EMAIL_REPLY_TO` | Disabled unless key + from set; idempotency key per send |
-| Map tiles (OpenStreetMap) | `src/lib/map.ts` | none | Approximate zone/landmark markers only; `public_map` flag |
+The public map is a local privacy-safe zone/landmark representation. It does
+not send search terms, exact coordinates or user identity to a tile/geocoding
+provider.
 
-## Planned (adapter placeholders)
+## Disabled by pilot policy
 
-- SMS, WhatsApp, web push — notification channels beyond email.
-- DzalekaPay / Airtel Money / TNM Mpamba — payment *references* only, never
-  custody; behind `mobile_money_processing` (off).
-- Malware scanning on upload.
-- Error monitoring (Sentry) and privacy-safe analytics export.
+- SMS, WhatsApp and web push notification delivery.
+- DzalekaPay, Airtel Money and TNM Mpamba initiation or transaction
+  verification.
+- Deposit/rent custody or escrow.
 
-## Rules
+Payment adapters in `src/lib/adapters/payment-adapters.ts` always return
+disabled/failed. Enabling these integrations requires a new migration and
+operational/privacy/security approval; the admin UI cannot turn them on.
 
-- Secrets live only in server env, never `NEXT_PUBLIC_*` (which ships to the
-  browser).
-- A disabled adapter must degrade gracefully — the app runs in demo mode with
-  no Supabase, and queues/records without sending when email is off.
-- Webhook receivers must verify signatures and be idempotent.
+## Deployment services
+
+- Error and uptime monitoring: configure the chosen hosting/monitoring service
+  with redaction, restricted access and alerts described in the monitoring
+  runbook. The app does not require a client-side tracking SDK.
+- Malware scanner: consume `file_uploads` rows in `pending` quarantine, scan
+  from a private worker, and mark only verified objects `clean`. Until then,
+  the restrictive storage policy blocks retrieval.
+- Backups: database exports and all storage buckets require separate scheduled
+  copies and restore tests.
+
+## Adapter contract
+
+Every integration must have typed configuration, an explicit disabled state,
+timeouts, bounded retries, stable idempotency, structured/redacted errors,
+health visibility, setup/rollback documentation and signature verification for
+incoming webhooks. Secrets remain server-only; only Supabase URL and
+publishable key are public.

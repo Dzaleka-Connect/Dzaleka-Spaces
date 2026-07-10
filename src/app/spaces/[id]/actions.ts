@@ -13,10 +13,7 @@ export interface EnquiryResult {
   enquiryId?: string;
 }
 
-export async function submitEnquiry(
-  listingId: string,
-  formData: FormData
-): Promise<EnquiryResult> {
+export async function submitEnquiry(listingId: string, formData: FormData): Promise<EnquiryResult> {
   const name = String(formData.get("name") ?? "").trim();
   const contact = String(formData.get("contact") ?? "").trim();
   const channel = String(formData.get("channel") ?? "whatsapp");
@@ -95,9 +92,7 @@ export async function saveListing(listingId: string) {
     .maybeSingle();
 
   if (!listing) {
-    redirect(
-      `/spaces/${listingId}?error=${encodeURIComponent("Listing not found.")}`
-    );
+    redirect(`/spaces/${listingId}?error=${encodeURIComponent("Listing not found.")}`);
   }
 
   const { error } = await supabase.from("saved_listings").upsert({
@@ -142,9 +137,7 @@ export async function reportListing(listingId: string, formData: FormData) {
   const details = String(formData.get("details") ?? "").trim();
   if (details.length < 10) {
     redirect(
-      `/spaces/${listingId}?error=${encodeURIComponent(
-        "Please add a short report summary."
-      )}`
+      `/spaces/${listingId}?error=${encodeURIComponent("Please add a short report summary.")}`
     );
   }
 
@@ -161,9 +154,7 @@ export async function reportListing(listingId: string, formData: FormData) {
     .maybeSingle();
 
   if (!listing) {
-    redirect(
-      `/spaces/${listingId}?error=${encodeURIComponent("Listing not found.")}`
-    );
+    redirect(`/spaces/${listingId}?error=${encodeURIComponent("Listing not found.")}`);
   }
 
   const { error } = await supabase.from("reports").insert({

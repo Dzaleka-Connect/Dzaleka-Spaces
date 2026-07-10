@@ -2,11 +2,11 @@ import { isStaff } from "./auth-roles";
 import { isSupabaseConfigured } from "./supabase/config";
 import { createClient } from "./supabase/server";
 import type { SessionUser } from "./session-user";
-import { TRADE_CATEGORIES } from "./types";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface ServiceProviderProfile {
   userId: string;
+  slug: string;
   displayName: string;
   bio: string | null;
   categories: string[];
@@ -99,6 +99,7 @@ export interface MaintenanceDocument {
 export const DEMO_SERVICE_PROVIDERS: ServiceProviderProfile[] = [
   {
     userId: "demo-trade-1",
+    slug: "bright-solar-wiring",
     displayName: "Bright Solar & Wiring",
     bio: "Electrical repairs, solar light installs and small venue wiring checks.",
     categories: ["Electrical", "Solar"],
@@ -110,6 +111,7 @@ export const DEMO_SERVICE_PROVIDERS: ServiceProviderProfile[] = [
   },
   {
     userId: "demo-trade-2",
+    slug: "umodzi-carpentry-team",
     displayName: "Umodzi Carpentry Team",
     bio: "Door repairs, shelving, counter builds and lockable storage fittings.",
     categories: ["Carpentry", "Locks and security", "Building repairs"],
@@ -125,8 +127,7 @@ export const DEMO_MAINTENANCE_JOBS: MaintenanceJob[] = [
   {
     id: "demo-job-1",
     title: "Repair lockable market stall door",
-    description:
-      "Metal door is sticking and the lock no longer closes securely.",
+    description: "Metal door is sticking and the lock no longer closes securely.",
     category: "Locks and security",
     priority: "normal",
     status: "open",
@@ -137,8 +138,7 @@ export const DEMO_MAINTENANCE_JOBS: MaintenanceJob[] = [
   {
     id: "demo-job-2",
     title: "Check solar lighting in training room",
-    description:
-      "Two indoor lights are dim and the provider wants the battery checked.",
+    description: "Two indoor lights are dim and the provider wants the battery checked.",
     category: "Solar",
     priority: "low",
     status: "triaged",
@@ -155,7 +155,7 @@ export async function listServiceProviders(): Promise<ServiceProviderProfile[]> 
   const { data, error } = await supabase
     .from("service_provider_profiles")
     .select(
-      "user_id, display_name, bio, categories, zones_served, languages, phone, status, verified_at"
+      "user_id, slug, display_name, bio, categories, zones_served, languages, phone, status, verified_at"
     )
     .eq("status", "active")
     .order("display_name");
@@ -167,6 +167,7 @@ export async function listServiceProviders(): Promise<ServiceProviderProfile[]> 
 
   return (data ?? []).map((row) => ({
     userId: row.user_id,
+    slug: row.slug ?? row.user_id,
     displayName: row.display_name,
     bio: row.bio,
     categories: row.categories ?? [],
@@ -187,7 +188,7 @@ export async function getMyServiceProviderProfile(
   const { data, error } = await supabase
     .from("service_provider_profiles")
     .select(
-      "user_id, display_name, bio, categories, zones_served, languages, phone, status, verified_at"
+      "user_id, slug, display_name, bio, categories, zones_served, languages, phone, status, verified_at"
     )
     .eq("user_id", userId)
     .maybeSingle();
@@ -200,6 +201,47 @@ export async function getMyServiceProviderProfile(
 
   return {
     userId: data.user_id,
+    slug: data.slug ?? data.user_id,
+    displayName: data.display_name,
+    bio: data.bio,
+    categories: data.categories ?? [],
+    zonesServed: data.zones_served ?? [],
+    languages: data.languages ?? [],
+    phone: data.phone,
+    status: data.status,
+    verifiedAt: data.verified_at,
+  };
+}
+
+export async function getServiceProviderBySlug(
+  slug: string
+): Promise<ServiceProviderProfile | null> {
+  if (!isSupabaseConfigured()) {
+    return (
+      DEMO_SERVICE_PROVIDERS.find(
+        (provider) => provider.slug === slug || provider.userId === slug
+      ) ?? null
+    );
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("service_provider_profiles")
+    .select(
+      "user_id, slug, display_name, bio, categories, zones_served, languages, phone, status, verified_at"
+    )
+    .or(`slug.eq.${slug},user_id.eq.${slug}`)
+    .eq("status", "active")
+    .maybeSingle();
+
+  if (error || !data) {
+    if (error) console.error("getServiceProviderBySlug failed:", error.message);
+    return null;
+  }
+
+  return {
+    userId: data.user_id,
+    slug: data.slug ?? data.user_id,
     displayName: data.display_name,
     bio: data.bio,
     categories: data.categories ?? [],
@@ -229,35 +271,33 @@ export async function listOpenMaintenanceJobs(): Promise<MaintenanceJob[]> {
   return (data ?? []).map((row) => {
     const zones = (row as any).zones;
     return {
-    id: row.id,
-    title: row.title,
-    description: row.description,
-    category: row.category,
-    priority: row.priority,
-    status: row.status,
-    zone: Array.isArray(zones) ? zones[0]?.name ?? null : zones?.name ?? null,
-    landmark: row.landmark,
-    createdAt: row.created_at,
+      id: row.id,
+      title: row.title,
+      description: row.description,
+      category: row.category,
+      priority: row.priority,
+      status: row.status,
+      zone: Array.isArray(zones) ? (zones[0]?.name ?? null) : (zones?.name ?? null),
+      landmark: row.landmark,
+      createdAt: row.created_at,
     };
   });
 }
 
-export async function getMaintenanceJob(
-  id: string
-): Promise<MaintenanceJob | null> {
+export async function getMaintenanceJob(id: string): Promise<MaintenanceJob | null> {
   const jobs = await listOpenMaintenanceJobs();
   return jobs.find((job) => job.id === id) ?? null;
 }
 
-export async function listMyMaintenanceQuotes(
-  userId: string
-): Promise<MaintenanceQuote[]> {
+export async function listMyMaintenanceQuotes(userId: string): Promise<MaintenanceQuote[]> {
   if (!isSupabaseConfigured()) return [];
 
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("maintenance_quotes")
-    .select("id, ticket_id, amount_mwk, timeline, notes, status, created_at, maintenance_tickets(title)")
+    .select(
+      "id, ticket_id, amount_mwk, timeline, notes, status, created_at, maintenance_tickets(title)"
+    )
     .eq("service_provider_id", userId)
     .order("created_at", { ascending: false });
 
@@ -269,16 +309,16 @@ export async function listMyMaintenanceQuotes(
   return (data ?? []).map((row) => {
     const ticket = (row as any).maintenance_tickets;
     return {
-    id: row.id,
-    ticketId: row.ticket_id,
-    ticketTitle: Array.isArray(ticket)
-      ? ticket[0]?.title ?? "Maintenance job"
-      : ticket?.title ?? "Maintenance job",
-    amountMwk: row.amount_mwk,
-    timeline: row.timeline,
-    notes: row.notes,
-    status: row.status,
-    createdAt: row.created_at,
+      id: row.id,
+      ticketId: row.ticket_id,
+      ticketTitle: Array.isArray(ticket)
+        ? (ticket[0]?.title ?? "Maintenance job")
+        : (ticket?.title ?? "Maintenance job"),
+      amountMwk: row.amount_mwk,
+      timeline: row.timeline,
+      notes: row.notes,
+      status: row.status,
+      createdAt: row.created_at,
     };
   });
 }
@@ -317,18 +357,14 @@ export async function listMyWorkOrders(userId: string): Promise<WorkOrder[]> {
   });
 }
 
-export async function listMyMaintenanceThreads(
-  userId: string
-): Promise<MaintenanceThread[]> {
+export async function listMyMaintenanceThreads(userId: string): Promise<MaintenanceThread[]> {
   if (!isSupabaseConfigured()) return [];
 
   const supabase = await createClient();
   const { data: tickets, error } = await supabase
     .from("maintenance_tickets")
     .select("id, title, status, updated_at")
-    .or(
-      `requester_id.eq.${userId},assigned_service_provider_id.eq.${userId}`
-    )
+    .or(`requester_id.eq.${userId},assigned_service_provider_id.eq.${userId}`)
     .order("updated_at", { ascending: false });
 
   if (error) {
@@ -346,10 +382,7 @@ export async function listMyMaintenanceThreads(
     .in("ticket_id", ticketIds)
     .order("created_at", { ascending: false });
 
-  const latestByTicket = new Map<
-    string,
-    { body: string; createdAt: string; count: number }
-  >();
+  const latestByTicket = new Map<string, { body: string; createdAt: string; count: number }>();
   for (const message of messages ?? []) {
     const existing = latestByTicket.get(message.ticket_id);
     if (!existing) {
@@ -376,17 +409,13 @@ export async function listMyMaintenanceThreads(
   });
 }
 
-export async function listMaintenanceMessages(
-  ticketId: string
-): Promise<MaintenanceMessage[]> {
+export async function listMaintenanceMessages(ticketId: string): Promise<MaintenanceMessage[]> {
   if (!isSupabaseConfigured()) return [];
 
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("maintenance_messages")
-    .select(
-      "id, ticket_id, work_order_id, sender_id, sender_role, body, created_at"
-    )
+    .select("id, ticket_id, work_order_id, sender_id, sender_role, body, created_at")
     .eq("ticket_id", ticketId)
     .order("created_at", { ascending: true });
 
@@ -448,9 +477,7 @@ export async function getMaintenanceTicketAccess(
   };
 }
 
-export async function listMyMaintenanceReviews(
-  userId: string
-): Promise<MaintenanceReview[]> {
+export async function listMyMaintenanceReviews(userId: string): Promise<MaintenanceReview[]> {
   if (!isSupabaseConfigured()) return [];
 
   const supabase = await createClient();
@@ -474,8 +501,8 @@ export async function listMyMaintenanceReviews(
       workOrderId: row.work_order_id,
       ticketId: row.ticket_id,
       ticketTitle: Array.isArray(ticket)
-        ? ticket[0]?.title ?? "Maintenance job"
-        : ticket?.title ?? "Maintenance job",
+        ? (ticket[0]?.title ?? "Maintenance job")
+        : (ticket?.title ?? "Maintenance job"),
       rating: row.rating,
       comment: row.comment,
       createdAt: row.created_at,
@@ -485,9 +512,7 @@ export async function listMyMaintenanceReviews(
   });
 }
 
-export async function listReviewableWorkOrders(
-  userId: string
-): Promise<WorkOrder[]> {
+export async function listReviewableWorkOrders(userId: string): Promise<WorkOrder[]> {
   if (!isSupabaseConfigured()) return [];
 
   const supabase = await createClient();
@@ -535,18 +560,14 @@ export async function listReviewableWorkOrders(
   return orders.filter((order) => !reviewed.has(order.id));
 }
 
-export async function listMyMaintenanceDocuments(
-  userId: string
-): Promise<MaintenanceDocument[]> {
+export async function listMyMaintenanceDocuments(userId: string): Promise<MaintenanceDocument[]> {
   if (!isSupabaseConfigured()) return [];
 
   const supabase = await createClient();
   const { data: tickets, error: ticketError } = await supabase
     .from("maintenance_tickets")
     .select("id, title")
-    .or(
-      `requester_id.eq.${userId},assigned_service_provider_id.eq.${userId}`
-    );
+    .or(`requester_id.eq.${userId},assigned_service_provider_id.eq.${userId}`);
 
   if (ticketError) {
     console.error("listMyMaintenanceDocuments tickets failed:", ticketError.message);

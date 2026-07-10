@@ -9,6 +9,7 @@ const FOOTER_COLUMNS: { title: string; links: [string, string][] }[] = [
       ["Browse by zone", "/zones"],
       ["Map", "/spaces/map"],
       ["Compare", "/compare"],
+      ["Maintenance services", "/services"],
     ],
   },
   {
@@ -85,10 +86,9 @@ export function SiteFooter() {
             </Link>
           </nav>
           <p className="text-xs text-muted-foreground">
-            Dzaleka Spaces verifies listing details and a provider&apos;s
-            stated authority to offer a space. Verification does not establish
-            ownership of land or property. The platform does not sell camp
-            land, issue ownership certificates, or hold deposits.
+            Dzaleka Spaces verifies listing details and a provider&apos;s stated authority to offer
+            a space. Verification does not establish ownership of land or property. The platform
+            does not sell camp land, issue ownership certificates, or hold deposits.
           </p>
         </div>
       </div>

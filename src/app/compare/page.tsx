@@ -19,12 +19,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getListingsByIds } from "@/lib/listings";
-import {
-  categoryLabel,
-  facilityLabel,
-  formatMwk,
-  listingHref,
-} from "@/lib/types";
+import { categoryLabel, facilityLabel, formatMwk, listingHref } from "@/lib/types";
 
 export const metadata: Metadata = {
   title: "Compare spaces",
@@ -47,17 +42,12 @@ export default async function ComparePage({
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Compare spaces</h1>
+          <h1 className="text-3xl font-bold">Compare spaces</h1>
           <p className="mt-1 text-muted-foreground">
-            Compare up to three spaces by amount, location, verification and
-            core facilities.
+            Compare up to three spaces by amount, location, verification and core facilities.
           </p>
         </div>
-        <Button
-          variant="outline"
-          render={<Link href="/spaces" />}
-          nativeButton={false}
-        >
+        <Button variant="outline" render={<Link href="/spaces" />} nativeButton={false}>
           Browse spaces
         </Button>
       </div>
@@ -88,9 +78,7 @@ export default async function ComparePage({
             <TableRow>
               <TableCell className="font-medium">Category</TableCell>
               {listings.map((listing) => (
-                <TableCell key={listing.id}>
-                  {categoryLabel(listing.category)}
-                </TableCell>
+                <TableCell key={listing.id}>{categoryLabel(listing.category)}</TableCell>
               ))}
             </TableRow>
             <TableRow>
@@ -132,9 +120,7 @@ export default async function ComparePage({
               <TableCell className="font-medium">Availability</TableCell>
               {listings.map((listing) => (
                 <TableCell key={listing.id}>
-                  {listing.availableFrom
-                    ? `From ${listing.availableFrom}`
-                    : "Available now"}
+                  {listing.availableFrom ? `From ${listing.availableFrom}` : "Available now"}
                 </TableCell>
               ))}
             </TableRow>

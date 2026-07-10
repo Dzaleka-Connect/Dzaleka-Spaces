@@ -29,10 +29,7 @@ export const metadata: Metadata = {
   title: "My listings",
 };
 
-const STATUS_VARIANTS: Record<
-  string,
-  "default" | "secondary" | "outline" | "destructive"
-> = {
+const STATUS_VARIANTS: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
   published: "default",
   pending_review: "secondary",
   changes_requested: "destructive",
@@ -47,8 +44,7 @@ export default async function ProviderListingsPage() {
           <Info />
           <AlertTitle>Demo mode</AlertTitle>
           <AlertDescription>
-            Listing management is available once a Supabase project is
-            connected.
+            Listing management is available once a Supabase project is connected.
           </AlertDescription>
         </Alert>
       </div>
@@ -59,18 +55,13 @@ export default async function ProviderListingsPage() {
   if (!user) redirect("/sign-in");
 
   const supabase = await createClient();
-  const { data: spaces } = await supabase
-    .from("spaces")
-    .select("id")
-    .eq("provider_id", user.id);
+  const { data: spaces } = await supabase.from("spaces").select("id").eq("provider_id", user.id);
   const spaceIds = (spaces ?? []).map((s) => s.id);
 
   const { data: listings } = spaceIds.length
     ? await supabase
         .from("listings")
-        .select(
-          "id, slug, title, status, price_mwk, billing_period, published_at, created_at"
-        )
+        .select("id, slug, title, status, price_mwk, billing_period, published_at, created_at")
         .in("space_id", spaceIds)
         .order("created_at", { ascending: false })
     : { data: [] };
@@ -79,10 +70,9 @@ export default async function ProviderListingsPage() {
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">My listings</h1>
+          <h1 className="text-3xl font-bold">My listings</h1>
           <p className="mt-1 text-muted-foreground">
-            Advertisements for your spaces and where each one sits in the
-            verification pipeline.
+            Advertisements for your spaces and where each one sits in the verification pipeline.
           </p>
         </div>
         <Button render={<Link href="/list-a-space" />} nativeButton={false}>
@@ -98,9 +88,7 @@ export default async function ProviderListingsPage() {
               <Building />
             </EmptyMedia>
             <EmptyTitle>No listings yet</EmptyTitle>
-            <EmptyDescription>
-              Submit a space to create your first listing.
-            </EmptyDescription>
+            <EmptyDescription>Submit a space to create your first listing.</EmptyDescription>
           </EmptyHeader>
         </Empty>
       ) : (
@@ -119,10 +107,7 @@ export default async function ProviderListingsPage() {
               <TableRow key={l.id}>
                 <TableCell className="font-medium">
                   {l.status === "published" ? (
-                    <Link
-                      href={`/spaces/${l.slug ?? l.id}`}
-                      className="hover:underline"
-                    >
+                    <Link href={`/spaces/${l.slug ?? l.id}`} className="hover:underline">
                       {l.title}
                     </Link>
                   ) : (
@@ -130,8 +115,7 @@ export default async function ProviderListingsPage() {
                   )}
                 </TableCell>
                 <TableCell>
-                  {formatMwk(l.price_mwk)}/
-                  {l.billing_period === "daily" ? "day" : "mo"}
+                  {formatMwk(l.price_mwk)}/{l.billing_period === "daily" ? "day" : "mo"}
                 </TableCell>
                 <TableCell>
                   <Badge variant={STATUS_VARIANTS[l.status] ?? "outline"}>
@@ -139,9 +123,7 @@ export default async function ProviderListingsPage() {
                   </Badge>
                 </TableCell>
                 <TableCell className="text-muted-foreground">
-                  {l.published_at
-                    ? new Date(l.published_at).toLocaleDateString()
-                    : "—"}
+                  {l.published_at ? new Date(l.published_at).toLocaleDateString() : "—"}
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-wrap gap-2">

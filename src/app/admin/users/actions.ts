@@ -30,19 +30,14 @@ async function requireAdmin() {
   return user;
 }
 
-export async function grantRole(
-  userId: string,
-  role: string
-): Promise<RoleActionResult> {
+export async function grantRole(userId: string, role: string): Promise<RoleActionResult> {
   const admin = await requireAdmin();
   if (!GRANTABLE_ROLES.includes(role)) {
     return { ok: false, message: "Unknown role." };
   }
 
   const supabase = await createClient();
-  const { error } = await supabase
-    .from("user_roles")
-    .insert({ user_id: userId, role });
+  const { error } = await supabase.from("user_roles").insert({ user_id: userId, role });
 
   if (error && !error.message.includes("duplicate")) {
     console.error("grantRole failed:", error.message);
@@ -62,10 +57,7 @@ export async function grantRole(
   return { ok: true, message: `Granted ${role.replace(/_/g, " ")}.` };
 }
 
-export async function revokeRole(
-  userId: string,
-  role: string
-): Promise<RoleActionResult> {
+export async function revokeRole(userId: string, role: string): Promise<RoleActionResult> {
   const admin = await requireAdmin();
 
   if (role === "admin" && userId === admin.id) {

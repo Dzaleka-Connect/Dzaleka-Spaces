@@ -4,13 +4,7 @@ import { redirect } from "next/navigation";
 import { FileText, SearchX } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Empty,
   EmptyDescription,
@@ -36,16 +30,10 @@ export default async function TradesQuotesPage() {
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Quotes</h1>
-          <p className="mt-1 text-muted-foreground">
-            Quotes you submitted for maintenance jobs.
-          </p>
+          <h1 className="text-3xl font-bold">Quotes</h1>
+          <p className="mt-1 text-muted-foreground">Quotes you submitted for maintenance jobs.</p>
         </div>
-        <Button
-          variant="outline"
-          render={<Link href="/trades/jobs" />}
-          nativeButton={false}
-        >
+        <Button variant="outline" render={<Link href="/trades/jobs" />} nativeButton={false}>
           Open jobs
         </Button>
       </div>
@@ -58,8 +46,7 @@ export default async function TradesQuotesPage() {
             </EmptyMedia>
             <EmptyTitle>No quotes submitted</EmptyTitle>
             <EmptyDescription>
-              Review open jobs and submit a quote when the work matches your
-              service profile.
+              Review open jobs and submit a quote when the work matches your service profile.
             </EmptyDescription>
           </EmptyHeader>
         </Empty>

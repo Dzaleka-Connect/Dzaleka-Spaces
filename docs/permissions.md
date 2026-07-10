@@ -1,78 +1,115 @@
-# Permissions and access model
+# Permissions and Access Model
 
-Enforced by Supabase RLS (see migrations) plus role checks in server code
-(`src/lib/auth.ts`). The app-level checks are UX; RLS is the boundary.
+Supabase RLS, grants, triggers, and SECURITY DEFINER RPCs are the security
+boundary. Server route/layout checks provide early rejection and usable
+redirects; they do not replace RLS.
 
-## Roles (`app_role`)
+## Roles
 
-| Role | Granted how | Powers |
-| --- | --- | --- |
-| `seeker` | Automatically on signup | Enquire, save listings, view own records |
-| `provider` | Implicit: anyone may submit a space (their rows are RLS-owned) | Manage own spaces/listings, read own enquiries |
-| `field_verifier` | Admin grant | Read pending listings + internal records, submit verification checklists |
-| `moderator` | Admin grant | Review queue, reports, listing moderation |
-| `admin` | Admin grant (bootstrap: `node scripts/grant-admin.mjs <email>`) | Everything staff + roles + flags + audit |
-| `finance` | Admin grant | Phase 2 payment-ledger administration |
-| `service_provider`, `organisation_manager` | Phase 3+ | Maintenance marketplace, org accounts |
+| Role                   | Scope                                                                                                    |
+| ---------------------- | -------------------------------------------------------------------------------------------------------- |
+| `seeker`               | Public discovery, own saves/searches/enquiries/viewings/occupancies/finance/maintenance/privacy requests |
+| `provider`             | Own spaces/listings and related operational records                                                      |
+| `service_provider`     | Own trade profile, eligible jobs, own quotes/work orders and participant threads                         |
+| `organisation_manager` | Organisation membership and delegated records                                                            |
+| `field_verifier`       | Assigned field visits and own completed work only                                                        |
+| `moderator`            | Review, publication, cases, content and operational oversight                                            |
+| `finance`              | Ledger review/adjustment duties explicitly granted by policy                                             |
+| `admin`                | Role/flag/settings/audit administration plus moderator powers                                            |
 
-`is_staff()` = moderator, admin or field_verifier.
+Roles are stored in `user_roles`; profile metadata is not trusted for
+authorisation. `admin` or `moderator` can review; role and protected-flag
+management remains administrator-only.
 
-## Access matrix (implemented subset)
+## Authentication assurance
 
-| Data | Public | Seeker | Provider | Verifier | Admin |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| Published listings | Read | Read | Read | Read | Read |
-| Draft/pending listings | – | – | Own | All (staff) | All |
-| Exact location / authority evidence (`space_internal`) | – | – | Write own on submit, no read-back | Read | Read |
-| Enquiries | Insert | Own | Related listing | – (staff read exists) | All |
-| Enquiry attachments | – | Own thread | Related listing thread | – | All |
-| Verifications | Badge only | Badge only | Own summary | Read + insert checklist | All + decide |
-| Saved listings | – | Own | Own | Own | Own |
-| Provider team | – | – | Own team + scoped member access | – | All |
-| Maintenance tickets | – | Requester | Related space/request | – | All |
-| Maintenance messages | – | Ticket participant | Ticket participant | – | All |
-| Maintenance reviews | – | Own as requester/provider | Own as provider | – | All |
-| Maintenance documents | – | Ticket participant | Ticket participant | – | All |
-| Service-provider profiles | Active read | Active read | Active read | Active read | All |
-| Notification queue | – | Own delivery rows | Own delivery rows | – | All |
-| Moderation cases | – | – | – | Assigned/relevant staff | All |
-| Reports | Insert | Insert | Insert | Read | Read + act |
-| Feature flags | Read | Read | Read | Read | Update |
-| User roles | – | Own | Own | Own | Manage |
-| Audit events | – | – | – | Insert | Read + insert |
+- Public and ordinary account pages accept AAL1.
+- `/admin/*` and `/verifier/*` require AAL2 in their layouts.
+- Restrictive RLS policies call `staff_mfa_satisfied()` on sensitive staff
+  tables, so bypassing the UI does not bypass MFA.
+- Suspended or closed accounts are routed to `/account/security` and rejected
+  from operational portals.
+- TOTP enrolment, challenge, removal, password update and global/other-session
+  revocation are available at `/account/security`.
 
-## Route gating (app level)
+## Data access matrix
 
-| Route prefix | Requirement |
-| --- | --- |
-| `/account` | Signed in |
-| `/provider` | Signed in (rows self-scope via RLS) |
-| `/trades/profile`, `/trades/quotes`, `/trades/work-orders` | Signed in |
-| `/trades/messages`, `/trades/reviews`, `/trades/documents` | Signed in (ticket/work-order participants via RLS) |
-| `/verifier` | `field_verifier`, `moderator` or `admin` |
-| `/admin` | `moderator` or `admin` (flags/roles: `admin` only) |
+| Data                                                        | Anonymous                    | Account participant                       | Provider/team                              | Assigned verifier           | Moderator/admin                                               |
+| ----------------------------------------------------------- | ---------------------------- | ----------------------------------------- | ------------------------------------------ | --------------------------- | ------------------------------------------------------------- |
+| `public_listings`, active service profiles, zones/landmarks | Read                         | Read                                      | Read                                       | Read                        | Read                                                          |
+| Draft/non-public spaces and listings                        | None                         | None                                      | Owner or delegated permission              | Assignment projection only  | Read/review                                                   |
+| `space_internal` exact location and authority evidence      | None                         | None                                      | Submit for own space; no general read-back | Assigned visit only         | Authorised read with MFA                                      |
+| Verification evidence/files                                 | None                         | None                                      | Status summary only                        | Own assignment insert/read  | Reviewer read with MFA                                        |
+| Enquiries/messages/attachments                              | None except enquiry creation | Own thread                                | Related listing thread                     | None                        | Case-authorised access                                        |
+| Viewing record                                              | None                         | Participant                               | Participant                                | None                        | Authorised oversight                                          |
+| Released viewing directions                                 | None                         | Confirmed participant through audited RPC | Confirmed participant through audited RPC  | None                        | Audited access                                                |
+| Occupancy/charges/payments/receipts                         | None                         | Occupancy party                           | Provider or delegated finance permission   | None                        | Scoped oversight; adjustment by authorised role               |
+| Maintenance private records/files                           | None                         | Requester/party                           | Related space/party                        | None                        | Authorised oversight                                          |
+| Notification queue/deliveries                               | None                         | Own recipient rows                        | Own recipient rows                         | Own recipient rows          | Operational oversight with MFA                                |
+| Cases/audit/system settings/email events                    | None                         | None                                      | None                                       | Assigned/relevant case only | Staff scope; audit/settings/admin operations narrowed by role |
+| Reports/privacy requests                                    | Insert own                   | Own request/status                        | Own request/status                         | Escalate                    | Triage/manage                                                 |
 
-Feature flag updates are admin-only, and RLS rejects attempts to enable the
-pilot-locked flags: `deposit_processing`, `mobile_money_processing`,
-`residential_listings`, and `family_accommodation`.
+## Provider team permissions
 
-Runtime-gated operational flags (app code checks `featureEnabled()`):
-
-| Flag | Effect when disabled |
-| --- | --- |
-| `maintenance_marketplace` | Hides trades nav/links; `/trades/*` redirects home |
-| `enquiry_attachments` | Hides upload UI; blocks upload/download |
-| `email_notifications` | Skips queue inserts and worker sends |
-| `featured_listings` | Hides homepage featured section |
-| `public_map` | Map page shows disabled state; map nav hidden |
-| `occupancy_records` | Provider occupancy create/list gated |
-| `saved_search_alerts` | Alert delivery path gated |
+`provider_team_members.permissions` is evaluated by helper functions and RLS.
+Supported scopes cover view-only, spaces, listings, enquiries, viewings,
+occupancies, payment records, maintenance, reports and manager access. A team
+member never inherits access merely because they know a provider or space ID.
 
 ## Separation of duties
 
-- Verifiers submit checklists; **admins/moderators publish**. The verifier
-  UI has no publish control. RLS permits field-verifier inserts but restricts
-  listing publication and verification updates to moderators/admins; the
-  `verifier_separation_guard` trigger also blocks self-verification.
-- Confirmed financial records (Phase 2) are never edited; corrections are
-  adjustment rows.
+- A moderator/admin assigns a verifier.
+- Only the assigned verifier can download or submit the visit before expiry.
+- A verifier cannot verify their own listing and cannot publish.
+- Verifier submission creates the verification and advances the listing to the
+  completed field-check state atomically.
+- A moderator/admin approves verification and publishes atomically; the
+  publication trigger independently checks authority, zone, category, approved
+  verification and public media.
+- Direct finance-row updates/deletes are revoked. Participants use narrowly
+  scoped RPCs; corrections are additive adjustment/dispute records.
+
+## Service role
+
+`SUPABASE_SECRET_KEY` is used only in server-only modules for queue work and
+verified provider webhooks. Service-only RPCs:
+
+- `claim_notification_batch(int)` atomically claims ready email rows with
+  `SKIP LOCKED`.
+- `record_resend_delivery_event(...)` records an already signature-verified
+  provider event and updates delivery state idempotently.
+
+Neither function is executable by anonymous or authenticated application
+roles.
+
+## Storage
+
+- `listing-public`: anonymous read; provider upload goes through validation and
+  publication approval.
+- `verification-private`: assigned verifier and reviewer scope; quarantined
+  objects are blocked until clean.
+- `message-private`: enquiry participants only.
+- `maintenance-private`: maintenance participants only.
+
+Private download endpoints first establish database access and then issue a
+short-lived signed URL. Object paths are not treated as authorisation.
+
+## Protected flags
+
+The trigger rejects attempts to enable:
+
+```text
+residential_listings
+family_accommodation
+payment_processing
+mobile_money_processing
+mobile_money_integrations
+deposit_processing
+deposit_custody
+sms_notifications
+whatsapp_notifications
+web_push_notifications
+```
+
+Changing this list requires an externally approved migration and updated
+privacy, threat-model, operational and rollback evidence.

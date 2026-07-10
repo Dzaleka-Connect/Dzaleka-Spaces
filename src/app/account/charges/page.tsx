@@ -3,7 +3,14 @@ import { redirect } from "next/navigation";
 import { AlertCircle } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { getSessionUser } from "@/lib/auth";
 import { listAllChargesForOccupant } from "@/lib/payments";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -30,7 +37,7 @@ export default async function AccountChargesPage() {
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">My Charges</h1>
+        <h1 className="text-3xl font-bold">My Charges</h1>
         <p className="mt-1 text-muted-foreground text-sm">
           Track rent payments, deposits, and utility invoices scheduled by your provider.
         </p>
@@ -39,13 +46,17 @@ export default async function AccountChargesPage() {
       <div className="grid gap-4 sm:grid-cols-2">
         <Card className="py-2">
           <CardHeader className="pb-1">
-            <CardDescription className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Total Invoiced</CardDescription>
+            <CardDescription className="text-xs font-semibold uppercase text-muted-foreground">
+              Total Invoiced
+            </CardDescription>
             <CardTitle className="text-2xl font-bold">{charges.length}</CardTitle>
           </CardHeader>
         </Card>
         <Card className="py-2">
           <CardHeader className="pb-1">
-            <CardDescription className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Total Outstanding</CardDescription>
+            <CardDescription className="text-xs font-semibold uppercase text-muted-foreground">
+              Total Outstanding
+            </CardDescription>
             <CardTitle className="text-2xl font-bold text-destructive">
               {formatMwk(totalOutstanding)}
             </CardTitle>

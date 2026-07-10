@@ -11,9 +11,7 @@ export function generateStaticParams() {
   return HELP_ARTICLES.map((a) => ({ slug: a.slug }));
 }
 
-export async function generateMetadata({
-  params,
-}: HelpArticlePageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: HelpArticlePageProps): Promise<Metadata> {
   const { slug } = await params;
   const article = getHelpArticle(slug);
   return {
@@ -22,9 +20,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function HelpArticlePage({
-  params,
-}: HelpArticlePageProps) {
+export default async function HelpArticlePage({ params }: HelpArticlePageProps) {
   const { slug } = await params;
   const article = getHelpArticle(slug);
   if (!article) notFound();
@@ -38,9 +34,7 @@ export default async function HelpArticlePage({
           </Link>{" "}
           / {article.title}
         </p>
-        <h1 className="mt-1 text-3xl font-bold tracking-tight">
-          {article.title}
-        </h1>
+        <h1 className="mt-1 text-3xl font-bold">{article.title}</h1>
         <p className="mt-1 text-muted-foreground">{article.summary}</p>
       </div>
 
@@ -48,9 +42,7 @@ export default async function HelpArticlePage({
         {article.sections.map((section) => (
           <section key={section.heading}>
             <h2 className="mb-2 text-lg font-semibold">{section.heading}</h2>
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              {section.body}
-            </p>
+            <p className="text-sm leading-relaxed text-muted-foreground">{section.body}</p>
           </section>
         ))}
       </div>

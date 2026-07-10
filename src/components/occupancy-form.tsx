@@ -4,12 +4,7 @@ import { useState, useTransition } from "react";
 import { FilePlus2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
+import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -113,8 +108,8 @@ export function OccupancyForm({
             </SelectContent>
           </Select>
           <FieldDescription>
-            Link someone who enquired through the platform so they can confirm
-            from their own account. Otherwise they confirm in person.
+            Link someone who enquired through the platform so they can confirm from their own
+            account. Otherwise they confirm in person.
           </FieldDescription>
         </Field>
 
@@ -124,9 +119,7 @@ export function OccupancyForm({
             <Input id="occ-name" name="occupant_name" required disabled={isPending} />
           </Field>
           <Field>
-            <FieldLabel htmlFor="occ-contact">
-              Occupant phone / WhatsApp
-            </FieldLabel>
+            <FieldLabel htmlFor="occ-contact">Occupant phone / WhatsApp</FieldLabel>
             <Input id="occ-contact" name="occupant_contact" disabled={isPending} />
           </Field>
         </div>
@@ -134,22 +127,11 @@ export function OccupancyForm({
         <div className="grid gap-6 sm:grid-cols-3">
           <Field>
             <FieldLabel htmlFor="occ-start">Start date</FieldLabel>
-            <Input
-              id="occ-start"
-              name="start_date"
-              type="date"
-              required
-              disabled={isPending}
-            />
+            <Input id="occ-start" name="start_date" type="date" required disabled={isPending} />
           </Field>
           <Field>
             <FieldLabel htmlFor="occ-end">Expected end (optional)</FieldLabel>
-            <Input
-              id="occ-end"
-              name="expected_end_date"
-              type="date"
-              disabled={isPending}
-            />
+            <Input id="occ-end" name="expected_end_date" type="date" disabled={isPending} />
           </Field>
           <Field>
             <FieldLabel>Billing period</FieldLabel>
@@ -178,13 +160,7 @@ export function OccupancyForm({
           </Field>
           <Field>
             <FieldLabel htmlFor="occ-deposit">Deposit (MWK, optional)</FieldLabel>
-            <Input
-              id="occ-deposit"
-              name="deposit"
-              type="number"
-              min={0}
-              disabled={isPending}
-            />
+            <Input id="occ-deposit" name="deposit" type="number" min={0} disabled={isPending} />
           </Field>
           <Field>
             <FieldLabel htmlFor="occ-due">Payment due day (1–28)</FieldLabel>
@@ -201,9 +177,7 @@ export function OccupancyForm({
 
         <div className="grid gap-6 sm:grid-cols-2">
           <Field>
-            <FieldLabel htmlFor="occ-notice">
-              Notice period (days, optional)
-            </FieldLabel>
+            <FieldLabel htmlFor="occ-notice">Notice period (days, optional)</FieldLabel>
             <Input
               id="occ-notice"
               name="notice_period_days"
@@ -213,9 +187,7 @@ export function OccupancyForm({
             />
           </Field>
           <Field>
-            <FieldLabel htmlFor="occ-services">
-              Included services (optional)
-            </FieldLabel>
+            <FieldLabel htmlFor="occ-services">Included services (optional)</FieldLabel>
             <Input
               id="occ-services"
               name="included_services"
@@ -234,8 +206,8 @@ export function OccupancyForm({
             disabled={isPending}
           />
           <FieldDescription>
-            This record documents the arrangement for both parties. It does
-            not create or transfer ownership of land or property.
+            This record documents the arrangement for both parties. It does not create or transfer
+            ownership of land or property.
           </FieldDescription>
         </Field>
 

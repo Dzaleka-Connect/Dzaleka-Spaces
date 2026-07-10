@@ -23,13 +23,21 @@ export default async function NewPaymentPage() {
 
   const occupancies = await listOccupanciesForProvider(user.id);
   const activeOccupancies = occupancies.filter(
-    (o) => o.status === "active" || o.status === "notice_given" || o.status === "awaiting_occupant_confirmation"
+    (o) =>
+      o.status === "active" ||
+      o.status === "notice_given" ||
+      o.status === "awaiting_occupant_confirmation"
   );
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-8">
       <div>
-        <Button variant="ghost" size="sm" render={<Link href="/provider/payments" />} nativeButton={false}>
+        <Button
+          variant="ghost"
+          size="sm"
+          render={<Link href="/provider/payments" />}
+          nativeButton={false}
+        >
           <ArrowLeft className="mr-2 size-4" />
           Back to payments
         </Button>
@@ -37,7 +45,7 @@ export default async function NewPaymentPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Record Tenant Payment</CardTitle>
+          <CardTitle>Record occupant payment</CardTitle>
           <CardDescription>
             Log a cash payment received, or input a mobile money/bank reference you checked.
           </CardDescription>
@@ -57,7 +65,10 @@ export default async function NewPaymentPage() {
               </div>
             </div>
           ) : (
-            <CreatePaymentForm occupancies={activeOccupancies} />
+            <CreatePaymentForm
+              occupancies={activeOccupancies}
+              idempotencyKey={crypto.randomUUID()}
+            />
           )}
         </CardContent>
       </Card>

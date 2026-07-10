@@ -52,6 +52,6 @@ export const PUBLIC_HEADER_LINKS: NavLink[] = [
   { href: "/spaces", label: "Browse", icon: "building" },
   { href: "/spaces/map", label: "Map", icon: "map" },
   { href: "/zones", label: "Zones", icon: "map-pin" },
-  { href: "/trades", label: "Trades", icon: "wrench" },
+  { href: "/services", label: "Services", icon: "wrench" },
   { href: "/help", label: "Help", icon: "help" },
 ];

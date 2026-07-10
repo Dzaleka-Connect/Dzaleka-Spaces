@@ -10,7 +10,11 @@ export function AcceptQuoteButton({ quoteId, ticketId }: { quoteId: string; tick
   const [isPending, startTransition] = useTransition();
 
   const handleAccept = () => {
-    if (!confirm("Are you sure you want to accept this quote? It will decline all other quotes and assign this tradesperson.")) {
+    if (
+      !confirm(
+        "Are you sure you want to accept this quote? It will decline all other quotes and assign this tradesperson."
+      )
+    ) {
       return;
     }
     startTransition(async () => {

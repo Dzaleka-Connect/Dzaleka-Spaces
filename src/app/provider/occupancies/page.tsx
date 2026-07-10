@@ -4,13 +4,7 @@ import { redirect } from "next/navigation";
 import { FileText, Info, Plus } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Empty,
   EmptyDescription,
@@ -37,8 +31,7 @@ export default async function ProviderOccupanciesPage() {
           <Info />
           <AlertTitle>Demo mode</AlertTitle>
           <AlertDescription>
-            Occupancy records are available once a Supabase project is
-            connected.
+            Occupancy records are available once a Supabase project is connected.
           </AlertDescription>
         </Alert>
       </div>
@@ -55,16 +48,13 @@ export default async function ProviderOccupanciesPage() {
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Occupancies</h1>
+          <h1 className="text-3xl font-bold">Occupancies</h1>
           <p className="mt-1 text-muted-foreground">
             Written records of who occupies your spaces and on what terms.
           </p>
         </div>
         {enabled ? (
-          <Button
-            render={<Link href="/provider/occupancies/new" />}
-            nativeButton={false}
-          >
+          <Button render={<Link href="/provider/occupancies/new" />} nativeButton={false}>
             <Plus data-icon="inline-start" />
             New occupancy record
           </Button>
@@ -76,8 +66,7 @@ export default async function ProviderOccupanciesPage() {
           <Info />
           <AlertTitle>Occupancy records are switched off</AlertTitle>
           <AlertDescription>
-            An administrator can enable the occupancy_records feature flag from
-            the admin portal.
+            An administrator can enable the occupancy_records feature flag from the admin portal.
           </AlertDescription>
         </Alert>
       ) : occupancies.length === 0 ? (
@@ -88,8 +77,8 @@ export default async function ProviderOccupanciesPage() {
             </EmptyMedia>
             <EmptyTitle>No occupancy records yet</EmptyTitle>
             <EmptyDescription>
-              When someone takes one of your spaces, create a record so both
-              sides hold the same written terms.
+              When someone takes one of your spaces, create a record so both sides hold the same
+              written terms.
             </EmptyDescription>
           </EmptyHeader>
         </Empty>
@@ -107,10 +96,8 @@ export default async function ProviderOccupanciesPage() {
                     {categoryLabel(o.spaceCategory)} · {o.spaceZone}
                   </CardTitle>
                   <CardDescription>
-                    {occupant?.fullName ?? "Occupant"} ·{" "}
-                    {formatMwk(o.agreedAmountMwk)}/
-                    {o.billingPeriod === "daily" ? "day" : "mo"} · from{" "}
-                    {o.startDate}
+                    {occupant?.fullName ?? "Occupant"} · {formatMwk(o.agreedAmountMwk)}/
+                    {o.billingPeriod === "daily" ? "day" : "mo"} · from {o.startDate}
                   </CardDescription>
                 </CardHeader>
                 <CardFooter>

@@ -76,11 +76,9 @@ export async function sendEnquiryMessage(
     for (const file of files.slice(0, 5)) {
       const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "-").slice(0, 80);
       const path = `${enquiryId}/${insertedMessage.id}/${crypto.randomUUID()}-${safeName}`;
-      const upload = await supabase.storage
-        .from("message-private")
-        .upload(path, file, {
-          contentType: file.type || "application/octet-stream",
-        });
+      const upload = await supabase.storage.from("message-private").upload(path, file, {
+        contentType: file.type || "application/octet-stream",
+      });
       if (upload.error) {
         console.error("enquiry attachment upload failed:", upload.error.message);
         continue;

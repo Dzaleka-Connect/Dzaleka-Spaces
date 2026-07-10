@@ -22,11 +22,7 @@ export type {
   AnalyticsFunnelStep,
   AnalyticsTotals,
 } from "@/lib/analytics-types";
-export {
-  ANALYTICS_EVENT_KEYS,
-  EVENT_COLORS,
-  EVENT_LABELS,
-} from "@/lib/analytics-types";
+export { ANALYTICS_EVENT_KEYS, EVENT_COLORS, EVENT_LABELS } from "@/lib/analytics-types";
 
 function emptyTotals(): AnalyticsTotals {
   return {
@@ -67,16 +63,13 @@ function buildEmptyDaily(days: number): AnalyticsDayPoint[] {
 }
 
 function totalsFromDaily(daily: AnalyticsDayPoint[]): AnalyticsTotals {
-  return daily.reduce(
-    (acc, day) => {
-      acc.listing_view += day.listing_view;
-      acc.search += day.search;
-      acc.enquiry_sent += day.enquiry_sent;
-      acc.report_sent += day.report_sent;
-      return acc;
-    },
-    emptyTotals()
-  );
+  return daily.reduce((acc, day) => {
+    acc.listing_view += day.listing_view;
+    acc.search += day.search;
+    acc.enquiry_sent += day.enquiry_sent;
+    acc.report_sent += day.report_sent;
+    return acc;
+  }, emptyTotals());
 }
 
 function breakdownFromTotals(totals: AnalyticsTotals): AnalyticsBreakdownItem[] {
@@ -124,9 +117,7 @@ function emptyOps() {
   };
 }
 
-export async function getAnalyticsDashboard(
-  rangeDays = 30
-): Promise<AnalyticsDashboard> {
+export async function getAnalyticsDashboard(rangeDays = 30): Promise<AnalyticsDashboard> {
   if (!isSupabaseConfigured()) {
     const daily = buildEmptyDaily(rangeDays);
     const totals = emptyTotals();
@@ -145,38 +136,28 @@ export async function getAnalyticsDashboard(
   since.setDate(since.getDate() - (rangeDays - 1));
   since.setHours(0, 0, 0, 0);
 
-  const [
-    eventsResult,
-    published,
-    pending,
-    enquiries,
-    reports,
-    viewings,
-    occupancies,
-  ] = await Promise.all([
-    supabase
-      .from("analytics_events")
-      .select("event_name, created_at")
-      .gte("created_at", since.toISOString())
-      .in("event_name", [...ANALYTICS_EVENT_KEYS])
-      .order("created_at", { ascending: true })
-      .limit(5000),
-    supabase
-      .from("listings")
-      .select("id", { count: "exact", head: true })
-      .eq("status", "published"),
-    supabase
-      .from("listings")
-      .select("id", { count: "exact", head: true })
-      .eq("status", "pending_review"),
-    supabase.from("enquiries").select("id", { count: "exact", head: true }),
-    supabase
-      .from("reports")
-      .select("id", { count: "exact", head: true })
-      .eq("status", "open"),
-    supabase.from("viewings").select("id", { count: "exact", head: true }),
-    supabase.from("occupancies").select("id", { count: "exact", head: true }),
-  ]);
+  const [eventsResult, published, pending, enquiries, reports, viewings, occupancies] =
+    await Promise.all([
+      supabase
+        .from("analytics_events")
+        .select("event_name, created_at")
+        .gte("created_at", since.toISOString())
+        .in("event_name", [...ANALYTICS_EVENT_KEYS])
+        .order("created_at", { ascending: true })
+        .limit(5000),
+      supabase
+        .from("listings")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "published"),
+      supabase
+        .from("listings")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "pending_review"),
+      supabase.from("enquiries").select("id", { count: "exact", head: true }),
+      supabase.from("reports").select("id", { count: "exact", head: true }).eq("status", "open"),
+      supabase.from("viewings").select("id", { count: "exact", head: true }),
+      supabase.from("occupancies").select("id", { count: "exact", head: true }),
+    ]);
 
   const daily = buildEmptyDaily(rangeDays);
   const byDate = new Map(daily.map((point) => [point.date, point]));

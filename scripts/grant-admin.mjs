@@ -28,10 +28,7 @@ const client = new pg.Client({
 
 await client.connect();
 try {
-  const user = await client.query(
-    "select id from auth.users where email = $1",
-    [email]
-  );
+  const user = await client.query("select id from auth.users where email = $1", [email]);
   if (!user.rows.length) {
     console.error(`No user with email ${email}. Sign in once first.`);
     process.exitCode = 1;

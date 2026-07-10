@@ -18,13 +18,11 @@ export const metadata: Metadata = {
 export default async function TradeSchedulePage() {
   const user = await getSessionUser();
   if (!user) redirect("/sign-in");
-  const scheduled = (await listMyWorkOrders(user.id)).filter(
-    (order) => order.scheduledFor
-  );
+  const scheduled = (await listMyWorkOrders(user.id)).filter((order) => order.scheduledFor);
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-8">
-      <h1 className="text-3xl font-bold tracking-tight">Schedule</h1>
+      <h1 className="text-3xl font-bold">Schedule</h1>
       {scheduled.length === 0 ? (
         <Empty>
           <EmptyHeader>

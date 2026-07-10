@@ -54,7 +54,7 @@ export default async function AdminContentPagesPage() {
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Content pages</h1>
+        <h1 className="text-3xl font-bold">Content pages</h1>
         <p className="mt-1 text-muted-foreground">
           Public help, policy and guidance pages managed through the database.
         </p>
@@ -68,8 +68,7 @@ export default async function AdminContentPagesPage() {
             </EmptyMedia>
             <EmptyTitle>No managed content pages</EmptyTitle>
             <EmptyDescription>
-              Static app pages still exist; database-managed pages appear here
-              after publication.
+              Static app pages still exist; database-managed pages appear here after publication.
             </EmptyDescription>
           </EmptyHeader>
         </Empty>

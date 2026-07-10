@@ -39,10 +39,10 @@ export default async function ProfilePage() {
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Profile</h1>
+        <h1 className="text-3xl font-bold">Profile</h1>
         <p className="mt-1 text-muted-foreground">
-          Signed in as {user.email}. Your contact details are only shared when
-          you choose to share them.
+          Signed in as {user.email}. Your contact details are only shared when you choose to share
+          them.
         </p>
       </div>
       <ProfileForm

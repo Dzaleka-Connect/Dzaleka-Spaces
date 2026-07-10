@@ -74,14 +74,21 @@ export interface ListingFilters {
   q?: string;
   category?: string;
   zone?: string;
+  minPrice?: number;
   maxPrice?: number;
+  billingPeriod?: BillingPeriod;
+  availableBy?: string;
+  minRooms?: number;
+  facilities?: string[];
   verifiedOnly?: boolean;
+  recentlyVerifiedDays?: number;
+  sort?: "relevance" | "recent" | "price_asc" | "price_desc" | "verified_recent" | "available_soon";
+  page?: number;
+  pageSize?: number;
 }
 
 export function categoryLabel(value: string): string {
-  return (
-    SPACE_CATEGORIES.find((c) => c.value === value)?.label ?? value
-  );
+  return SPACE_CATEGORIES.find((c) => c.value === value)?.label ?? value;
 }
 
 export function facilityLabel(value: string): string {
@@ -109,4 +116,3 @@ export const TRADE_CATEGORIES = [
   "Locks and security",
   "Other approved service",
 ] as const;
-

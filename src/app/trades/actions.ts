@@ -119,9 +119,7 @@ export async function sendMaintenanceMessage(
   return { ok: true, message: body };
 }
 
-export async function createMaintenanceReview(
-  formData: FormData
-): Promise<TradeActionResult> {
+export async function createMaintenanceReview(formData: FormData): Promise<TradeActionResult> {
   const workOrderId = String(formData.get("workOrderId") ?? "").trim();
   const rating = Number(formData.get("rating") ?? 0);
   const comment = String(formData.get("comment") ?? "").trim() || null;
@@ -139,9 +137,7 @@ export async function createMaintenanceReview(
   const supabase = await createClient();
   const { data: order, error: orderError } = await supabase
     .from("maintenance_work_orders")
-    .select(
-      "id, ticket_id, service_provider_id, status, maintenance_tickets!inner(requester_id)"
-    )
+    .select("id, ticket_id, service_provider_id, status, maintenance_tickets!inner(requester_id)")
     .eq("id", workOrderId)
     .eq("status", "completed")
     .maybeSingle();
@@ -181,9 +177,7 @@ export async function createMaintenanceReview(
   return { ok: true };
 }
 
-export async function uploadMaintenanceDocument(
-  formData: FormData
-): Promise<TradeActionResult> {
+export async function uploadMaintenanceDocument(formData: FormData): Promise<TradeActionResult> {
   const ticketId = String(formData.get("ticketId") ?? "").trim();
   const workOrderId = String(formData.get("workOrderId") ?? "").trim() || null;
   const kind = String(formData.get("kind") ?? "evidence").trim() || "evidence";
@@ -210,11 +204,9 @@ export async function uploadMaintenanceDocument(
   const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "-").slice(0, 80);
   const path = `${ticketId}/${user.id}/${crypto.randomUUID()}-${safeName}`;
   const supabase = await createClient();
-  const upload = await supabase.storage
-    .from("maintenance-private")
-    .upload(path, file, {
-      contentType: file.type || "application/octet-stream",
-    });
+  const upload = await supabase.storage.from("maintenance-private").upload(path, file, {
+    contentType: file.type || "application/octet-stream",
+  });
 
   if (upload.error) {
     console.error("maintenance document upload failed:", upload.error.message);
@@ -277,9 +269,7 @@ export async function completeWorkOrder(formData: FormData) {
     .eq("id", workOrderId);
 
   if (error) {
-    redirect(
-      `/trades/work-orders/${workOrderId}?error=${encodeURIComponent(error.message)}`
-    );
+    redirect(`/trades/work-orders/${workOrderId}?error=${encodeURIComponent(error.message)}`);
   }
 
   revalidatePath("/trades/work-orders");

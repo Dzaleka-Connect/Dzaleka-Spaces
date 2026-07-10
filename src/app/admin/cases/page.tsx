@@ -58,16 +58,12 @@ export default async function AdminCasesPage() {
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Cases</h1>
+          <h1 className="text-3xl font-bold">Cases</h1>
           <p className="mt-1 text-muted-foreground">
             Staff-only moderation and protection-sensitive case queue.
           </p>
         </div>
-        <Button
-          variant="outline"
-          render={<Link href="/admin/reports" />}
-          nativeButton={false}
-        >
+        <Button variant="outline" render={<Link href="/admin/reports" />} nativeButton={false}>
           Reports
         </Button>
       </div>
@@ -80,8 +76,7 @@ export default async function AdminCasesPage() {
             </EmptyMedia>
             <EmptyTitle>No cases</EmptyTitle>
             <EmptyDescription>
-              Listing reports and escalations can be promoted into cases for
-              tracked resolution.
+              Listing reports and escalations can be promoted into cases for tracked resolution.
             </EmptyDescription>
           </EmptyHeader>
         </Empty>

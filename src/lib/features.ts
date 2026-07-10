@@ -9,14 +9,12 @@ import { createClient } from "./supabase/server";
  */
 export const FEATURE_FLAGS = {
   residential_listings: {
-    description:
-      "Rooms/shared rooms. Requires written operational guidance before enabling.",
+    description: "Rooms/shared rooms. Requires written operational guidance before enabling.",
     demoDefault: false,
     locked: true,
   },
   family_accommodation: {
-    description:
-      "Entire family shelters. Stricter gate than residential_listings.",
+    description: "Entire family shelters. Stricter gate than residential_listings.",
     demoDefault: false,
     locked: true,
   },
@@ -51,9 +49,9 @@ export const FEATURE_FLAGS = {
     locked: false,
   },
   whatsapp_notifications: {
-    description: "Outbound WhatsApp notifications.",
+    description: "Outbound WhatsApp notifications are not enabled for the pilot.",
     demoDefault: false,
-    locked: false,
+    locked: true,
   },
   saved_search_alerts: {
     description: "Saved-search alert delivery.",
@@ -61,8 +59,7 @@ export const FEATURE_FLAGS = {
     locked: false,
   },
   occupancy_records: {
-    description:
-      "Documented occupancy arrangements with both-party confirmation.",
+    description: "Documented occupancy arrangements with both-party confirmation.",
     demoDefault: true,
     locked: false,
   },
@@ -94,9 +91,7 @@ export function isFeatureFlagName(name: string): name is FeatureFlagName {
   return name in FEATURE_FLAGS;
 }
 
-export async function featureEnabled(
-  name: FeatureFlagName | (string & {})
-): Promise<boolean> {
+export async function featureEnabled(name: FeatureFlagName | (string & {})): Promise<boolean> {
   const known = isFeatureFlagName(name) ? FEATURE_FLAGS[name] : null;
 
   if (!isSupabaseConfigured()) {

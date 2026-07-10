@@ -23,13 +23,21 @@ export default async function NewTicketPage() {
 
   const occupancies = await listOccupanciesForOccupant(user.id);
   const activeOccupancies = occupancies.filter(
-    (o) => o.status === "active" || o.status === "notice_given" || o.status === "awaiting_occupant_confirmation"
+    (o) =>
+      o.status === "active" ||
+      o.status === "notice_given" ||
+      o.status === "awaiting_occupant_confirmation"
   );
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-8">
       <div>
-        <Button variant="ghost" size="sm" render={<Link href="/account/maintenance" />} nativeButton={false}>
+        <Button
+          variant="ghost"
+          size="sm"
+          render={<Link href="/account/maintenance" />}
+          nativeButton={false}
+        >
           <ArrowLeft className="mr-2 size-4" />
           Back to repairs
         </Button>

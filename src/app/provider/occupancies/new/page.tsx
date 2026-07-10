@@ -2,11 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Info } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import {
-  OccupancyForm,
-  type EnquirerOption,
-  type SpaceOption,
-} from "@/components/occupancy-form";
+import { OccupancyForm, type EnquirerOption, type SpaceOption } from "@/components/occupancy-form";
 import { getSessionUser } from "@/lib/auth";
 import { featureEnabled } from "@/lib/features";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -72,9 +68,7 @@ export default async function NewOccupancyPage() {
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">
-          New occupancy record
-        </h1>
+        <h1 className="text-3xl font-bold">New occupancy record</h1>
         <p className="mt-1 text-muted-foreground">
           Document the arrangement so both sides hold the same written terms.
         </p>
@@ -85,8 +79,7 @@ export default async function NewOccupancyPage() {
           <Info />
           <AlertTitle>No spaces yet</AlertTitle>
           <AlertDescription>
-            Submit a space first — occupancy records are attached to a space
-            you manage.
+            Submit a space first — occupancy records are attached to a space you manage.
           </AlertDescription>
         </Alert>
       ) : (

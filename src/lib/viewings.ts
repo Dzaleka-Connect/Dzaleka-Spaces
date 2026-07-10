@@ -1,12 +1,7 @@
 import { isSupabaseConfigured } from "./supabase/config";
 import { createClient } from "./supabase/server";
 
-export type ViewingStatus =
-  | "requested"
-  | "proposed"
-  | "confirmed"
-  | "cancelled"
-  | "completed";
+export type ViewingStatus = "requested" | "proposed" | "confirmed" | "cancelled" | "completed";
 
 export interface ViewingRecord {
   id: string;
@@ -24,6 +19,12 @@ export interface ViewingRecord {
   createdAt: string;
 }
 
+export interface ViewingPrivateDetails {
+  detailedDirections: string | null;
+  meetingContact: string | null;
+  releasedAt: string;
+}
+
 export async function listViewingsForUser(
   userId: string,
   role: "seeker" | "provider"
@@ -33,10 +34,7 @@ export async function listViewingsForUser(
   const supabase = await createClient();
 
   if (role === "provider") {
-    const { data: spaces } = await supabase
-      .from("spaces")
-      .select("id")
-      .eq("provider_id", userId);
+    const { data: spaces } = await supabase.from("spaces").select("id").eq("provider_id", userId);
     const spaceIds = (spaces ?? []).map((s) => s.id);
     if (spaceIds.length === 0) return [];
 
@@ -67,12 +65,8 @@ export async function listViewingsForUser(
       return [];
     }
 
-    const titleByListing = new Map(
-      (listings ?? []).map((l) => [l.id, l.title as string])
-    );
-    const enquiryById = new Map(
-      (enquiries ?? []).map((e) => [e.id, e])
-    );
+    const titleByListing = new Map((listings ?? []).map((l) => [l.id, l.title as string]));
+    const enquiryById = new Map((enquiries ?? []).map((e) => [e.id, e]));
 
     return (viewings ?? []).map((v) => {
       const enquiry = enquiryById.get(v.enquiry_id);
@@ -106,9 +100,7 @@ export async function listViewingsForUser(
     .from("public_listings")
     .select("id, title")
     .in("id", listingIds);
-  const titleByListing = new Map(
-    (listings ?? []).map((l) => [l.id, l.title as string])
-  );
+  const titleByListing = new Map((listings ?? []).map((l) => [l.id, l.title as string]));
   const enquiryById = new Map((enquiries ?? []).map((e) => [e.id, e]));
 
   const { data: viewings, error } = await supabase
@@ -188,4 +180,28 @@ export async function getViewingForUser(
     seekerName: enquiry?.name ?? "Seeker",
     createdAt: viewing.created_at,
   };
+}
+
+export async function getViewingPrivateDetails(
+  viewingId: string
+): Promise<ViewingPrivateDetails | null> {
+  if (!isSupabaseConfigured()) return null;
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("access_viewing_directions", {
+    viewing: viewingId,
+  });
+  if (error) {
+    if (!/confirmed viewing access required/i.test(error.message)) {
+      console.error("getViewingPrivateDetails failed:", error.message);
+    }
+    return null;
+  }
+  const row = data?.[0];
+  return row
+    ? {
+        detailedDirections: row.detailed_directions,
+        meetingContact: row.meeting_contact,
+        releasedAt: row.released_at,
+      }
+    : null;
 }

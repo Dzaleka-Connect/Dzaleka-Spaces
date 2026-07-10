@@ -28,10 +28,7 @@ export const metadata: Metadata = {
   title: "Completed verifications",
 };
 
-const STATUS_VARIANTS: Record<
-  string,
-  "default" | "secondary" | "outline" | "destructive"
-> = {
+const STATUS_VARIANTS: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
   approved: "default",
   pending: "secondary",
   rejected: "destructive",
@@ -64,26 +61,19 @@ export default async function VerifierCompletedPage() {
     .order("created_at", { ascending: false })
     .limit(50);
 
-  const listingIds = [
-    ...new Set((verifications ?? []).map((v) => v.listing_id)),
-  ];
+  const listingIds = [...new Set((verifications ?? []).map((v) => v.listing_id))];
   const { data: listings } = listingIds.length
     ? await supabase.from("listings").select("id, title").in("id", listingIds)
     : { data: [] };
-  const titleById = new Map(
-    (listings ?? []).map((l) => [l.id, l.title as string])
-  );
+  const titleById = new Map((listings ?? []).map((l) => [l.id, l.title as string]));
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            My completed checklists
-          </h1>
+          <h1 className="text-3xl font-bold">My completed checklists</h1>
           <p className="mt-1 text-muted-foreground">
-            Field checklists you have submitted and the reviewer&apos;s
-            decision on each.
+            Field checklists you have submitted and the reviewer&apos;s decision on each.
           </p>
         </div>
         <Button

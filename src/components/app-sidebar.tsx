@@ -27,22 +27,13 @@ type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
   homeHref?: string;
 };
 
-export function AppSidebar({
-  user,
-  nav,
-  homeHref = "/account",
-  ...props
-}: AppSidebarProps) {
+export function AppSidebar({ user, nav, homeHref = "/account", ...props }: AppSidebarProps) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              size="lg"
-              tooltip="Dashboard"
-              render={<Link href={homeHref} />}
-            >
+            <SidebarMenuButton size="lg" tooltip="Dashboard" render={<Link href={homeHref} />}>
               <Image
                 src="/logo-mark-teal.svg"
                 alt=""

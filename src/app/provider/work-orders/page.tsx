@@ -5,7 +5,14 @@ import { AlertCircle, Wrench } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { getSessionUser } from "@/lib/auth";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
@@ -38,7 +45,7 @@ export default async function ProviderWorkOrdersPage() {
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Active Work Orders</h1>
+        <h1 className="text-3xl font-bold">Active Work Orders</h1>
         <p className="mt-1 text-muted-foreground text-sm">
           Track repairs assigned to service providers.
         </p>
@@ -55,7 +62,7 @@ export default async function ProviderWorkOrdersPage() {
               <AlertCircle className="size-8 text-muted-foreground mb-2" />
               <p className="text-sm font-semibold text-foreground">No active work orders</p>
               <p className="text-xs text-muted-foreground mt-1">
-                Quotes accepted by you or the tenant will generate work orders.
+                Quotes accepted by you or the occupant will generate work orders.
               </p>
             </div>
           ) : (
@@ -80,17 +87,28 @@ export default async function ProviderWorkOrdersPage() {
                       <TableCell>
                         <div className="flex flex-col">
                           <span className="font-semibold">{ticket?.title}</span>
-                          <span className="text-xs text-muted-foreground">{space?.landmark} ({space?.zones?.name})</span>
+                          <span className="text-xs text-muted-foreground">
+                            {space?.landmark} ({space?.zones?.name})
+                          </span>
                         </div>
                       </TableCell>
                       <TableCell>
-                        {wo.scheduled_for ? new Date(wo.scheduled_for).toLocaleDateString() : "Not scheduled"}
+                        {wo.scheduled_for
+                          ? new Date(wo.scheduled_for).toLocaleDateString()
+                          : "Not scheduled"}
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline" className="capitalize">{wo.status}</Badge>
+                        <Badge variant="outline" className="capitalize">
+                          {wo.status}
+                        </Badge>
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button variant="ghost" size="sm" render={<Link href={`/provider/maintenance/${wo.ticket_id}`} />} nativeButton={false}>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          render={<Link href={`/provider/maintenance/${wo.ticket_id}`} />}
+                          nativeButton={false}
+                        >
                           <Wrench className="size-4 mr-1" />
                           View Ticket
                         </Button>

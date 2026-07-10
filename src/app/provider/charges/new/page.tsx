@@ -23,13 +23,21 @@ export default async function NewChargePage() {
 
   const occupancies = await listOccupanciesForProvider(user.id);
   const activeOccupancies = occupancies.filter(
-    (o) => o.status === "active" || o.status === "notice_given" || o.status === "awaiting_occupant_confirmation"
+    (o) =>
+      o.status === "active" ||
+      o.status === "notice_given" ||
+      o.status === "awaiting_occupant_confirmation"
   );
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-8">
       <div>
-        <Button variant="ghost" size="sm" render={<Link href="/provider/charges" />} nativeButton={false}>
+        <Button
+          variant="ghost"
+          size="sm"
+          render={<Link href="/provider/charges" />}
+          nativeButton={false}
+        >
           <ArrowLeft className="mr-2 size-4" />
           Back to charges
         </Button>
@@ -37,9 +45,9 @@ export default async function NewChargePage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Schedule New Charge</CardTitle>
+          <CardTitle>Schedule new charge</CardTitle>
           <CardDescription>
-            Create a rent invoice, utility fee, or deposit charge for one of your tenant occupancies.
+            Create a rent, utility, or deposit record for one of your active occupancy records.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -48,16 +56,19 @@ export default async function NewChargePage() {
               <Info className="mx-auto size-8 text-amber-600 dark:text-amber-400 mb-2" />
               <p className="text-sm font-semibold text-foreground">No active occupancy records</p>
               <p className="text-xs text-muted-foreground mt-1">
-                You must have an active occupancy record to schedule charges. Record one first!
+                Create an active occupancy record before scheduling a charge.
               </p>
               <div className="mt-4">
                 <Button render={<Link href="/provider/occupancies/new" />} nativeButton={false}>
-                  Create Occupancy Record
+                  Create occupancy record
                 </Button>
               </div>
             </div>
           ) : (
-            <CreateChargeForm occupancies={activeOccupancies} />
+            <CreateChargeForm
+              occupancies={activeOccupancies}
+              idempotencyKey={crypto.randomUUID()}
+            />
           )}
         </CardContent>
       </Card>

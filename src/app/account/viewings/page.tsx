@@ -5,13 +5,7 @@ import { Calendar, Info } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Empty,
   EmptyDescription,
@@ -51,16 +45,10 @@ export default async function AccountViewingsPage() {
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Your viewings</h1>
-          <p className="mt-1 text-muted-foreground">
-            Upcoming and past viewing appointments.
-          </p>
+          <h1 className="text-3xl font-bold">Your viewings</h1>
+          <p className="mt-1 text-muted-foreground">Upcoming and past viewing appointments.</p>
         </div>
-        <Button
-          variant="outline"
-          render={<Link href="/account" />}
-          nativeButton={false}
-        >
+        <Button variant="outline" render={<Link href="/account" />} nativeButton={false}>
           Account
         </Button>
       </div>
@@ -86,18 +74,16 @@ export default async function AccountViewingsPage() {
                   <CardTitle className="text-base">{v.listingTitle}</CardTitle>
                   <Badge variant="outline">{v.status}</Badge>
                 </div>
-                <CardDescription>
-                  {new Date(v.proposedAt).toLocaleString()}
-                </CardDescription>
+                <CardDescription>{new Date(v.proposedAt).toLocaleString()}</CardDescription>
               </CardHeader>
               <CardContent>
                 <Button
                   variant="outline"
                   size="sm"
-                  render={<Link href={`/account/enquiries/${v.enquiryId}`} />}
+                  render={<Link href={`/account/viewings/${v.id}`} />}
                   nativeButton={false}
                 >
-                  Open enquiry
+                  View appointment
                 </Button>
               </CardContent>
             </Card>

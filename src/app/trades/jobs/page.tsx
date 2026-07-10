@@ -3,13 +3,7 @@ import Link from "next/link";
 import { BriefcaseBusiness, SearchX } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Empty,
   EmptyDescription,
@@ -29,7 +23,7 @@ export default async function TradesJobsPage() {
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Maintenance jobs</h1>
+        <h1 className="text-3xl font-bold">Maintenance jobs</h1>
         <p className="mt-1 text-muted-foreground">
           Open work opportunities visible to approved maintenance providers.
         </p>
@@ -43,8 +37,7 @@ export default async function TradesJobsPage() {
             </EmptyMedia>
             <EmptyTitle>No open jobs</EmptyTitle>
             <EmptyDescription>
-              New repair and service requests will appear here when they are
-              ready for quotes.
+              New repair and service requests will appear here when they are ready for quotes.
             </EmptyDescription>
           </EmptyHeader>
         </Empty>
@@ -66,9 +59,7 @@ export default async function TradesJobsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex flex-col gap-3">
-                <p className="text-sm text-muted-foreground">
-                  {job.description}
-                </p>
+                <p className="text-sm text-muted-foreground">{job.description}</p>
                 <Button
                   size="sm"
                   render={<Link href={`/trades/jobs/${job.id}`} />}

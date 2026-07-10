@@ -14,11 +14,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Field,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -34,7 +30,6 @@ import { saveSearch } from "@/app/account/saved-searches/actions";
 
 const channelItems = [
   { label: "Email", value: "email" },
-  { label: "WhatsApp", value: "whatsapp" },
   { label: "In-app", value: "in_app" },
 ];
 
@@ -81,8 +76,8 @@ export function SaveSearchButton({ signedIn }: { signedIn: boolean }) {
         <DialogHeader>
           <DialogTitle>Save this search</DialogTitle>
           <DialogDescription>
-            Get notified when new listings match your current filters.
-            Alerts require the saved_search_alerts feature flag.
+            Get notified when new listings match your current filters. Alerts require the
+            saved_search_alerts feature flag.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={onSubmit}>

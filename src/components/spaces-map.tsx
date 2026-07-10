@@ -8,11 +8,7 @@ import type { MapMarker } from "@/lib/map";
 
 export function SpacesMap({ markers }: { markers: MapMarker[] }) {
   if (markers.length === 0) {
-    return (
-      <p className="text-sm text-muted-foreground">
-        No listings to show on the map.
-      </p>
-    );
+    return <p className="text-sm text-muted-foreground">No listings to show on the map.</p>;
   }
 
   const lats = markers.map((m) => m.lat);
@@ -23,18 +19,14 @@ export function SpacesMap({ markers }: { markers: MapMarker[] }) {
   const maxLng = Math.max(...lngs);
 
   function position(marker: MapMarker) {
-    const x =
-      maxLng === minLng ? 50 : ((marker.lng - minLng) / (maxLng - minLng)) * 100;
-    const y =
-      maxLat === minLat
-        ? 50
-        : (1 - (marker.lat - minLat) / (maxLat - minLat)) * 100;
+    const x = maxLng === minLng ? 50 : ((marker.lng - minLng) / (maxLng - minLng)) * 100;
+    const y = maxLat === minLat ? 50 : (1 - (marker.lat - minLat) / (maxLat - minLat)) * 100;
     return { left: `${x}%`, top: `${y}%` };
   }
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="relative h-[420px] overflow-hidden rounded-xl border bg-muted">
+      <div className="relative h-[420px] overflow-hidden rounded-md border bg-muted">
         {markers.map((marker) => {
           const pos = position(marker);
           return (
@@ -72,9 +64,7 @@ export function SpacesMap({ markers }: { markers: MapMarker[] }) {
                 </p>
               </div>
               <div className="flex flex-col items-end gap-1">
-                <span className="text-sm font-medium">
-                  {formatMwk(marker.priceMwk)}
-                </span>
+                <span className="text-sm font-medium">{formatMwk(marker.priceMwk)}</span>
                 {marker.verified ? (
                   <Badge variant="secondary" className="text-xs">
                     Verified

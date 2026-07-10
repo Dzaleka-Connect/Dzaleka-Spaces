@@ -133,13 +133,14 @@ async function main() {
       [paymentId, chargeId]
     );
 
-    const updatedCharge = await client.query("select status from charges where id = $1", [chargeId]);
+    const updatedCharge = await client.query("select status from charges where id = $1", [
+      chargeId,
+    ]);
     assert(
       "charge status auto-updated to paid on full allocation",
       updatedCharge.rows[0].status === "paid",
       `status is ${updatedCharge.rows[0].status}`
     );
-
   } catch (e) {
     console.error("Test execution failed:", e);
     failed++;

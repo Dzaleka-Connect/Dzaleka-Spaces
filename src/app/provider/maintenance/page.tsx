@@ -5,13 +5,20 @@ import { AlertCircle, Wrench } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { getSessionUser } from "@/lib/auth";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
-  title: "Tenant Repairs",
+  title: "Occupant maintenance",
 };
 
 export default async function ProviderMaintenancePage() {
@@ -39,9 +46,9 @@ export default async function ProviderMaintenancePage() {
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Tenant Repairs</h1>
+          <h1 className="text-3xl font-bold">Occupant maintenance</h1>
           <p className="mt-1 text-muted-foreground text-sm">
-            Monitor and coordinate maintenance tickets submitted by your tenants.
+            Monitor and coordinate maintenance requests submitted by occupants.
           </p>
         </div>
       </div>
@@ -49,15 +56,17 @@ export default async function ProviderMaintenancePage() {
       <Card>
         <CardHeader>
           <CardTitle>Maintenance Tickets</CardTitle>
-          <CardDescription>Review open requests, check quotes, and schedule repairs.</CardDescription>
+          <CardDescription>
+            Review open requests, check quotes, and schedule repairs.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {tickets.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <AlertCircle className="size-8 text-muted-foreground mb-2" />
-              <p className="text-sm font-semibold text-foreground">No tenant tickets filed</p>
+              <p className="text-sm font-semibold text-foreground">No maintenance requests filed</p>
               <p className="text-xs text-muted-foreground mt-1">
-                Repairs reported by your tenants will appear here.
+                Repairs reported by occupants will appear here.
               </p>
             </div>
           ) : (
@@ -81,7 +90,9 @@ export default async function ProviderMaintenancePage() {
                     <TableCell>
                       <div className="flex flex-col">
                         <span>{t.spaces?.landmark}</span>
-                        <span className="text-xs text-muted-foreground">{t.spaces?.zones?.name}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {t.spaces?.zones?.name}
+                        </span>
                       </div>
                     </TableCell>
                     <TableCell>{t.category}</TableCell>
@@ -91,11 +102,18 @@ export default async function ProviderMaintenancePage() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className="capitalize">{t.status}</Badge>
+                      <Badge variant="outline" className="capitalize">
+                        {t.status}
+                      </Badge>
                     </TableCell>
                     <TableCell>{new Date(t.created_at).toLocaleDateString()}</TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="sm" render={<Link href={`/provider/maintenance/${t.id}`} />} nativeButton={false}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        render={<Link href={`/provider/maintenance/${t.id}`} />}
+                        nativeButton={false}
+                      >
                         <Wrench className="size-4 mr-1" />
                         Manage Ticket
                       </Button>

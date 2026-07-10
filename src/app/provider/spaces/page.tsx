@@ -70,10 +70,9 @@ export default async function ProviderSpacesPage() {
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">My spaces</h1>
+          <h1 className="text-3xl font-bold">My spaces</h1>
           <p className="mt-1 text-muted-foreground">
-            The physical spaces you manage. A space keeps its history even when
-            its listing changes.
+            The physical spaces you manage. A space keeps its history even when its listing changes.
           </p>
         </div>
         <Button render={<Link href="/list-a-space" />} nativeButton={false}>
@@ -90,8 +89,7 @@ export default async function ProviderSpacesPage() {
             </EmptyMedia>
             <EmptyTitle>No spaces yet</EmptyTitle>
             <EmptyDescription>
-              Submit your first space — it appears here with its listing
-              status.
+              Submit your first space — it appears here with its listing status.
             </EmptyDescription>
           </EmptyHeader>
         </Empty>
@@ -108,9 +106,7 @@ export default async function ProviderSpacesPage() {
           <TableBody>
             {(spaces ?? []).map((s) => (
               <TableRow key={s.id}>
-                <TableCell className="font-medium">
-                  {categoryLabel(s.category)}
-                </TableCell>
+                <TableCell className="font-medium">{categoryLabel(s.category)}</TableCell>
                 <TableCell>
                   {(s.zones as any)?.name} · {s.landmark}
                 </TableCell>

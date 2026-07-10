@@ -2,10 +2,7 @@ import { getSessionUser } from "@/lib/auth";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 
-export async function GET(
-  _request: Request,
-  context: { params: Promise<{ id: string }> }
-) {
+export async function GET(_request: Request, context: { params: Promise<{ id: string }> }) {
   const user = await getSessionUser();
   if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
   if (!isSupabaseConfigured()) {

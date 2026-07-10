@@ -12,6 +12,7 @@ export async function createChargeAction(prevState: unknown, formData: FormData)
   const amountStr = formData.get("amount") as string;
   const dueDate = formData.get("dueDate") as string;
   const description = formData.get("description") as string;
+  const idempotencyKey = String(formData.get("idempotencyKey") ?? "");
 
   if (!occupancyId || !amountStr || !dueDate) {
     return { ok: false, message: "Missing required fields." };
@@ -21,8 +22,15 @@ export async function createChargeAction(prevState: unknown, formData: FormData)
   if (isNaN(amount) || amount <= 0) {
     return { ok: false, message: "Amount must be greater than zero." };
   }
+  if (
+    !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+      idempotencyKey
+    )
+  ) {
+    return { ok: false, message: "This charge form has expired. Reload and try again." };
+  }
 
-  const res = await createCharge(occupancyId, amount, dueDate, description);
+  const res = await createCharge(occupancyId, amount, dueDate, description, idempotencyKey);
   if (!res.ok) {
     return { ok: false, message: res.error ?? "Failed to create charge." };
   }

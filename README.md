@@ -1,130 +1,166 @@
 # Dzaleka Spaces
 
-**Find space. Confirm details. Manage it simply.**
+Production: [spaces.dzaleka.com](https://spaces.dzaleka.com)
 
-A mobile-first community space marketplace for Dzaleka Refugee Camp — discover
-verified shops, offices, training rooms, community venues, workshops, storage
-and approved homestays, with community-led field verification.
+Dzaleka Spaces is a mobile-first community space marketplace and operations
+platform for Dzaleka Refugee Camp. It connects public discovery with field
+verification, provider operations, occupancy records, an append-only payment
+ledger, maintenance services, email notifications, and staff administration.
 
-Dzaleka Spaces does **not** sell camp land, issue ownership certificates or
-hold deposits. Verification confirms that a space exists and that the provider
-has stated authority to offer it — nothing more.
+The core workflow is:
+
+```text
+provider submits -> moderator assigns -> verifier checks -> supervisor publishes
+-> seeker discovers -> parties enquire, view, document occupancy and maintain records
+```
+
+## Non-negotiable boundaries
+
+- The platform does not sell land or shelters and never makes ownership or
+  legal-title claims.
+- Verification confirms listing details and the provider's stated authority to
+  offer a space. It never confirms ownership.
+- The pilot does not process or hold money, rent, or deposits. Payments are
+  immutable records of transactions made directly between parties.
+- Residential publication remains database-blocked until written operational
+  guidance authorises a separately reviewed migration.
+- Public location is zone plus landmark only. Exact coordinates, directions,
+  identity review, and authority evidence remain private.
+- Notifications are email through Resend plus in-app records. SMS, WhatsApp,
+  and web push delivery are locked off.
 
 ## Stack
 
-- [Next.js](https://nextjs.org) (App Router, mobile-first PWA target)
-- [Supabase](https://supabase.com) — Postgres, Auth (email OTP), Storage, RLS
-- [shadcn/ui](https://ui.shadcn.com) — component library (base-nova style)
-- Tailwind CSS v4
+- Next.js 16 App Router, React 19, TypeScript, Turbopack
+- Tailwind CSS v4 and shadcn/ui base-nova components
+- Supabase Postgres, Auth, Storage, and row-level security
+- Resend transactional email with signed delivery webhooks
+- Vitest, Playwright, axe-core, ESLint, Prettier, and database/RLS tests
 
-## Getting started
+## Local development
+
+Use Node.js 24, matching CI.
 
 ```bash
-npm install
+npm ci
 npm run dev
 ```
 
-Open http://localhost:3000. Without Supabase credentials the app runs in
-**demo mode** with sample listings, so you can explore the full UI
-immediately.
+Open `http://localhost:3000`. Without Supabase variables, public data helpers
+use the sample records in `src/lib/demo-data.ts`. Authenticated write workflows
+require Supabase.
 
-## Connecting Supabase
+Copy `.env.example` to `.env.local` for a connected environment. Server-only
+keys must never use a `NEXT_PUBLIC_` prefix.
 
-1. Create a project at [supabase.com](https://supabase.com).
-2. Copy `.env.example` to `.env.local` and fill in the project URL,
-   publishable key (`sb_publishable_...`) from **Project Settings → API**.
-   Add `DIRECT_URL` if you will apply SQL from this machine.
-3. Apply the migrations in order. This machine does not assume `psql` or the
-   Supabase CLI; use the helper script:
+## Environment contract
 
-   ```bash
-   node scripts/db-apply.mjs supabase/migrations/00001_init.sql
-   node scripts/db-apply.mjs supabase/migrations/00002_backend_foundations.sql
-   node scripts/db-apply.mjs supabase/migrations/00003_portal_policies.sql
-   node scripts/db-apply.mjs supabase/migrations/00004_roadmap_next.sql
-   node scripts/db-apply.mjs supabase/migrations/00005_occupancies.sql
-   node scripts/db-apply.mjs supabase/migrations/00006_assisted_listings.sql
-   node scripts/db-apply.mjs supabase/migrations/00007_operations_marketplace.sql
-   node scripts/db-apply.mjs supabase/migrations/00008_maintenance_depth.sql
-   node scripts/db-apply.mjs supabase/seed.sql
-   ```
+Production and staging fail at startup when required configuration is missing.
 
-4. Restart the dev server. Sign-in (email OTP), space submission, and
-   enquiries now write to your database.
+| Variable                               | Scope         | Purpose                                                      |
+| -------------------------------------- | ------------- | ------------------------------------------------------------ |
+| `APP_ENV`                              | Server        | `local`, `test`, `development`, `staging`, or `production`   |
+| `NEXT_PUBLIC_APP_URL`                  | Public        | Canonical origin; production is `https://spaces.dzaleka.com` |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Public        | Supabase project URL                                         |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Public        | Supabase publishable key                                     |
+| `SUPABASE_SECRET_KEY`                  | Server        | Notification worker and signed webhook writes                |
+| `DIRECT_URL`                           | Operator only | Transactional migration and database test connection         |
+| `RESEND_API_KEY`                       | Server        | Transactional email API                                      |
+| `RESEND_WEBHOOK_SECRET`                | Server        | Signature verification for Resend events                     |
+| `EMAIL_FROM` / `EMAIL_REPLY_TO`        | Server        | Verified sender and monitored reply address                  |
+| `NOTIFICATION_WORKER_SECRET`           | Server        | Bearer token for the queue worker endpoint                   |
 
-### Schema overview
+## Database setup
 
-- `spaces` are separated from `listings` so a space keeps its occupancy and
-  maintenance history when re-advertised.
-- `space_internal` holds exact locations and authority evidence — staff-only
-  via row-level security, never public.
-- `verifications` back the “Verified space” badge; only listings with an
-  approved field verification show it.
-- `public_listings` is the flattened read view the marketplace queries.
-- Row-level security is enabled on every table; anonymous users can only read
-  published listings and file enquiries/reports. Publishing is restricted to
-  moderators/admins, while field verifiers only submit checklists.
+Apply migrations in numeric order. `scripts/db-apply.mjs` validates checksums,
+uses a transaction and advisory lock, and records applied versions in
+`app_schema_migrations`.
+
+```bash
+for migration in supabase/migrations/*.sql; do
+  node scripts/db-apply.mjs "$migration" --check
+  node scripts/db-apply.mjs "$migration"
+done
+node scripts/db-apply.mjs supabase/seed.sql
+```
+
+The current schema ends at:
+
+- `00010_production_hardening.sql`: workflow state machine, staff MFA,
+  append-only payment operations, receipts/disputes/adjustments, provider
+  permissions, verification assignments/evidence, viewing privacy, admin data.
+- `00011_email_only_delivery.sql`: locks non-email delivery and payment
+  processing; adds idempotent charge creation.
+- `00012_email_delivery_events.sql`: concurrent-safe email queue claims and
+  signed, idempotent Resend delivery events.
+
+To bootstrap the first administrator after that user has signed in once:
+
+```bash
+node scripts/grant-admin.mjs person@example.org
+```
+
+## Resend setup
+
+1. Verify the sending domain and configure SPF, DKIM, and DMARC.
+2. Use a monitored sender, not a no-reply address.
+3. Add `https://spaces.dzaleka.com/api/webhooks/resend` in the Resend dashboard.
+4. Subscribe to sent, delivered, delayed, bounced, failed, complained, and
+   suppressed email events.
+5. Store the webhook signing secret as `RESEND_WEBHOOK_SECRET`.
+6. Schedule `POST /api/jobs/process-notifications` with
+   `Authorization: Bearer $NOTIFICATION_WORKER_SECRET`.
+
+Queue rows are claimed with `FOR UPDATE SKIP LOCKED`. Resend sends use stable
+idempotency keys. Signed provider events are deduplicated before delivery state
+is changed.
+
+## Quality gates
+
+```bash
+npm run format:check  # formatting
+npm run lint          # Next, TypeScript, React and security lint rules
+npm run typecheck     # strict TypeScript
+npm run check:content # product vocabulary and UI convention guards
+npm test              # Vitest unit tests
+npm run test:e2e      # desktop/mobile Playwright + axe checks
+npm run test:rls      # live rolled-back RLS and workflow assertions
+npm run build         # production compilation and route generation
+```
+
+CI runs all checks, the production build, browser tests, and high-severity
+dependency auditing. The database suite skips only when its secrets are not
+configured.
 
 ## Product surfaces
 
-| Surface | Route | Who |
-| --- | --- | --- |
-| Public marketplace | `/`, `/spaces`, `/spaces/[id-or-slug]`, `/spaces/map`, `/compare`, `/trades`, info/legal/help pages | Everyone |
-| Seeker portal | `/account`, `/account/profile`, `/account/saved-spaces`, `/account/saved-searches`, `/account/enquiries`, `/account/viewings`, `/account/occupancy` | Signed-in users |
-| Provider portal | `/provider`, `/provider/spaces`, `/provider/listings`, `/provider/listings/[id]/edit`, `/provider/listings/[id]/preview`, `/provider/team`, enquiries/viewings/occupancies | Space providers + scoped team members |
-| Trades portal | `/trades`, `/trades/profile`, `/trades/jobs`, `/trades/quotes`, `/trades/work-orders`, schedule/messages/reviews/documents/settings | Service providers |
-| Field verifier | `/verifier/assignments`, `/verifier/completed`, `/verifier/offline` | `field_verifier` role |
-| Administration | `/admin`, `/admin/review`, `/admin/flags`, `/admin/users`, `/admin/cases`, `/admin/reports`, `/admin/notifications`, `/admin/analytics`, `/admin/settings` | `moderator` / `admin` roles |
+| Surface                  | Primary routes                                                         | Access                           |
+| ------------------------ | ---------------------------------------------------------------------- | -------------------------------- |
+| Marketplace and services | `/`, `/spaces`, `/services`, `/zones`, `/categories`, help/legal pages | Public                           |
+| Account                  | `/account/*`                                                           | Signed-in seeker or occupant     |
+| Space provider           | `/provider/*`                                                          | Provider and scoped team members |
+| Maintenance trades       | `/trades/*`                                                            | Service provider                 |
+| Field verification       | `/verifier/*`                                                          | Assigned verifier with MFA       |
+| Administration           | `/admin/*`                                                             | Moderator/admin with MFA         |
 
-### Bootstrapping the first admin
+Authenticated application surfaces use the responsive sidebar. Public pages
+use the compact marketplace header. Portal layouts are excluded from indexing.
 
-After signing in once (so your profile exists):
+## Documentation
 
-```bash
-node scripts/grant-admin.mjs you@example.com
-```
+- [System overview](docs/architecture/system-overview.md)
+- [Data model](docs/data-model.md)
+- [Permissions](docs/permissions.md)
+- [Workflows](docs/workflows.md)
+- [Route matrix](docs/route-matrix.md)
+- [Production readiness](docs/production-readiness.md)
+- [Release roadmap](docs/roadmap.md)
+- [Threat model](docs/security/threat-model.md)
+- [DPIA](docs/privacy/dpia-template.md)
+- [Production deployment](docs/deployment/production.md)
+- [Content and image assets](docs/content-and-assets.md)
+- [Operations runbooks](docs/operations)
 
-Roles for other staff can then be granted from the database or a future
-`/admin/users` page.
-
-## Project structure
-
-```
-src/
-  app/
-    page.tsx                 Home: hero, featured, categories, how-it-works
-    spaces/                  Browse + listing detail + save/report/enquiry
-    compare/                 Side-by-side listing comparison from query IDs
-    trades/                  Maintenance provider portal
-    list-a-space/            Provider submission (goes to review queue)
-    how-it-works/ verification/ safety/   Public info pages
-    sign-in/  auth/          Email OTP sign-in + callback/signout
-    account/                 Seeker dashboard, saved spaces, enquiries
-    provider/                Provider dashboard, team, listing edit/preview
-    verifier/                Field-verification assignments + offline queue
-    admin/                   Overview, review, cases, reports, notifications
-  components/                Site chrome, cards, forms, badges
-  lib/                       Domain types, data access, auth, supabase clients
-supabase/
-  migrations/                Schema, RLS, guards (apply in order)
-  seed.sql                   Pilot sample data
-scripts/
-  db-apply.mjs               Apply a SQL file via DIRECT_URL (no psql needed)
-  grant-admin.mjs            Grant the admin role to a user by email
-docs/
-  data-model.md permissions.md workflows.md roadmap.md security/ privacy/ operations/
-```
-
-## Roadmap (from the business plan)
-
-- **Phase 1–3 implemented slices:** marketplace pilot, registration,
-  submission, verification, saved listings/searches, comparison, enquiries
-  with private attachments, viewings, occupancy records, provider team
-  permissions, maintenance-service portal, email notification outbox, verifier
-  offline queue, admin cases/content/analytics/settings.
-- **Remaining Phase 2:** payment ledger (records only — no fund custody),
-  receipts and adjustment/dispute workflows.
-- **Remaining Phase 3+:** deeper maintenance messaging/reviews/documents,
-  production notification scheduling, E2E/RLS test expansion.
-- **Phase 4:** controlled residential expansion, only after written
-  operational guidance from the relevant authorities.
+`AGENTS.md` and `CLAUDE.md` contain mandatory engineering constraints for
+future coding agents. Schema, permissions, workflow, security, and operational
+changes must update the corresponding documentation in the same change.

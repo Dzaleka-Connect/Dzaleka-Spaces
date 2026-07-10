@@ -2,13 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getSessionUser } from "@/lib/auth";
 import { formatMwk } from "@/lib/types";
 import { listMyMaintenanceQuotes } from "@/lib/trades";
@@ -30,7 +24,7 @@ export default async function TradeQuoteDetailPage({
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-8">
-      <h1 className="text-3xl font-bold tracking-tight">{quote.ticketTitle}</h1>
+      <h1 className="text-3xl font-bold">{quote.ticketTitle}</h1>
       <Card>
         <CardHeader>
           <CardTitle>{formatMwk(quote.amountMwk)}</CardTitle>
@@ -40,14 +34,8 @@ export default async function TradeQuoteDetailPage({
           <p className="text-sm text-muted-foreground">
             Timeline: {quote.timeline ?? "Not provided"}
           </p>
-          <p className="text-sm text-muted-foreground">
-            {quote.notes ?? "No notes added."}
-          </p>
-          <Button
-            variant="outline"
-            render={<Link href="/trades/quotes" />}
-            nativeButton={false}
-          >
+          <p className="text-sm text-muted-foreground">{quote.notes ?? "No notes added."}</p>
+          <Button variant="outline" render={<Link href="/trades/quotes" />} nativeButton={false}>
             Back to quotes
           </Button>
         </CardContent>

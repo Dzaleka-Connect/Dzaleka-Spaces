@@ -55,10 +55,7 @@ function applySecurityHeaders(headers: Headers, csp: string) {
     "camera=(self), microphone=(self), geolocation=(self), interest-cohort=()"
   );
   if (!isDev) {
-    headers.set(
-      "Strict-Transport-Security",
-      "max-age=63072000; includeSubDomains; preload"
-    );
+    headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
   }
 }
 
@@ -71,13 +68,11 @@ export default async function proxy(request: NextRequest) {
   requestHeaders.set("x-nonce", nonce);
   requestHeaders.set("Content-Security-Policy", csp);
 
-  const makeResponse = () =>
-    NextResponse.next({ request: { headers: requestHeaders } });
+  const makeResponse = () => NextResponse.next({ request: { headers: requestHeaders } });
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key =
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   let response = makeResponse();
 
@@ -88,9 +83,7 @@ export default async function proxy(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value)
-          );
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
           response = makeResponse();
           cookiesToSet.forEach(({ name, value, options }) =>
             response.cookies.set(name, value, options)

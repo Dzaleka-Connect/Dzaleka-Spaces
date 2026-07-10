@@ -11,10 +11,7 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { getSessionUser } from "@/lib/auth";
-import {
-  listMyMaintenanceReviews,
-  listReviewableWorkOrders,
-} from "@/lib/trades";
+import { listMyMaintenanceReviews, listReviewableWorkOrders } from "@/lib/trades";
 
 export const metadata: Metadata = {
   title: "Trade reviews",
@@ -32,10 +29,9 @@ export default async function TradeReviewsPage() {
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Reviews</h1>
+        <h1 className="text-3xl font-bold">Reviews</h1>
         <p className="mt-1 text-muted-foreground">
-          Requesters can rate completed work. Service providers see reviews of
-          their jobs.
+          Requesters can rate completed work. Service providers see reviews of their jobs.
         </p>
       </div>
 
@@ -67,9 +63,7 @@ export default async function TradeReviewsPage() {
                 <Badge variant="secondary">{review.rating} / 5</Badge>
               </div>
               {review.comment ? (
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {review.comment}
-                </p>
+                <p className="mt-2 text-sm text-muted-foreground">{review.comment}</p>
               ) : null}
               <p className="mt-2 text-xs text-muted-foreground">
                 {new Date(review.createdAt).toLocaleString()}

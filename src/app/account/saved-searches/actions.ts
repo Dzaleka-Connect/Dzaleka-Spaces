@@ -16,6 +16,12 @@ export async function saveSearch(formData: FormData): Promise<ActionResult> {
   const criteriaRaw = String(formData.get("criteria") ?? "{}");
 
   if (!name) return { ok: false, error: "Name is required." };
+  if (!new Set(["email", "in_app"]).has(channel)) {
+    return { ok: false, error: "Choose email or in-app notifications." };
+  }
+  if (!new Set(["daily", "weekly", "instant"]).has(frequency)) {
+    return { ok: false, error: "Choose a valid notification frequency." };
+  }
 
   let criteria: ListingFilters = {};
   try {
@@ -52,10 +58,7 @@ export async function saveSearch(formData: FormData): Promise<ActionResult> {
   return { ok: true };
 }
 
-export async function toggleSavedSearch(
-  searchId: string,
-  paused: boolean
-): Promise<ActionResult> {
+export async function toggleSavedSearch(searchId: string, paused: boolean): Promise<ActionResult> {
   if (!isSupabaseConfigured()) return { ok: true };
 
   const user = await getSessionUser();
@@ -91,9 +94,7 @@ export async function deleteSavedSearch(searchId: string) {
     .eq("user_id", user.id);
 
   if (error) {
-    redirect(
-      `/account/saved-searches?error=${encodeURIComponent(error.message)}`
-    );
+    redirect(`/account/saved-searches?error=${encodeURIComponent(error.message)}`);
   }
 
   revalidatePath("/account/saved-searches");

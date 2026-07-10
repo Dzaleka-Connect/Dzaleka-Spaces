@@ -1,13 +1,7 @@
 import { Badge } from "@/components/ui/badge";
-import {
-  OCCUPANCY_STATUS_LABELS,
-  type OccupancyStatus,
-} from "@/lib/occupancies";
+import { OCCUPANCY_STATUS_LABELS, type OccupancyStatus } from "@/lib/occupancies";
 
-const VARIANTS: Record<
-  OccupancyStatus,
-  "default" | "secondary" | "outline" | "destructive"
-> = {
+const VARIANTS: Record<OccupancyStatus, "default" | "secondary" | "outline" | "destructive"> = {
   awaiting_occupant_confirmation: "secondary",
   active: "default",
   notice_given: "outline",

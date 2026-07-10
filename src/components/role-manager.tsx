@@ -91,9 +91,7 @@ export function RoleManager({
             variant="outline"
             className="h-7"
             disabled={isPending || !selected}
-            onClick={() =>
-              selected && run(() => grantRole(userId, selected))
-            }
+            onClick={() => selected && run(() => grantRole(userId, selected))}
           >
             {isPending ? <Spinner /> : "Grant"}
           </Button>

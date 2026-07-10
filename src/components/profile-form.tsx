@@ -4,12 +4,7 @@ import { useState, useTransition } from "react";
 import { Save } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
+import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -39,9 +34,7 @@ export interface ProfileValues {
 
 export function ProfileForm({ initial }: { initial: ProfileValues }) {
   const [isPending, startTransition] = useTransition();
-  const [language, setLanguage] = useState<string | null>(
-    initial.preferredLanguage || "en"
-  );
+  const [language, setLanguage] = useState<string | null>(initial.preferredLanguage || "en");
 
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -67,8 +60,7 @@ export function ProfileForm({ initial }: { initial: ProfileValues }) {
             disabled={isPending}
           />
           <FieldDescription>
-            Shown to providers you contact, and as the provider name on your
-            own published listings.
+            Shown to providers you contact, and as the provider name on your own published listings.
           </FieldDescription>
         </Field>
         <div className="grid gap-6 sm:grid-cols-2">
@@ -119,11 +111,7 @@ export function ProfileForm({ initial }: { initial: ProfileValues }) {
         </Field>
         <Field>
           <Button type="submit" disabled={isPending}>
-            {isPending ? (
-              <Spinner data-icon="inline-start" />
-            ) : (
-              <Save data-icon="inline-start" />
-            )}
+            {isPending ? <Spinner data-icon="inline-start" /> : <Save data-icon="inline-start" />}
             Save profile
           </Button>
         </Field>

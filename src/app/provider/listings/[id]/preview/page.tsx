@@ -1,13 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getSessionUser } from "@/lib/auth";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
@@ -30,7 +24,9 @@ export default async function ProviderListingPreviewPage({
   const supabase = await createClient();
   const { data: listing } = await supabase
     .from("listings")
-    .select("id, title, status, price_mwk, deposit_mwk, billing_period, available_from, spaces(category, landmark, description, rooms, capacity, facilities, zones(name))")
+    .select(
+      "id, title, status, price_mwk, deposit_mwk, billing_period, available_from, spaces(category, landmark, description, rooms, capacity, facilities, zones(name))"
+    )
     .eq("id", id)
     .maybeSingle();
 
@@ -41,7 +37,7 @@ export default async function ProviderListingPreviewPage({
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">{listing.title}</h1>
+        <h1 className="text-3xl font-bold">{listing.title}</h1>
         <p className="mt-1 text-muted-foreground">
           Provider preview. Public seekers only see this after publication.
         </p>
@@ -71,8 +67,7 @@ export default async function ProviderListingPreviewPage({
             ))}
           </div>
           <p className="text-sm text-muted-foreground">
-            Deposit:{" "}
-            {listing.deposit_mwk ? formatMwk(listing.deposit_mwk) : "None"}
+            Deposit: {listing.deposit_mwk ? formatMwk(listing.deposit_mwk) : "None"}
           </p>
         </CardContent>
       </Card>

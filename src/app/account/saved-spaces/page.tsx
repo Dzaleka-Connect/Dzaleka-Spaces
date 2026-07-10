@@ -61,16 +61,10 @@ export default async function SavedSpacesPage({
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Saved spaces</h1>
-          <p className="mt-1 text-muted-foreground">
-            Spaces you marked for later review.
-          </p>
+          <h1 className="text-3xl font-bold">Saved spaces</h1>
+          <p className="mt-1 text-muted-foreground">Spaces you marked for later review.</p>
         </div>
-        <Button
-          variant="outline"
-          render={<Link href="/spaces" />}
-          nativeButton={false}
-        >
+        <Button variant="outline" render={<Link href="/spaces" />} nativeButton={false}>
           Browse spaces
         </Button>
       </div>
@@ -98,8 +92,7 @@ export default async function SavedSpacesPage({
             </EmptyMedia>
             <EmptyTitle>No saved spaces</EmptyTitle>
             <EmptyDescription>
-              Save spaces from a listing page to compare and return to them
-              later.
+              Save spaces from a listing page to compare and return to them later.
             </EmptyDescription>
           </EmptyHeader>
         </Empty>

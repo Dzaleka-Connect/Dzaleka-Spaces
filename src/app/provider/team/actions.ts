@@ -3,10 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth";
-import {
-  createAdminClient,
-  isSupabaseAdminConfigured,
-} from "@/lib/supabase/admin";
+import { createAdminClient, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 
 function permissionsFromForm(formData: FormData): string[] {
@@ -23,7 +20,9 @@ export async function inviteProviderTeamMember(formData: FormData) {
     redirect("/provider/team?error=Team%20invites%20require%20server%20configuration");
   }
 
-  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const email = String(formData.get("email") ?? "")
+    .trim()
+    .toLowerCase();
   const permissions = permissionsFromForm(formData);
   if (!email || permissions.length === 0) {
     redirect("/provider/team?error=Email%20and%20permissions%20are%20required");

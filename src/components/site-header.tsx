@@ -20,13 +20,10 @@ export async function SiteHeader() {
         }`}
       >
         <div className="flex min-w-0 items-center gap-2">
-          {user ? (
-            <SidebarTrigger className="-ml-1" />
-          ) : (
-            <MobilePublicNav links={publicLinks} />
-          )}
+          {user ? <SidebarTrigger className="-ml-1" /> : <MobilePublicNav links={publicLinks} />}
           <Link
             href={homeHref}
+            aria-label="Dzaleka Spaces home"
             className={`flex items-center gap-2 font-semibold whitespace-nowrap ${
               user ? "md:hidden" : ""
             }`}
@@ -82,11 +79,7 @@ export async function SiteHeader() {
               Sign in
             </Button>
           )}
-          <Button
-            size="sm"
-            render={<Link href="/list-a-space" />}
-            nativeButton={false}
-          >
+          <Button size="sm" render={<Link href="/list-a-space" />} nativeButton={false}>
             List a space
           </Button>
         </div>

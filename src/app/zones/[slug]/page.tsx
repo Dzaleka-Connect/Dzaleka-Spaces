@@ -19,9 +19,7 @@ interface ZonePageProps {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateMetadata({
-  params,
-}: ZonePageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: ZonePageProps): Promise<Metadata> {
   const { slug } = await params;
   const zone = await findZoneBySlug(slug);
   return {
@@ -39,9 +37,7 @@ export default async function ZonePage({ params }: ZonePageProps) {
 
   const listings = await getListings({ zone });
   const prices = listings.map((l) => l.priceMwk).sort((a, b) => a - b);
-  const median = prices.length
-    ? prices[Math.floor(prices.length / 2)]
-    : null;
+  const median = prices.length ? prices[Math.floor(prices.length / 2)] : null;
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8">
@@ -52,9 +48,7 @@ export default async function ZonePage({ params }: ZonePageProps) {
           </Link>{" "}
           / {zone}
         </p>
-        <h1 className="mt-1 text-3xl font-bold tracking-tight">
-          Spaces in {zone}
-        </h1>
+        <h1 className="mt-1 text-3xl font-bold">Spaces in {zone}</h1>
         <p className="mt-1 text-muted-foreground">
           {listings.length} available space{listings.length === 1 ? "" : "s"}
           {median !== null && listings.length >= 3
@@ -71,15 +65,11 @@ export default async function ZonePage({ params }: ZonePageProps) {
             </EmptyMedia>
             <EmptyTitle>No spaces in {zone} right now</EmptyTitle>
             <EmptyDescription>
-              New spaces are added as they are verified. Save a search on the
-              browse page to be told when something opens here.
+              New spaces are added as they are verified. Save a search on the browse page to be told
+              when something opens here.
             </EmptyDescription>
           </EmptyHeader>
-          <Button
-            variant="outline"
-            render={<Link href="/spaces" />}
-            nativeButton={false}
-          >
+          <Button variant="outline" render={<Link href="/spaces" />} nativeButton={false}>
             Browse all spaces
           </Button>
         </Empty>

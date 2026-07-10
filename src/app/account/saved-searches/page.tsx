@@ -5,13 +5,7 @@ import { Info } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Empty,
   EmptyDescription,
@@ -63,16 +57,10 @@ export default async function SavedSearchesPage({
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Saved searches</h1>
-          <p className="mt-1 text-muted-foreground">
-            Named filter sets with alert preferences.
-          </p>
+          <h1 className="text-3xl font-bold">Saved searches</h1>
+          <p className="mt-1 text-muted-foreground">Named filter sets with alert preferences.</p>
         </div>
-        <Button
-          variant="outline"
-          render={<Link href="/account" />}
-          nativeButton={false}
-        >
+        <Button variant="outline" render={<Link href="/account" />} nativeButton={false}>
           Account
         </Button>
       </div>
@@ -82,8 +70,8 @@ export default async function SavedSearchesPage({
           <Info />
           <AlertTitle>Alerts paused</AlertTitle>
           <AlertDescription>
-            The saved_search_alerts feature flag is off. Searches are saved but
-            notifications will not be sent until an admin enables the flag.
+            The saved_search_alerts feature flag is off. Searches are saved but notifications will
+            not be sent until an admin enables the flag.
           </AlertDescription>
         </Alert>
       ) : null}
@@ -102,8 +90,7 @@ export default async function SavedSearchesPage({
             </EmptyMedia>
             <EmptyTitle>No saved searches</EmptyTitle>
             <EmptyDescription>
-              Browse spaces, apply filters, then use Save search on the browse
-              page.
+              Browse spaces, apply filters, then use Save search on the browse page.
             </EmptyDescription>
           </EmptyHeader>
         </Empty>
@@ -119,9 +106,7 @@ export default async function SavedSearchesPage({
                     <div className="flex gap-1.5">
                       <Badge variant="outline">{search.channel}</Badge>
                       <Badge variant="outline">{search.frequency}</Badge>
-                      {search.paused ? (
-                        <Badge variant="secondary">Paused</Badge>
-                      ) : null}
+                      {search.paused ? <Badge variant="secondary">Paused</Badge> : null}
                     </div>
                   </div>
                   <CardDescription>

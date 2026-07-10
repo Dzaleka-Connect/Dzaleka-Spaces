@@ -11,12 +11,7 @@ import {
   Wrench,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const metadata: Metadata = {
   title: "How it works",
@@ -69,11 +64,11 @@ export default function HowItWorksPage() {
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-8 px-4 py-12">
       <div className="flex flex-col gap-3">
-        <h1 className="text-3xl font-bold tracking-tight">How it works</h1>
+        <h1 className="text-3xl font-bold">How it works</h1>
         <p className="max-w-2xl text-muted-foreground">
-          Dzaleka Spaces helps people find trusted places to work, meet, train,
-          operate businesses and book approved stays — while giving space
-          providers simple tools to manage records, enquiries and maintenance.
+          Dzaleka Spaces helps people find trusted places to work, meet, train, operate businesses
+          and book approved stays — while giving space providers simple tools to manage records,
+          enquiries and maintenance.
         </p>
       </div>
 
@@ -89,16 +84,12 @@ export default function HowItWorksPage() {
         ))}
       </div>
 
-      <div className="flex flex-wrap items-center gap-3 rounded-xl border bg-muted/40 p-6">
+      <div className="flex flex-wrap items-center gap-3 rounded-md border bg-muted/40 p-6">
         <MessageCircleQuestion className="size-6 text-primary" />
         <p className="flex-1 text-sm text-muted-foreground">
           Questions about verification, listings or safety?
         </p>
-        <Button
-          variant="outline"
-          render={<Link href="/verification" />}
-          nativeButton={false}
-        >
+        <Button variant="outline" render={<Link href="/verification" />} nativeButton={false}>
           About verification
         </Button>
         <Button render={<Link href="/safety" />} nativeButton={false}>

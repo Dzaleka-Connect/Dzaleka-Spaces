@@ -4,12 +4,7 @@ import { useState, useTransition } from "react";
 import { CheckCircle2, Send } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
+import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -57,13 +52,12 @@ export function AssistedListingForm({ zones = [...ZONES] }: { zones?: string[] }
 
   if (done) {
     return (
-      <div className="flex flex-col items-start gap-3 rounded-xl border p-6">
+      <div className="flex flex-col items-start gap-3 rounded-md border p-6">
         <CheckCircle2 className="size-8 text-primary" />
         <h2 className="text-lg font-semibold">Request received</h2>
         <p className="text-sm text-muted-foreground">
-          A field representative will contact you to arrange a visit, take
-          photographs and prepare the listing with you. The assisted-listing
-          fee is agreed before any work starts.
+          A field representative will contact you to arrange a visit, take photographs and prepare
+          the listing with you. The assisted-listing fee is agreed before any work starts.
         </p>
       </div>
     );
@@ -79,13 +73,7 @@ export function AssistedListingForm({ zones = [...ZONES] }: { zones?: string[] }
           </Field>
           <Field>
             <FieldLabel htmlFor="al-contact">Phone or WhatsApp</FieldLabel>
-            <Input
-              id="al-contact"
-              name="contact"
-              type="tel"
-              required
-              disabled={isPending}
-            />
+            <Input id="al-contact" name="contact" type="tel" required disabled={isPending} />
           </Field>
         </div>
         <div className="grid gap-6 sm:grid-cols-2">
@@ -133,9 +121,7 @@ export function AssistedListingForm({ zones = [...ZONES] }: { zones?: string[] }
           </Field>
         </div>
         <Field>
-          <FieldLabel htmlFor="al-notes">
-            Anything we should know? (optional)
-          </FieldLabel>
+          <FieldLabel htmlFor="al-notes">Anything we should know? (optional)</FieldLabel>
           <Textarea
             id="al-notes"
             name="notes"
@@ -143,17 +129,12 @@ export function AssistedListingForm({ zones = [...ZONES] }: { zones?: string[] }
             disabled={isPending}
           />
           <FieldDescription>
-            Your contact details are only used to arrange the visit. They are
-            never published.
+            Your contact details are only used to arrange the visit. They are never published.
           </FieldDescription>
         </Field>
         <Field>
           <Button type="submit" disabled={isPending}>
-            {isPending ? (
-              <Spinner data-icon="inline-start" />
-            ) : (
-              <Send data-icon="inline-start" />
-            )}
+            {isPending ? <Spinner data-icon="inline-start" /> : <Send data-icon="inline-start" />}
             Request a visit
           </Button>
         </Field>

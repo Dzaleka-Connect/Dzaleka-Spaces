@@ -3,13 +3,7 @@ import Link from "next/link";
 import { BadgeCheck, BriefcaseBusiness, Wrench } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Empty,
   EmptyDescription,
@@ -30,20 +24,14 @@ export default async function TradesPage() {
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            Maintenance services
-          </h1>
+          <h1 className="text-3xl font-bold">Maintenance services</h1>
           <p className="mt-1 text-muted-foreground">
-            Find approved local repair, cleaning, solar and building-service
-            providers. Exact work locations are shared only after assignment.
+            Find approved local repair, cleaning, solar and building-service providers. Exact work
+            locations are shared only after assignment.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button
-            variant="outline"
-            render={<Link href="/trades/jobs" />}
-            nativeButton={false}
-          >
+          <Button variant="outline" render={<Link href="/trades/jobs" />} nativeButton={false}>
             <BriefcaseBusiness data-icon="inline-start" />
             Jobs
           </Button>
@@ -62,8 +50,7 @@ export default async function TradesPage() {
             </EmptyMedia>
             <EmptyTitle>No active service providers</EmptyTitle>
             <EmptyDescription>
-              Approved maintenance profiles will appear here when they are
-              active.
+              Approved maintenance profiles will appear here when they are active.
             </EmptyDescription>
           </EmptyHeader>
         </Empty>
@@ -95,15 +82,11 @@ export default async function TradesPage() {
                 </div>
                 <p className="text-sm text-muted-foreground">
                   Zones:{" "}
-                  {provider.zonesServed.length
-                    ? provider.zonesServed.join(", ")
-                    : "By arrangement"}
+                  {provider.zonesServed.length ? provider.zonesServed.join(", ") : "By arrangement"}
                 </p>
                 <p className="text-sm text-muted-foreground">
                   Languages:{" "}
-                  {provider.languages.length
-                    ? provider.languages.join(", ")
-                    : "Not listed"}
+                  {provider.languages.length ? provider.languages.join(", ") : "Not listed"}
                 </p>
               </CardContent>
             </Card>

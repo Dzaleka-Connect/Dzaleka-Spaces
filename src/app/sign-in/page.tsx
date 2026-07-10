@@ -10,7 +10,7 @@ export default function LoginPage() {
   return (
     <div className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 py-16">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Sign in</h1>
+        <h1 className="text-3xl font-bold">Sign in</h1>
         <p className="mt-1 text-muted-foreground">
           Use your email and password, or request a one-time magic link.
         </p>

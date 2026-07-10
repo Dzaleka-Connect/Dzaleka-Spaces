@@ -2,12 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { BadgeCheck, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getZoneSummaries } from "@/lib/zones";
 
 export const metadata: Metadata = {
@@ -22,10 +17,10 @@ export default async function ZonesPage() {
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Browse by zone</h1>
+        <h1 className="text-3xl font-bold">Browse by zone</h1>
         <p className="mt-1 max-w-2xl text-muted-foreground">
-          Every listing shows its zone and a nearby landmark. Exact locations
-          are shared only after a viewing is arranged with the provider.
+          Every listing shows its zone and a nearby landmark. Exact locations are shared only after
+          a viewing is arranged with the provider.
         </p>
       </div>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">

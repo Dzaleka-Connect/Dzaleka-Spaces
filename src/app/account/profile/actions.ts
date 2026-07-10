@@ -10,9 +10,7 @@ export interface ProfileResult {
   message: string;
 }
 
-export async function updateProfile(
-  formData: FormData
-): Promise<ProfileResult> {
+export async function updateProfile(formData: FormData): Promise<ProfileResult> {
   const user = await getSessionUser();
   if (!user) redirect("/sign-in");
 

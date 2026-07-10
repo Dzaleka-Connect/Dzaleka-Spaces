@@ -6,13 +6,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldLabel } from "@/components/ui/field";
 import {
   Table,
@@ -64,17 +58,12 @@ export default async function AdminFlagsPage({
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Feature flags</h1>
+          <h1 className="text-3xl font-bold">Feature flags</h1>
           <p className="mt-1 text-muted-foreground">
-            Operational gates for pilot features. Locked flags cannot be
-            enabled from the app.
+            Operational gates for pilot features. Locked flags cannot be enabled from the app.
           </p>
         </div>
-        <Button
-          variant="outline"
-          render={<Link href="/admin" />}
-          nativeButton={false}
-        >
+        <Button variant="outline" render={<Link href="/admin" />} nativeButton={false}>
           Admin overview
         </Button>
       </div>
@@ -84,8 +73,7 @@ export default async function AdminFlagsPage({
           <Lock />
           <AlertTitle>Read-only access</AlertTitle>
           <AlertDescription>
-            Moderators can inspect flags. Only admins can change safe feature
-            flags.
+            Moderators can inspect flags. Only admins can change safe feature flags.
           </AlertDescription>
         </Alert>
       ) : null}
@@ -108,8 +96,8 @@ export default async function AdminFlagsPage({
         <CardHeader>
           <CardTitle>Flags</CardTitle>
           <CardDescription>
-            Payment processing and residential listings remain off during the
-            pilot unless the operating constraints change outside the app.
+            Payment processing and residential listings remain off during the pilot unless the
+            operating constraints change outside the app.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -158,9 +146,7 @@ export default async function AdminFlagsPage({
                             defaultChecked={flag.enabled}
                             disabled={!canManage || locked}
                           />
-                          <FieldLabel htmlFor={`flag-${flag.name}`}>
-                            Enabled
-                          </FieldLabel>
+                          <FieldLabel htmlFor={`flag-${flag.name}`}>Enabled</FieldLabel>
                         </Field>
                         <Button
                           type="submit"

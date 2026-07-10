@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  poweredByHeader: false,
   images: {
     remotePatterns: [
       {
@@ -28,14 +29,6 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       // Master-roadmap route aliases.
-      {
-        source: "/account/occupancies",
-        destination: "/account/occupancy",
-        permanent: false,
-      },
-      // Auth is passwordless (email OTP): password routes go to sign-in.
-      { source: "/forgot-password", destination: "/sign-in", permanent: false },
-      { source: "/reset-password", destination: "/sign-in", permanent: false },
     ];
   },
 };

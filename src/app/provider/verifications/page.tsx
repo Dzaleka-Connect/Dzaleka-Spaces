@@ -26,10 +26,7 @@ export const metadata: Metadata = {
   title: "Verifications",
 };
 
-const STATUS_VARIANTS: Record<
-  string,
-  "default" | "secondary" | "outline" | "destructive"
-> = {
+const STATUS_VARIANTS: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
   approved: "default",
   pending: "secondary",
   scheduled: "secondary",
@@ -45,8 +42,7 @@ export default async function ProviderVerificationsPage() {
           <Info />
           <AlertTitle>Demo mode</AlertTitle>
           <AlertDescription>
-            Verification tracking is available once a Supabase project is
-            connected.
+            Verification tracking is available once a Supabase project is connected.
           </AlertDescription>
         </Alert>
       </div>
@@ -57,17 +53,11 @@ export default async function ProviderVerificationsPage() {
   if (!user) redirect("/sign-in");
 
   const supabase = await createClient();
-  const { data: spaces } = await supabase
-    .from("spaces")
-    .select("id")
-    .eq("provider_id", user.id);
+  const { data: spaces } = await supabase.from("spaces").select("id").eq("provider_id", user.id);
   const spaceIds = (spaces ?? []).map((s) => s.id);
 
   const { data: listings } = spaceIds.length
-    ? await supabase
-        .from("listings")
-        .select("id, title")
-        .in("space_id", spaceIds)
+    ? await supabase.from("listings").select("id, title").in("space_id", spaceIds)
     : { data: [] };
   const listingIds = (listings ?? []).map((l) => l.id);
   const titleById = new Map((listings ?? []).map((l) => [l.id, l.title]));
@@ -83,10 +73,10 @@ export default async function ProviderVerificationsPage() {
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Verifications</h1>
+        <h1 className="text-3xl font-bold">Verifications</h1>
         <p className="mt-1 text-muted-foreground">
-          Field-visit outcomes for your listings. Checklist details and
-          evidence stay internal; you see the status and dates.
+          Field-visit outcomes for your listings. Checklist details and evidence stay internal; you
+          see the status and dates.
         </p>
       </div>
 
@@ -98,8 +88,8 @@ export default async function ProviderVerificationsPage() {
             </EmptyMedia>
             <EmptyTitle>No verifications yet</EmptyTitle>
             <EmptyDescription>
-              After you submit a listing, a field representative arranges a
-              visit and the outcome appears here.
+              After you submit a listing, a field representative arranges a visit and the outcome
+              appears here.
             </EmptyDescription>
           </EmptyHeader>
         </Empty>
@@ -120,18 +110,12 @@ export default async function ProviderVerificationsPage() {
                   {titleById.get(v.listing_id) ?? "Listing"}
                 </TableCell>
                 <TableCell>
-                  <Badge variant={STATUS_VARIANTS[v.status] ?? "outline"}>
-                    {v.status}
-                  </Badge>
+                  <Badge variant={STATUS_VARIANTS[v.status] ?? "outline"}>{v.status}</Badge>
                 </TableCell>
                 <TableCell className="text-muted-foreground">
-                  {v.verified_at
-                    ? new Date(v.verified_at).toLocaleDateString()
-                    : "—"}
+                  {v.verified_at ? new Date(v.verified_at).toLocaleDateString() : "—"}
                 </TableCell>
-                <TableCell className="text-muted-foreground">
-                  {v.reverify_by ?? "—"}
-                </TableCell>
+                <TableCell className="text-muted-foreground">{v.reverify_by ?? "—"}</TableCell>
               </TableRow>
             ))}
           </TableBody>

@@ -3,13 +3,7 @@ import { redirect } from "next/navigation";
 import { Info, Save } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -35,10 +29,10 @@ export default async function TradeProfilePage({
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Trade profile</h1>
+        <h1 className="text-3xl font-bold">Trade profile</h1>
         <p className="mt-1 text-muted-foreground">
-          This profile controls how your maintenance services appear in the
-          directory and job workflow.
+          This profile controls how your maintenance services appear in the directory and job
+          workflow.
         </p>
       </div>
 
@@ -109,11 +103,7 @@ export default async function TradeProfilePage({
               </Field>
               <Field>
                 <FieldLabel htmlFor="phone">Verified contact</FieldLabel>
-                <Input
-                  id="phone"
-                  name="phone"
-                  defaultValue={profile?.phone ?? ""}
-                />
+                <Input id="phone" name="phone" defaultValue={profile?.phone ?? ""} />
               </Field>
               <input
                 type="hidden"

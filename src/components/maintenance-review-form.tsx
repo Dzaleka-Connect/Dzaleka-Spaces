@@ -5,19 +5,27 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { createMaintenanceReview } from "@/app/trades/actions";
 import type { WorkOrder } from "@/lib/trades";
 
-export function MaintenanceReviewForm({
-  reviewable,
-}: {
-  reviewable: WorkOrder[];
-}) {
+export function MaintenanceReviewForm({ reviewable }: { reviewable: WorkOrder[] }) {
   const [isPending, startTransition] = useTransition();
 
   if (reviewable.length === 0) return null;
+  const workOrderItems = reviewable.map((order) => ({
+    value: order.id,
+    label: order.ticketTitle,
+  }));
 
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -39,20 +47,20 @@ export function MaintenanceReviewForm({
       <FieldGroup>
         <Field>
           <FieldLabel htmlFor="review-work-order">Completed work order</FieldLabel>
-          <select
-            id="review-work-order"
-            name="workOrderId"
-            required
-            disabled={isPending}
-            className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm"
-          >
-            <option value="">Select a completed job</option>
-            {reviewable.map((order) => (
-              <option key={order.id} value={order.id}>
-                {order.ticketTitle}
-              </option>
-            ))}
-          </select>
+          <Select name="workOrderId" items={workOrderItems} required disabled={isPending}>
+            <SelectTrigger id="review-work-order">
+              <SelectValue placeholder="Select a completed job" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {workOrderItems.map((item) => (
+                  <SelectItem key={item.value} value={item.value}>
+                    {item.label}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
         </Field>
         <Field>
           <FieldLabel htmlFor="review-rating">Rating (1–5)</FieldLabel>

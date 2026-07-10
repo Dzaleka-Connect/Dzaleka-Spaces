@@ -104,18 +104,16 @@ export function ListSpaceForm({ zones = [...ZONES] }: { zones?: string[] }) {
 
   if (done) {
     return (
-      <div className="flex flex-col items-start gap-4 rounded-xl border p-6">
+      <div className="flex flex-col items-start gap-4 rounded-md border p-6">
         <CheckCircle2 className="size-8 text-primary" />
         <h2 className="text-xl font-semibold">Space submitted</h2>
         <p className="text-base text-muted-foreground">
-          Thank you. A field representative will contact you to arrange an
-          in-person verification visit before your listing is published. There
-          is no charge until verification is agreed.
+          Thank you. A field representative will contact you to arrange an in-person verification
+          visit before your listing is published. There is no charge until verification is agreed.
         </p>
         {photosUploaded ? (
           <p className="text-base text-muted-foreground">
-            {photos.length} photo{photos.length === 1 ? "" : "s"} attached for
-            review.
+            {photos.length} photo{photos.length === 1 ? "" : "s"} attached for review.
           </p>
         ) : spaceId ? (
           <PhotoUpload
@@ -200,8 +198,8 @@ export function ListSpaceForm({ zones = [...ZONES] }: { zones?: string[] }) {
             disabled={isPending}
           />
           <FieldDescription>
-            Only the zone and landmark are shown publicly. The exact location
-            is shared after you confirm a viewing.
+            Only the zone and landmark are shown publicly. The exact location is shared after you
+            confirm a viewing.
           </FieldDescription>
         </Field>
 
@@ -227,24 +225,11 @@ export function ListSpaceForm({ zones = [...ZONES] }: { zones?: string[] }) {
         <div className="grid gap-6 sm:grid-cols-3">
           <Field>
             <FieldLabel htmlFor="ls-price">Price (MWK)</FieldLabel>
-            <Input
-              id="ls-price"
-              name="price"
-              type="number"
-              min={0}
-              required
-              disabled={isPending}
-            />
+            <Input id="ls-price" name="price" type="number" min={0} required disabled={isPending} />
           </Field>
           <Field>
             <FieldLabel htmlFor="ls-deposit">Deposit (MWK, optional)</FieldLabel>
-            <Input
-              id="ls-deposit"
-              name="deposit"
-              type="number"
-              min={0}
-              disabled={isPending}
-            />
+            <Input id="ls-deposit" name="deposit" type="number" min={0} disabled={isPending} />
           </Field>
           <Field>
             <FieldLabel>Billing period</FieldLabel>
@@ -299,19 +284,14 @@ export function ListSpaceForm({ zones = [...ZONES] }: { zones?: string[] }) {
             </SelectContent>
           </Select>
           <FieldDescription>
-            A field representative will check this during the verification
-            visit. It is never displayed publicly and does not establish
-            ownership of land or property.
+            A field representative will check this during the verification visit. It is never
+            displayed publicly and does not establish ownership of land or property.
           </FieldDescription>
         </Field>
 
         <Field>
           <Button type="submit" size="lg" disabled={isPending}>
-            {isPending ? (
-              <Spinner data-icon="inline-start" />
-            ) : (
-              <Send data-icon="inline-start" />
-            )}
+            {isPending ? <Spinner data-icon="inline-start" /> : <Send data-icon="inline-start" />}
             Submit for verification
           </Button>
         </Field>

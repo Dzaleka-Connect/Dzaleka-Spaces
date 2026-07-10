@@ -3,24 +3,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getMaintenanceJob } from "@/lib/trades";
 
 export const metadata: Metadata = {
   title: "Maintenance job",
 };
 
-export default async function TradeJobDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function TradeJobDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const job = await getMaintenanceJob(id);
   if (!job) notFound();
@@ -28,10 +18,9 @@ export default async function TradeJobDetailPage({
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">{job.title}</h1>
+        <h1 className="text-3xl font-bold">{job.title}</h1>
         <p className="mt-1 text-muted-foreground">
-          {job.zone ?? "Zone not listed"} ·{" "}
-          {job.landmark ?? "Landmark shared after assignment"}
+          {job.zone ?? "Zone not listed"} · {job.landmark ?? "Landmark shared after assignment"}
         </p>
       </div>
 

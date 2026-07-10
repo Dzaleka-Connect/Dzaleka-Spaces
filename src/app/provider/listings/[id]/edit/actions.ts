@@ -6,10 +6,7 @@ import { getSessionUser } from "@/lib/auth";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 
-export async function updateProviderListing(
-  listingId: string,
-  formData: FormData
-) {
+export async function updateProviderListing(listingId: string, formData: FormData) {
   const user = await getSessionUser();
   if (!user) redirect("/sign-in");
   if (!isSupabaseConfigured()) redirect(`/provider/listings/${listingId}/edit?saved=demo`);

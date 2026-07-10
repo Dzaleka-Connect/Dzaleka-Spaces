@@ -6,11 +6,21 @@ import { Button } from "@/components/ui/button";
 import { voidChargeAction } from "./actions";
 import { toast } from "sonner";
 
-export function VoidChargeButton({ chargeId, occupancyId }: { chargeId: string; occupancyId: string }) {
+export function VoidChargeButton({
+  chargeId,
+  occupancyId,
+}: {
+  chargeId: string;
+  occupancyId: string;
+}) {
   const [isPending, startTransition] = useTransition();
 
   const handleVoid = () => {
-    if (!confirm("Are you sure you want to void this charge? This will delete allocations and cannot be undone.")) {
+    if (
+      !confirm(
+        "Are you sure you want to void this charge? This will delete allocations and cannot be undone."
+      )
+    ) {
       return;
     }
     startTransition(async () => {

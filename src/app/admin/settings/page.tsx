@@ -1,23 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import {
-  Bell,
-  Flag,
-  Info,
-  ShieldCheck,
-  SlidersHorizontal,
-  Users,
-} from "lucide-react";
+import { Bell, Flag, Info, ShieldCheck, SlidersHorizontal, Users } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { canModerate, getSessionUser, hasRole } from "@/lib/auth";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 
@@ -65,9 +52,7 @@ export default async function AdminSettingsPage() {
         <Alert>
           <Info />
           <AlertTitle>Demo mode</AlertTitle>
-          <AlertDescription>
-            Settings are available once Supabase is connected.
-          </AlertDescription>
+          <AlertDescription>Settings are available once Supabase is connected.</AlertDescription>
         </Alert>
       </div>
     );
@@ -80,7 +65,7 @@ export default async function AdminSettingsPage() {
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
+        <h1 className="text-3xl font-bold">Settings</h1>
         <p className="mt-1 text-muted-foreground">
           Administrative settings and operational controls.
         </p>

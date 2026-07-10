@@ -9,9 +9,7 @@ export interface AssistedListingResult {
   message: string;
 }
 
-export async function requestAssistedListing(
-  formData: FormData
-): Promise<AssistedListingResult> {
+export async function requestAssistedListing(formData: FormData): Promise<AssistedListingResult> {
   const name = String(formData.get("name") ?? "").trim();
   const contact = String(formData.get("contact") ?? "").trim();
   const zone = String(formData.get("zone") ?? "").trim();
@@ -62,7 +60,6 @@ export async function requestAssistedListing(
 
   return {
     ok: true,
-    message:
-      "Request received. A field representative will contact you to arrange a visit.",
+    message: "Request received. A field representative will contact you to arrange a visit.",
   };
 }

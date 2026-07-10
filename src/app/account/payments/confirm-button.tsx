@@ -3,15 +3,15 @@
 import { useTransition } from "react";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { tenantConfirmPaymentAction } from "./actions";
+import { occupantConfirmPaymentAction } from "./actions";
 import { toast } from "sonner";
 
-export function TenantConfirmPaymentButton({ paymentId }: { paymentId: string }) {
+export function OccupantConfirmPaymentButton({ paymentId }: { paymentId: string }) {
   const [isPending, startTransition] = useTransition();
 
   const handleConfirm = () => {
     startTransition(async () => {
-      const res = await tenantConfirmPaymentAction(paymentId);
+      const res = await occupantConfirmPaymentAction(paymentId);
       if (res.ok) {
         toast.success("Payment confirmed!");
       } else {

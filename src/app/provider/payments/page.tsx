@@ -5,7 +5,14 @@ import { Plus, AlertCircle, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { getSessionUser } from "@/lib/auth";
 import { listAllPaymentsForProvider } from "@/lib/payments";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -38,9 +45,9 @@ export default async function ProviderPaymentsPage() {
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Payments Log</h1>
+          <h1 className="text-3xl font-bold">Payments Log</h1>
           <p className="mt-1 text-muted-foreground text-sm">
-            Record cash receipts or confirm tenant mobile money references.
+            Record cash receipts or confirm occupant-provided external payment references.
           </p>
         </div>
         <Button render={<Link href="/provider/payments/new" />} nativeButton={false}>
@@ -52,7 +59,9 @@ export default async function ProviderPaymentsPage() {
       <div className="grid gap-4 sm:grid-cols-3">
         <Card className="py-2">
           <CardHeader className="pb-1">
-            <CardDescription className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Total Confirmed</CardDescription>
+            <CardDescription className="text-xs font-semibold uppercase text-muted-foreground">
+              Total Confirmed
+            </CardDescription>
             <CardTitle className="text-2xl font-bold text-success">
               {formatMwk(totalConfirmed)}
             </CardTitle>
@@ -60,7 +69,9 @@ export default async function ProviderPaymentsPage() {
         </Card>
         <Card className="py-2">
           <CardHeader className="pb-1">
-            <CardDescription className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Awaiting Your Confirmation</CardDescription>
+            <CardDescription className="text-xs font-semibold uppercase text-muted-foreground">
+              Awaiting Your Confirmation
+            </CardDescription>
             <CardTitle className="text-2xl font-bold text-amber-600 dark:text-amber-400">
               {pendingConfirmations.length}
             </CardTitle>
@@ -103,7 +114,9 @@ export default async function ProviderPaymentsPage() {
                       </div>
                     </TableCell>
                     <TableCell className="capitalize">{p.method.replace("_", " ")}</TableCell>
-                    <TableCell className="font-mono text-xs">{p.externalReference ?? "—"}</TableCell>
+                    <TableCell className="font-mono text-xs">
+                      {p.externalReference ?? "—"}
+                    </TableCell>
                     <TableCell className="font-semibold">{formatMwk(p.amountMwk)}</TableCell>
                     <TableCell>{new Date(p.paymentDate).toLocaleDateString()}</TableCell>
                     <TableCell>
@@ -123,7 +136,12 @@ export default async function ProviderPaymentsPage() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <Button variant="ghost" size="icon" render={<Link href={`/provider/payments/${p.id}`} />} nativeButton={false}>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          render={<Link href={`/provider/payments/${p.id}`} />}
+                          nativeButton={false}
+                        >
                           <Eye className="size-4" />
                         </Button>
                         {p.status === "pending_confirmation" && !p.providerConfirmedAt && (

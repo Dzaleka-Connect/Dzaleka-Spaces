@@ -1,11 +1,5 @@
 import type { Metadata } from "next";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -41,11 +35,10 @@ export default function PricingPage() {
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-4 py-12">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Pricing</h1>
+        <h1 className="text-3xl font-bold">Pricing</h1>
         <p className="mt-1 max-w-2xl text-muted-foreground">
-          Finding a space is free — the costs sit with providers, kept small
-          and agreed in advance. All amounts are pilot prices and may be
-          adjusted with advisory-group review.
+          Finding a space is free — the costs sit with providers, kept small and agreed in advance.
+          All amounts are pilot prices and may be adjusted with advisory-group review.
         </p>
       </div>
 
@@ -53,8 +46,8 @@ export default function PricingPage() {
         <CardHeader>
           <CardTitle>Always free</CardTitle>
           <CardDescription>
-            Charging people to look for somewhere to live or work would shut
-            out the people the platform exists for.
+            Charging people to look for somewhere to live or work would shut out the people the
+            platform exists for.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -70,8 +63,8 @@ export default function PricingPage() {
         <CardHeader>
           <CardTitle>Provider fees</CardTitle>
           <CardDescription>
-            Fees are always agreed before work starts. Organisations can
-            sponsor free verification for low-income providers.
+            Fees are always agreed before work starts. Organisations can sponsor free verification
+            for low-income providers.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -88,9 +81,7 @@ export default function PricingPage() {
                 <TableRow key={service}>
                   <TableCell className="font-medium">{service}</TableCell>
                   <TableCell>{price}</TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {notes}
-                  </TableCell>
+                  <TableCell className="text-muted-foreground">{notes}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

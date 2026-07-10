@@ -2,12 +2,12 @@
 
 ## Buckets
 
-| Bucket | Public | Contents |
-| --- | --- | --- |
-| `listing-public` | yes (read) | Moderated listing photos |
-| `verification-private` | no | Field-verification evidence |
-| `enquiry-private` | no | Enquiry-thread attachments |
-| `maintenance-private` | no | Maintenance ticket / work-order media |
+| Bucket                 | Public     | Contents                              |
+| ---------------------- | ---------- | ------------------------------------- |
+| `listing-public`       | yes (read) | Moderated listing photos              |
+| `verification-private` | no         | Field-verification evidence           |
+| `enquiry-private`      | no         | Enquiry-thread attachments            |
+| `maintenance-private`  | no         | Maintenance ticket / work-order media |
 
 Private buckets are served only through short-lived signed URLs issued by
 authenticated API routes (`/api/enquiry-attachments/[id]`,

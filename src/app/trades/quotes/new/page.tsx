@@ -3,13 +3,7 @@ import { redirect } from "next/navigation";
 import { Info, Send } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -32,10 +26,10 @@ export default async function NewTradeQuotePage({
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Submit quote</h1>
+        <h1 className="text-3xl font-bold">Submit quote</h1>
         <p className="mt-1 text-muted-foreground">
-          Quote only for work you can safely complete. Exact work locations are
-          released after assignment.
+          Quote only for work you can safely complete. Exact work locations are released after
+          assignment.
         </p>
       </div>
 

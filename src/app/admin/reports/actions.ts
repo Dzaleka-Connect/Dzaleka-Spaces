@@ -17,24 +17,16 @@ export async function updateReportStatus(formData: FormData) {
 
   const reportId = String(formData.get("reportId") ?? "");
   const status = String(formData.get("status") ?? "");
-  if (
-    !reportId ||
-    !REPORT_STATUSES.includes(status as (typeof REPORT_STATUSES)[number])
-  ) {
+  if (!reportId || !REPORT_STATUSES.includes(status as (typeof REPORT_STATUSES)[number])) {
     redirect("/admin/reports");
   }
 
   const supabase = await createClient();
-  const { error } = await supabase
-    .from("reports")
-    .update({ status })
-    .eq("id", reportId);
+  const { error } = await supabase.from("reports").update({ status }).eq("id", reportId);
 
   if (error) {
     console.error("updateReportStatus failed:", error.message);
-    redirect(
-      `/admin/reports?error=${encodeURIComponent(error.message)}`
-    );
+    redirect(`/admin/reports?error=${encodeURIComponent(error.message)}`);
   }
 
   await supabase.from("audit_events").insert({

@@ -1,20 +1,8 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import {
-  Building2,
-  ClipboardList,
-  Eye,
-  FileWarning,
-  MessageSquare,
-  Search,
-} from "lucide-react";
+import { Building2, ClipboardList, Eye, FileWarning, MessageSquare, Search } from "lucide-react";
 import { AdminAnalyticsCharts } from "@/components/admin-analytics-charts";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getAnalyticsDashboard } from "@/lib/analytics";
 import { EVENT_LABELS } from "@/lib/analytics-types";
 import { canModerate, getSessionUser, hasRole } from "@/lib/auth";
@@ -41,17 +29,15 @@ export default async function AdminAnalyticsPage() {
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Analytics</h1>
+        <h1 className="text-3xl font-bold">Analytics</h1>
         <p className="mt-1 text-muted-foreground">
-          Last {dashboard.rangeDays} days. Exact locations and verification
-          evidence are not stored in analytics events.
+          Last {dashboard.rangeDays} days. Exact locations and verification evidence are not stored
+          in analytics events.
         </p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {(
-          Object.keys(dashboard.totals) as Array<keyof typeof dashboard.totals>
-        ).map((key) => {
+        {(Object.keys(dashboard.totals) as Array<keyof typeof dashboard.totals>).map((key) => {
           const Icon = TOTAL_ICONS[key];
           return (
             <Card key={key}>
@@ -77,7 +63,7 @@ export default async function AdminAnalyticsPage() {
       />
 
       <div>
-        <h2 className="text-lg font-semibold tracking-tight">Operations</h2>
+        <h2 className="text-lg font-semibold">Operations</h2>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

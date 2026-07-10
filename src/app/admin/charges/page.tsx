@@ -3,7 +3,14 @@ import { redirect } from "next/navigation";
 import { AlertCircle } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { getSessionUser } from "@/lib/auth";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
@@ -37,7 +44,7 @@ export default async function AdminChargesPage() {
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Charges Oversight</h1>
+        <h1 className="text-3xl font-bold">Charges Oversight</h1>
         <p className="mt-1 text-muted-foreground text-sm">
           System-wide audit trail of scheduled rent, deposits, and service fees.
         </p>
@@ -46,7 +53,9 @@ export default async function AdminChargesPage() {
       <Card>
         <CardHeader>
           <CardTitle>System Charges Log</CardTitle>
-          <CardDescription>View status of all scheduled charges across the marketplace.</CardDescription>
+          <CardDescription>
+            View status of all scheduled charges across the marketplace.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {charges.length === 0 ? (
@@ -74,7 +83,9 @@ export default async function AdminChargesPage() {
                     <TableCell>
                       <div className="flex flex-col">
                         <span>{c.occupancies?.spaces?.landmark}</span>
-                        <span className="text-xs text-muted-foreground">{c.occupancies?.spaces?.zones?.name}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {c.occupancies?.spaces?.zones?.name}
+                        </span>
                       </div>
                     </TableCell>
                     <TableCell>{c.description ?? "Rent payment"}</TableCell>

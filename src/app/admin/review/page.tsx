@@ -1,13 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import {
-  AlertTriangle,
-  CheckCircle2,
-  ClipboardList,
-  Info,
-  MapPin,
-} from "lucide-react";
+import { AlertTriangle, CheckCircle2, ClipboardList, Info, MapPin } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -31,11 +25,7 @@ import { Input } from "@/components/ui/input";
 import { canModerate, getSessionUser } from "@/lib/auth";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { categoryLabel, formatMwk } from "@/lib/types";
-import {
-  approveAndPublish,
-  rejectListing,
-  requestChanges,
-} from "../actions";
+import { approveAndPublish, rejectListing, requestChanges } from "../actions";
 import { getReviewListings } from "../data";
 
 export const metadata: Metadata = {
@@ -71,8 +61,7 @@ export default async function AdminReviewPage({
           <Info />
           <AlertTitle>Demo mode</AlertTitle>
           <AlertDescription>
-            The admin review queue is available once a Supabase project is
-            connected.
+            The admin review queue is available once a Supabase project is connected.
           </AlertDescription>
         </Alert>
       </div>
@@ -89,17 +78,13 @@ export default async function AdminReviewPage({
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Review queue</h1>
+          <h1 className="text-3xl font-bold">Review queue</h1>
           <p className="mt-1 text-muted-foreground">
-            Publish only after a field checklist exists. Verification confirms
-            listing details and stated authority, never ownership.
+            Publish only after a field checklist exists. Verification confirms listing details and
+            stated authority, never ownership.
           </p>
         </div>
-        <Button
-          variant="outline"
-          render={<Link href="/admin" />}
-          nativeButton={false}
-        >
+        <Button variant="outline" render={<Link href="/admin" />} nativeButton={false}>
           Admin overview
         </Button>
       </div>
@@ -163,16 +148,10 @@ export default async function AdminReviewPage({
               <Card key={listing.id}>
                 <CardHeader>
                   <div className="flex flex-wrap items-center gap-1.5">
-                    <Badge variant="outline">
-                      {categoryLabel(listing.category)}
-                    </Badge>
-                    <Badge variant="secondary">
-                      {listing.status.replace(/_/g, " ")}
-                    </Badge>
+                    <Badge variant="outline">{categoryLabel(listing.category)}</Badge>
+                    <Badge variant="secondary">{listing.status.replace(/_/g, " ")}</Badge>
                     {listing.verification ? (
-                      <Badge>
-                        Checklist {listing.verification.status}
-                      </Badge>
+                      <Badge>Checklist {listing.verification.status}</Badge>
                     ) : (
                       <Badge variant="destructive">No checklist</Badge>
                     )}
@@ -180,8 +159,7 @@ export default async function AdminReviewPage({
                   <CardTitle>{listing.title}</CardTitle>
                   <CardDescription className="flex flex-wrap items-center gap-1.5">
                     <MapPin />
-                    {listing.zone} · {listing.landmark} ·{" "}
-                    {formatMwk(listing.priceMwk)}/
+                    {listing.zone} · {listing.landmark} · {formatMwk(listing.priceMwk)}/
                     {listing.billingPeriod === "daily" ? "day" : "month"}
                   </CardDescription>
                 </CardHeader>
@@ -189,7 +167,9 @@ export default async function AdminReviewPage({
                   {listing.verification ? (
                     <div className="flex flex-col gap-3 rounded-lg border bg-muted/30 p-3">
                       <div className="flex flex-wrap gap-1.5">
-                        {checks.length ? checks : (
+                        {checks.length ? (
+                          checks
+                        ) : (
                           <Badge variant="outline">No checklist values</Badge>
                         )}
                       </div>
@@ -199,10 +179,7 @@ export default async function AdminReviewPage({
                         </p>
                       ) : null}
                       <p className="text-xs text-muted-foreground">
-                        Submitted{" "}
-                        {new Date(
-                          listing.verification.createdAt
-                        ).toLocaleString()}
+                        Submitted {new Date(listing.verification.createdAt).toLocaleString()}
                       </p>
                     </div>
                   ) : (
@@ -210,8 +187,7 @@ export default async function AdminReviewPage({
                       <Info />
                       <AlertTitle>Waiting for field verification</AlertTitle>
                       <AlertDescription>
-                        Publication is blocked until a verifier submits the
-                        checklist.
+                        Publication is blocked until a verifier submits the checklist.
                       </AlertDescription>
                     </Alert>
                   )}

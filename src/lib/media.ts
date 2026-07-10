@@ -27,10 +27,7 @@ export function listingCoverUrl(
   return publicMediaUrl(coverBucket, coverPath);
 }
 
-export async function getListingMedia(
-  spaceId: string,
-  publicOnly = true
-): Promise<SpaceMedia[]> {
+export async function getListingMedia(spaceId: string, publicOnly = true): Promise<SpaceMedia[]> {
   if (!isSupabaseConfigured()) return [];
 
   const supabase = await createClient();
@@ -61,9 +58,7 @@ export async function getListingMedia(
   }));
 }
 
-export async function getListingMediaByListingId(
-  listingId: string
-): Promise<SpaceMedia[]> {
+export async function getListingMediaByListingId(listingId: string): Promise<SpaceMedia[]> {
   if (!isSupabaseConfigured()) return [];
 
   const supabase = await createClient();

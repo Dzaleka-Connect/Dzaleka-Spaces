@@ -1,23 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import {
-  ClipboardCheck,
-  Flag,
-  Info,
-  ShieldCheck,
-  SlidersHorizontal,
-} from "lucide-react";
+import { ClipboardCheck, Flag, Info, ShieldCheck, SlidersHorizontal } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -67,7 +55,7 @@ export default async function AdminPage() {
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Admin portal</h1>
+          <h1 className="text-3xl font-bold">Admin portal</h1>
           <p className="mt-1 text-muted-foreground">
             Review publication decisions, feature flags and audit activity.
           </p>
@@ -102,16 +90,12 @@ export default async function AdminPage() {
             <ShieldCheck />
             <CardTitle>Publication review</CardTitle>
             <CardDescription>
-              Approve verified listings, request changes, or reject listings
-              that cannot be safely published.
+              Approve verified listings, request changes, or reject listings that cannot be safely
+              published.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button
-              variant="outline"
-              render={<Link href="/admin/review" />}
-              nativeButton={false}
-            >
+            <Button variant="outline" render={<Link href="/admin/review" />} nativeButton={false}>
               Open review queue
             </Button>
           </CardContent>
@@ -121,8 +105,8 @@ export default async function AdminPage() {
             <SlidersHorizontal />
             <CardTitle>Feature flags</CardTitle>
             <CardDescription>
-              Toggle safe pilot features. Fund custody and residential gates
-              stay locked off by policy.
+              Toggle safe pilot features. Fund custody and residential gates stay locked off by
+              policy.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -142,15 +126,11 @@ export default async function AdminPage() {
       <Card>
         <CardHeader>
           <CardTitle>Recent audit events</CardTitle>
-          <CardDescription>
-            Decisions made through the staff portals.
-          </CardDescription>
+          <CardDescription>Decisions made through the staff portals.</CardDescription>
         </CardHeader>
         <CardContent>
           {auditEvents.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              No audit events have been recorded yet.
-            </p>
+            <p className="text-sm text-muted-foreground">No audit events have been recorded yet.</p>
           ) : (
             <Table>
               <TableHeader>
@@ -164,17 +144,13 @@ export default async function AdminPage() {
               <TableBody>
                 {auditEvents.map((event) => (
                   <TableRow key={event.id}>
-                    <TableCell className="font-medium">
-                      {event.action}
-                    </TableCell>
+                    <TableCell className="font-medium">{event.action}</TableCell>
                     <TableCell>
                       {event.entity}
                       {event.entityId ? ` · ${event.entityId}` : ""}
                     </TableCell>
                     <TableCell>{event.actorRole ?? "system"}</TableCell>
-                    <TableCell>
-                      {new Date(event.createdAt).toLocaleString()}
-                    </TableCell>
+                    <TableCell>{new Date(event.createdAt).toLocaleString()}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

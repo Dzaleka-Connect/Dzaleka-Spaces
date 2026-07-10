@@ -11,11 +11,7 @@ export const metadata: Metadata = {
   title: "Occupancy record",
 };
 
-export default async function OccupancyDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function OccupancyDetailPage({ params }: { params: Promise<{ id: string }> }) {
   if (!isSupabaseConfigured()) redirect("/provider/occupancies");
 
   const user = await getSessionUser();
@@ -33,9 +29,7 @@ export default async function OccupancyDetailPage({
         <div>
           <OccupancyStatusBadge status={occupancy.status} />
         </div>
-        <h1 className="text-2xl font-bold tracking-tight">
-          Occupancy record
-        </h1>
+        <h1 className="text-2xl font-bold">Occupancy record</h1>
         <p className="text-muted-foreground">
           Created {new Date(occupancy.createdAt).toLocaleDateString()}
           {occupancy.activatedAt

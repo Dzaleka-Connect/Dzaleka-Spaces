@@ -1,8 +1,6 @@
 import type { ListingFilters } from "./types";
 
-export function filtersToCriteria(
-  searchParams: URLSearchParams
-): ListingFilters {
+export function filtersToCriteria(searchParams: URLSearchParams): ListingFilters {
   const criteria: ListingFilters = {};
   const q = searchParams.get("q");
   const category = searchParams.get("category");
@@ -16,9 +14,7 @@ export function filtersToCriteria(
   return criteria;
 }
 
-export function criteriaToSearchParams(
-  criteria: ListingFilters
-): URLSearchParams {
+export function criteriaToSearchParams(criteria: ListingFilters): URLSearchParams {
   const params = new URLSearchParams();
   if (criteria.q) params.set("q", criteria.q);
   if (criteria.category) params.set("category", criteria.category);

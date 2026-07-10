@@ -5,7 +5,14 @@ import { AlertCircle, Plus, Wrench } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { getSessionUser } from "@/lib/auth";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
@@ -39,7 +46,7 @@ export default async function AccountMaintenancePage() {
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Maintenance Requests</h1>
+          <h1 className="text-3xl font-bold">Maintenance Requests</h1>
           <p className="mt-1 text-muted-foreground text-sm">
             Request repairs, carpentry, or utility checks on your occupied spaces.
           </p>
@@ -53,7 +60,9 @@ export default async function AccountMaintenancePage() {
       <Card>
         <CardHeader>
           <CardTitle>My Tickets</CardTitle>
-          <CardDescription>Track repair progress and choose service provider quotes.</CardDescription>
+          <CardDescription>
+            Track repair progress and choose service provider quotes.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {tickets.length === 0 ? (
@@ -93,11 +102,18 @@ export default async function AccountMaintenancePage() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className="capitalize">{t.status}</Badge>
+                      <Badge variant="outline" className="capitalize">
+                        {t.status}
+                      </Badge>
                     </TableCell>
                     <TableCell>{new Date(t.created_at).toLocaleDateString()}</TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="sm" render={<Link href={`/account/maintenance/${t.id}`} />} nativeButton={false}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        render={<Link href={`/account/maintenance/${t.id}`} />}
+                        nativeButton={false}
+                      >
                         <Wrench className="size-4 mr-1" />
                         View Progress
                       </Button>

@@ -5,11 +5,7 @@ import { Calendar, Check, MapPin, X } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Field,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
@@ -81,9 +77,7 @@ export function ViewingActions({
       </div>
 
       {viewing.alternativeAt ? (
-        <p className="text-sm">
-          Alternative: {new Date(viewing.alternativeAt).toLocaleString()}
-        </p>
+        <p className="text-sm">Alternative: {new Date(viewing.alternativeAt).toLocaleString()}</p>
       ) : null}
 
       {viewing.providerNotes ? (

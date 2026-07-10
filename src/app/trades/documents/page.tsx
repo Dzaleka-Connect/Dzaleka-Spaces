@@ -13,10 +13,7 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { getSessionUser } from "@/lib/auth";
-import {
-  listMyMaintenanceDocuments,
-  listMyMaintenanceThreads,
-} from "@/lib/trades";
+import { listMyMaintenanceDocuments, listMyMaintenanceThreads } from "@/lib/trades";
 
 export const metadata: Metadata = {
   title: "Trade documents",
@@ -41,7 +38,7 @@ export default async function TradeDocumentsPage() {
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Documents</h1>
+        <h1 className="text-3xl font-bold">Documents</h1>
         <p className="mt-1 text-muted-foreground">
           Private evidence and quote files for your maintenance jobs.
         </p>
@@ -70,11 +67,7 @@ export default async function TradeDocumentsPage() {
               Quote records and completion evidence appear here after upload.
             </EmptyDescription>
           </EmptyHeader>
-          <Button
-            variant="outline"
-            render={<Link href="/trades/jobs" />}
-            nativeButton={false}
-          >
+          <Button variant="outline" render={<Link href="/trades/jobs" />} nativeButton={false}>
             Open jobs
           </Button>
         </Empty>
@@ -100,9 +93,7 @@ export default async function TradeDocumentsPage() {
                 <Button
                   size="sm"
                   variant="outline"
-                  render={
-                    <a href={`/api/maintenance-documents/${doc.id}`} />
-                  }
+                  render={<a href={`/api/maintenance-documents/${doc.id}`} />}
                   nativeButton={false}
                 >
                   Open

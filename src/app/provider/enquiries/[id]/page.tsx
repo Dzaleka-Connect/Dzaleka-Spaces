@@ -2,13 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EnquiryThread } from "@/components/enquiry-thread";
 import { ViewingActions } from "@/components/viewing-actions";
 import { getSessionUser } from "@/lib/auth";
@@ -71,12 +65,8 @@ export default async function ProviderEnquiryDetailPage({
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            {enquiry.listingTitle}
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Enquiry from {enquiry.seekerName}
-          </p>
+          <h1 className="text-2xl font-bold">{enquiry.listingTitle}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Enquiry from {enquiry.seekerName}</p>
         </div>
         <Button
           variant="outline"
@@ -106,16 +96,11 @@ export default async function ProviderEnquiryDetailPage({
         <CardHeader>
           <CardTitle>Viewing</CardTitle>
           <CardDescription>
-            Confirm a time and add directions in your notes when the viewing is
-            confirmed.
+            Confirm a time and add directions in your notes when the viewing is confirmed.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ViewingActions
-            enquiryId={enquiry.id}
-            viewing={viewing}
-            role="provider"
-          />
+          <ViewingActions enquiryId={enquiry.id} viewing={viewing} role="provider" />
         </CardContent>
       </Card>
     </div>

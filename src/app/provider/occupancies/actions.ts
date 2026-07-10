@@ -11,9 +11,7 @@ export interface OccupancyActionResult {
   message: string;
 }
 
-export async function createOccupancy(
-  formData: FormData
-): Promise<OccupancyActionResult> {
+export async function createOccupancy(formData: FormData): Promise<OccupancyActionResult> {
   const user = await getSessionUser();
   if (!user) redirect("/sign-in");
 
@@ -36,16 +34,13 @@ export async function createOccupancy(
   const noticeDays = formData.get("notice_period_days")
     ? Number(formData.get("notice_period_days"))
     : null;
-  const includedServices = String(
-    formData.get("included_services") ?? ""
-  ).trim();
+  const includedServices = String(formData.get("included_services") ?? "").trim();
   const notes = String(formData.get("notes") ?? "").trim();
 
   if (!spaceId || !occupantName || !startDate || !amount) {
     return {
       ok: false,
-      message:
-        "Please complete the space, occupant name, start date and amount.",
+      message: "Please complete the space, occupant name, start date and amount.",
     };
   }
 
@@ -72,32 +67,29 @@ export async function createOccupancy(
     console.error("createOccupancy failed:", error?.message);
     return {
       ok: false,
-      message:
-        error?.message.includes("one_live_occupancy_per_space")
-          ? "This space already has a live occupancy. Close it before creating a new one."
-          : "Could not create the occupancy record. Please try again.",
+      message: error?.message.includes("one_live_occupancy_per_space")
+        ? "This space already has a live occupancy. Close it before creating a new one."
+        : "Could not create the occupancy record. Please try again.",
     };
   }
 
-  const { error: partiesError } = await supabase
-    .from("occupancy_parties")
-    .insert([
-      {
-        occupancy_id: occupancy.id,
-        user_id: user.id,
-        role: "provider",
-        full_name: user.fullName || user.email || "Provider",
-        confirmed_at: new Date().toISOString(),
-        confirmation_method: "in_app",
-      },
-      {
-        occupancy_id: occupancy.id,
-        user_id: occupantUserId || null,
-        role: "occupant",
-        full_name: occupantName,
-        contact: occupantContact || null,
-      },
-    ]);
+  const { error: partiesError } = await supabase.from("occupancy_parties").insert([
+    {
+      occupancy_id: occupancy.id,
+      user_id: user.id,
+      role: "provider",
+      full_name: user.fullName || user.email || "Provider",
+      confirmed_at: new Date().toISOString(),
+      confirmation_method: "in_app",
+    },
+    {
+      occupancy_id: occupancy.id,
+      user_id: occupantUserId || null,
+      role: "occupant",
+      full_name: occupantName,
+      contact: occupantContact || null,
+    },
+  ]);
 
   if (partiesError) {
     console.error("createOccupancy parties failed:", partiesError.message);
@@ -129,10 +121,7 @@ async function transitionOccupancy(
   if (!user) redirect("/sign-in");
 
   const supabase = await createClient();
-  const { error } = await supabase
-    .from("occupancies")
-    .update(updates)
-    .eq("id", occupancyId);
+  const { error } = await supabase.from("occupancies").update(updates).eq("id", occupancyId);
 
   if (error) {
     console.error(`${action} failed:`, error.message);
@@ -174,8 +163,7 @@ export async function recordInPersonConfirmation(
   if (party.user_id) {
     return {
       ok: false,
-      message:
-        "This occupant has an account — they must confirm from their own account.",
+      message: "This occupant has an account — they must confirm from their own account.",
     };
   }
 
@@ -199,19 +187,11 @@ export async function recordInPersonConfirmation(
   );
 }
 
-export async function giveNotice(
-  occupancyId: string
-): Promise<OccupancyActionResult> {
-  return transitionOccupancy(
-    occupancyId,
-    { status: "notice_given" },
-    "occupancy.notice_given"
-  );
+export async function giveNotice(occupancyId: string): Promise<OccupancyActionResult> {
+  return transitionOccupancy(occupancyId, { status: "notice_given" }, "occupancy.notice_given");
 }
 
-export async function completeOccupancy(
-  occupancyId: string
-): Promise<OccupancyActionResult> {
+export async function completeOccupancy(occupancyId: string): Promise<OccupancyActionResult> {
   return transitionOccupancy(
     occupancyId,
     { status: "completed", closed_at: new Date().toISOString() },
@@ -219,9 +199,7 @@ export async function completeOccupancy(
   );
 }
 
-export async function cancelOccupancy(
-  occupancyId: string
-): Promise<OccupancyActionResult> {
+export async function cancelOccupancy(occupancyId: string): Promise<OccupancyActionResult> {
   return transitionOccupancy(
     occupancyId,
     { status: "cancelled", closed_at: new Date().toISOString() },

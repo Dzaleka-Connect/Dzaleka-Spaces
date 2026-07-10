@@ -14,7 +14,8 @@ const TRANSLATIONS: Record<SupportedLang, Record<string, string>> = {
   en: {
     title: "Occupancy Record",
     subtitle: "Dzaleka Spaces Arrangement Documentation",
-    disclaimer: "This record documents the arrangement. It does not create or transfer ownership of land or property.",
+    disclaimer:
+      "This record documents the arrangement. It does not create or transfer ownership of land or property.",
     spaceDetails: "Space Details",
     agreedRent: "Agreed Rent",
     deposit: "Deposit",
@@ -42,7 +43,8 @@ const TRANSLATIONS: Record<SupportedLang, Record<string, string>> = {
   ny: {
     title: "Chikalata Chokhala m'Nyumba",
     subtitle: "Zolembedwa za Mgwirizano wa Dzaleka Spaces",
-    disclaimer: "Chikalatachi chikuwonetsa mgwirizano wanu. Sikutanthauza kukhala eni a nthaka kapena nyumba.",
+    disclaimer:
+      "Chikalatachi chikuwonetsa mgwirizano wanu. Sikutanthauza kukhala eni a nthaka kapena nyumba.",
     spaceDetails: "Zambiri za Malo",
     agreedRent: "Ndalama ya Lendi",
     deposit: "Dipozeji",
@@ -70,7 +72,8 @@ const TRANSLATIONS: Record<SupportedLang, Record<string, string>> = {
   sw: {
     title: "Hati ya Ukazi",
     subtitle: "Maandishi ya Makubaliano ya Dzaleka Spaces",
-    disclaimer: "Hati hii inaorodhesha makubaliano. Haileti wala kuhamisha umiliki wa ardhi au mali.",
+    disclaimer:
+      "Hati hii inaorodhesha makubaliano. Haileti wala kuhamisha umiliki wa ardhi au mali.",
     spaceDetails: "Maelezo ya Eneo",
     agreedRent: "Kodi ya Kukubalika",
     deposit: "Dhamana (Deposit)",
@@ -98,7 +101,8 @@ const TRANSLATIONS: Record<SupportedLang, Record<string, string>> = {
   fr: {
     title: "Contrat d'Occupation",
     subtitle: "Documentation d'Arrangement Dzaleka Spaces",
-    disclaimer: "Ce document atteste de l'arrangement. Il ne crée ni ne transfère la propriété d'un terrain ou d'un bien immobilier.",
+    disclaimer:
+      "Ce document atteste de l'arrangement. Il ne crée ni ne transfère la propriété d'un terrain ou d'un bien immobilier.",
     spaceDetails: "Détails de l'Espace",
     agreedRent: "Loyer Convenu",
     deposit: "Dépôt de Garantie",
@@ -126,7 +130,8 @@ const TRANSLATIONS: Record<SupportedLang, Record<string, string>> = {
   rn: {
     title: "Isezerano ryo Kuba mu Nzu",
     subtitle: "Ivyanditswe vy'Amasezerano ya Dzaleka Spaces",
-    disclaimer: "Iki kete cerekana amasezerano yo kuba mu nzu. Ntivyerekana canke ngo bitange uburenganzira bw'ukwiyitirira ubutaka canke inzu.",
+    disclaimer:
+      "Iki kete cerekana amasezerano yo kuba mu nzu. Ntivyerekana canke ngo bitange uburenganzira bw'ukwiyitirira ubutaka canke inzu.",
     spaceDetails: "Imidondoro y'Inzu",
     agreedRent: "Inoti z'ubukode buvuganywe",
     deposit: "Igaranti",
@@ -174,9 +179,14 @@ export function PrintContractClient({ occupancy }: { occupancy: OccupancyRecord 
   return (
     <div className="flex flex-col gap-6">
       {/* Settings bar - hidden on print */}
-      <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border bg-card p-4 shadow-sm print:hidden">
+      <div className="flex flex-wrap items-center justify-between gap-4 rounded-md border bg-card p-4 shadow-sm print:hidden">
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" render={<Link href={`/provider/occupancies/${occupancy.id}`} />} nativeButton={false}>
+          <Button
+            variant="ghost"
+            size="sm"
+            render={<Link href={`/provider/occupancies/${occupancy.id}`} />}
+            nativeButton={false}
+          >
             <ArrowLeft className="size-4" />
             {t.backBtn}
           </Button>
@@ -204,8 +214,8 @@ export function PrintContractClient({ occupancy }: { occupancy: OccupancyRecord 
         <CardContent className="flex flex-col gap-8 p-8 print:p-0">
           {/* Header */}
           <div className="flex flex-col items-center text-center border-b pb-6">
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">{t.title}</h1>
-            <p className="text-sm font-semibold tracking-wide text-primary mt-1 uppercase">{t.subtitle}</p>
+            <h1 className="text-3xl font-bold  text-foreground">{t.title}</h1>
+            <p className="text-sm font-semibold text-primary mt-1 uppercase">{t.subtitle}</p>
             <p className="text-xs text-muted-foreground mt-1">ID: {occupancy.id}</p>
           </div>
 
@@ -216,14 +226,16 @@ export function PrintContractClient({ occupancy }: { occupancy: OccupancyRecord 
 
           {/* Core Terms grid */}
           <div className="grid gap-6 sm:grid-cols-2">
-            <div className="flex flex-col gap-4 border rounded-xl p-4">
-              <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground border-b pb-1">
+            <div className="flex flex-col gap-4 border rounded-md p-4">
+              <h2 className="text-sm font-bold uppercaser text-muted-foreground border-b pb-1">
                 {t.spaceDetails}
               </h2>
               <dl className="grid gap-y-2 text-sm">
                 <div>
                   <dt className="text-muted-foreground">Category / Zone</dt>
-                  <dd className="font-semibold">{categoryLabel(occupancy.spaceCategory)} · {occupancy.spaceZone}</dd>
+                  <dd className="font-semibold">
+                    {categoryLabel(occupancy.spaceCategory)} · {occupancy.spaceZone}
+                  </dd>
                 </div>
                 <div>
                   <dt className="text-muted-foreground">Landmark</dt>
@@ -232,8 +244,8 @@ export function PrintContractClient({ occupancy }: { occupancy: OccupancyRecord 
               </dl>
             </div>
 
-            <div className="flex flex-col gap-4 border rounded-xl p-4">
-              <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground border-b pb-1">
+            <div className="flex flex-col gap-4 border rounded-md p-4">
+              <h2 className="text-sm font-bold uppercaser text-muted-foreground border-b pb-1">
                 Terms
               </h2>
               <dl className="grid gap-y-2 text-sm">
@@ -254,7 +266,7 @@ export function PrintContractClient({ occupancy }: { occupancy: OccupancyRecord 
           </div>
 
           {/* Dates and Rules */}
-          <div className="border rounded-xl p-4">
+          <div className="border rounded-md p-4">
             <dl className="grid gap-4 sm:grid-cols-4 text-sm">
               <div>
                 <dt className="text-muted-foreground">{t.startDate}</dt>
@@ -273,14 +285,16 @@ export function PrintContractClient({ occupancy }: { occupancy: OccupancyRecord 
               <div>
                 <dt className="text-muted-foreground">{t.noticePeriod}</dt>
                 <dd className="font-semibold">
-                  {occupancy.noticePeriodDays ? `${occupancy.noticePeriodDays} ${t.daysLabel}` : t.notSet}
+                  {occupancy.noticePeriodDays
+                    ? `${occupancy.noticePeriodDays} ${t.daysLabel}`
+                    : t.notSet}
                 </dd>
               </div>
             </dl>
           </div>
 
           {/* Included Services */}
-          <div className="border rounded-xl p-4">
+          <div className="border rounded-md p-4">
             <h3 className="text-sm font-semibold mb-2">{t.includedServices}</h3>
             <p className="text-sm text-foreground/90 bg-muted/30 p-2.5 rounded-lg border">
               {occupancy.includedServices ?? t.noneRecorded}
@@ -289,7 +303,7 @@ export function PrintContractClient({ occupancy }: { occupancy: OccupancyRecord 
 
           {/* Notes */}
           {occupancy.notes && (
-            <div className="border rounded-xl p-4">
+            <div className="border rounded-md p-4">
               <h3 className="text-sm font-semibold mb-2">{t.notes}</h3>
               <p className="text-sm text-foreground/90 whitespace-pre-wrap bg-muted/30 p-2.5 rounded-lg border">
                 {occupancy.notes}
@@ -298,8 +312,8 @@ export function PrintContractClient({ occupancy }: { occupancy: OccupancyRecord 
           )}
 
           {/* Parties */}
-          <div className="border rounded-xl p-4">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground border-b pb-2 mb-3">
+          <div className="border rounded-md p-4">
+            <h3 className="text-sm font-bold uppercaser text-muted-foreground border-b pb-2 mb-3">
               {t.parties}
             </h3>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -309,9 +323,7 @@ export function PrintContractClient({ occupancy }: { occupancy: OccupancyRecord 
                     {p.role === "provider" ? t.provider : t.occupant}
                   </span>
                   <span className="font-semibold mt-1">{p.fullName}</span>
-                  <span className="text-xs text-muted-foreground mt-0.5">
-                    {p.contact ?? "-"}
-                  </span>
+                  <span className="text-xs text-muted-foreground mt-0.5">{p.contact ?? "-"}</span>
                   <span className="text-xs font-semibold text-primary mt-2">
                     {p.confirmedAt ? `${t.confirmed} (${p.confirmationMethod})` : t.notConfirmed}
                   </span>
@@ -326,14 +338,18 @@ export function PrintContractClient({ occupancy }: { occupancy: OccupancyRecord 
               <div className="border-b border-dashed h-12 w-full"></div>
               <div className="text-sm">
                 <p className="font-bold">{t.signatureProvider}</p>
-                <p className="text-xs text-muted-foreground mt-1">{t.date}: ______________________</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {t.date}: ______________________
+                </p>
               </div>
             </div>
             <div className="flex flex-col gap-6 text-center">
               <div className="border-b border-dashed h-12 w-full"></div>
               <div className="text-sm">
                 <p className="font-bold">{t.signatureOccupant}</p>
-                <p className="text-xs text-muted-foreground mt-1">{t.date}: ______________________</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {t.date}: ______________________
+                </p>
               </div>
             </div>
           </div>

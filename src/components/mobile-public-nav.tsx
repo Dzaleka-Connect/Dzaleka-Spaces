@@ -23,12 +23,7 @@ export function MobilePublicNav({ links }: MobilePublicNavProps) {
     <Sheet>
       <SheetTrigger
         render={
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            className="md:hidden"
-            aria-label="Open menu"
-          />
+          <Button variant="ghost" size="icon-sm" className="md:hidden" aria-label="Open menu" />
         }
       >
         <Menu />

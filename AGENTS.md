@@ -1,4 +1,5 @@
 <!-- BEGIN:nextjs-agent-rules -->
+
 # This is NOT the Next.js you know
 
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
@@ -14,10 +15,12 @@ ecosystem (DzalekaPay, Visit Dzaleka, Dzaleka Online Services).
 ## Hard product constraints — never violate these
 
 - **No land or shelter sales, no ownership claims.** Verification confirms a
-  listing's details and the provider's *stated authority to offer* a space —
+  listing's details and the provider's _stated authority to offer_ a space —
   never ownership. Refugees cannot legally own land/property in Malawi.
-- **No fund custody during the pilot.** Payments are *recorded* (ledger),
+- **No fund custody during the pilot.** Payments are _recorded_ (ledger),
   never held. `deposit_processing` / `mobile_money_processing` flags stay off.
+- **Email delivery only during the pilot.** Resend email and in-app records are
+  supported. SMS, WhatsApp and web push delivery flags stay off.
 - **Residential listings are gated.** `room`, `shared_room`,
   `family_accommodation` categories exist in the enum but publication is
   blocked by a database trigger until the `residential_listings` /
@@ -40,6 +43,7 @@ ecosystem (DzalekaPay, Visit Dzaleka, Dzaleka Online Services).
 - The app runs in **demo mode** (sample data from `src/lib/demo-data.ts`)
   when Supabase env vars are absent. Every data-access helper in `src/lib/`
   must keep working in both modes.
+- Canonical production origin: `https://spaces.dzaleka.com`.
 
 ## Commands
 
@@ -47,6 +51,11 @@ ecosystem (DzalekaPay, Visit Dzaleka, Dzaleka Online Services).
 npm run dev      # dev server (or use .claude/launch.json preview)
 npm run build    # production build — run before finishing any change
 npm run lint     # eslint
+npm run typecheck
+npm run check:content
+npm test         # Vitest
+npm run test:e2e # Playwright desktop/mobile + axe
+npm run test:rls # live, rolled-back database/RLS assertions
 ```
 
 ## Database workflow
@@ -56,6 +65,9 @@ npm run lint     # eslint
   authority records to exist before listings insert).
 - No `psql`/`supabase` CLI on this machine. Apply SQL with a Node `pg`
   script against `DIRECT_URL` from `.env.local` (see `scripts/db-apply.mjs`).
+- Validate with `--check` before applying. The runner records version and
+  checksum in `app_schema_migrations`; never edit an applied migration. Add a
+  new numeric migration.
 - Tables are NOT auto-exposed to the Data API (Supabase change, Apr 2026):
   every new table needs explicit `GRANT`s plus RLS policies.
 - RLS gotchas already solved — don't regress them:
@@ -69,9 +81,10 @@ npm run lint     # eslint
 
 ## Architecture docs
 
-`docs/` holds the working architecture set: `data-model.md`,
-`permissions.md`, `workflows.md`, `roadmap.md`. Update them when schema,
-roles or workflows change — they are the source of truth for reviewers.
+`docs/` holds the working architecture and operations set. At minimum update
+`data-model.md`, `permissions.md`, `workflows.md`, `route-matrix.md`,
+`production-readiness.md`, the relevant runbook and `roadmap.md` when schema,
+roles, routes or workflows change. They are source material for release review.
 
 ## Conventions
 

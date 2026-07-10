@@ -1,105 +1,79 @@
-# Roadmap
+# Release Roadmap
 
-From the business plan and the frontend/backend architecture docs. The MVP
-launches around one journey: provider submits → verifier checks → admin
-publishes → seeker discovers and requests a viewing.
+Updated: 10 July 2026
 
-The full master-prompt production roadmap is recorded separately in
-`docs/master-roadmap.md`. This file tracks the current implementation status
-against that larger target.
+This is the release-control roadmap. The original feature inventory remains in
+`docs/master-roadmap.md`; route-level ownership is in `docs/route-matrix.md`.
 
-## Built
+## Current release baseline
 
-- Public marketplace: home, `/spaces` (search/filters/zones from DB),
-  `/spaces/map` (approximate zone markers, `public_map` flag), `/spaces/[id]`,
-  `/compare`, enquiries (anonymous OK), private listing reports, info pages
-  (`/how-it-works`, `/verification`, `/safety`), `/list-a-space` submission
-  with authority declaration and optional photo upload (EXIF stripped client-side).
-- Auth: email OTP and email/password sign-in (`/sign-in`, `/register`),
-  roles (`user_roles`), role-gated portals. Signed-in `/` redirects to the
-  role dashboard.
-- Seeker portal `/account`: profile, enquiries with threaded messages at
-  `/account/enquiries/[id]`, viewings at `/account/viewings`, saved listings,
-  saved searches at `/account/saved-searches`.
-- Provider portal `/provider`: metrics, listings, enquiries at
-  `/provider/enquiries/[id]`, viewings at `/provider/viewings`.
-- Verifier `/verifier/assignments`: pending listings, field checklist,
-  private evidence photo upload to `verification-private` bucket.
-- Admin `/admin`: overview metrics, review queue with
-  approve-and-publish / request-changes / reject (audited),
-  feature-flag toggles.
-- Database: full RLS, publication guards, verifier separation, feature
-  flags, zones/landmarks, audit log, PostGIS + trigram indexes,
-  storage buckets (`listing-public`, `verification-private`),
-  `enquiry_messages`, extended `viewings` workflow, `saved_searches`.
-- Occupancy records (Phase 2, flag `occupancy_records`): `occupancies` +
-  `occupancy_parties` with both-party confirmation (in-app for linked
-  accounts, recorded in-person confirmation otherwise), one live occupancy
-  per space, provider lifecycle actions (notice/complete/cancel, audited) at
-  `/provider/occupancies`, occupant review + confirm at `/account/occupancy`.
-- Public content and discovery pages: `/zones` + `/zones/[slug]` (live
-  counts and listings per zone), `/categories/[slug]`, `/register`,
-  `/request-assisted-listing` (writes `assisted_listing_requests`, staff-only
-  read), `/help` + six article pages, `/about`, `/contact`, `/pricing`,
-  `/partners`, `/terms`, `/privacy`, `/community-guidelines`,
-  `/listing-rules`, `/accessibility`; four-column footer navigation.
-- Account: `/account/profile` (name/phone/WhatsApp/language editing).
-- Provider: `/provider/spaces`, `/provider/listings`,
-  `/provider/listings/[id]/edit`, `/provider/listings/[id]/preview`,
-  `/provider/team` (scoped provider team permissions),
-  `/provider/verifications` (status + re-check dates, evidence stays
-  internal).
-- Admin: `/admin/users` (role grant/revoke, audited, admin-only edits),
-  `/admin/audit` (filterable log viewer, admin-only), `/admin/listings`
-  (status-filtered directory), `/admin/occupancies` (read-only oversight),
-  `/admin/cases`, `/admin/reports`, `/admin/content/pages`,
-  `/admin/notifications`, `/admin/analytics`, `/admin/settings`.
-- Verifier: `/verifier` (redirect), `/verifier/completed` (own checklist
-  outcomes), `/verifier/offline` (service worker-backed offline queue +
-  `verifier_sync_events` API).
-- Maintenance marketplace (Phase 3, flag `maintenance_marketplace`):
-  `/trades`, `/trades/profile`, `/trades/jobs`, `/trades/jobs/[id]`,
-  `/trades/quotes`, `/trades/quotes/new`, `/trades/quotes/[id]`,
-  `/trades/work-orders`, `/trades/work-orders/[id]`, `/trades/schedule`,
-  `/trades/messages`, `/trades/messages/[ticketId]`, `/trades/reviews`,
-  `/trades/documents`, `/trades/settings`. Maintenance messages, reviews
-  after completed work orders, and private document uploads
-  (`maintenance-private` bucket) are live.
-- Notifications: Resend email adapter, server-only notification outbox,
-  protected `/api/jobs/process-notifications`, saved-search enqueue cron
-  function, `/admin/notifications`.
-- Enquiry messaging polish: private attachments in `message-private`,
-  `enquiry_attachments`, signed download route.
-- Slug URLs: `listings.slug` and `/spaces/[id-or-slug]` compatibility.
-- Hardening/docs: nonce-based strict CSP + full security-header set in
-  `src/proxy.ts` (verified: Next stamps the per-request nonce on every
-  script); `scripts/test-rls.mjs` (`npm run test:rls`) asserting anon-exposure
-  boundaries and workflow guards in rolled-back transactions, wired into CI
-  (skips without `DIRECT_URL`); CI workflow with lint/typecheck/build/RLS;
-  full documentation set under `docs/` (architecture, security, privacy,
-  deployment, operations).
-- Build fix: `@supabase/storage-js` >= 2.110 hard-imports the unpublished
-  `iceberg-js`; aliased to `src/lib/stubs/iceberg-js.ts` via Turbopack
-  `resolveAlias`.
+The required non-residential pilot surface is implemented:
 
-## Next (in the doc's recommended order)
+- Public discovery: keyword and advanced URL-backed filters, sorting,
+  pagination, slug URLs, listing comparison, zone/category pages, privacy-safe
+  approximate map, saved spaces/searches, service directory, reports,
+  enquiries, private attachments, and public guidance/legal content.
+- Account: profile/security/session controls, enquiries/messages, viewings,
+  calendar export, authorised directions, safety check-ins, occupancy records,
+  charges, dual-confirmed payment records and receipts, disputes, maintenance,
+  documents, notifications, privacy requests, and help.
+- Provider: spaces/listings, edit/preview, authority and media submission,
+  verification status, enquiries, viewings/calendar, occupancy records,
+  idempotent charges/payments, deposits, maintenance/work orders, expenses,
+  documents/messages/reports, team permissions, and settings.
+- Verifier: assigned-only field work, MFA gate, complete checklist,
+  coordinates/photos/voice notes, image metadata removal, quarantine registry,
+  encrypted IndexedDB queue, retryable ordered sync, inactivity lock, secure
+  local deletion, assignment history, map, notifications, and profile/security.
+- Maintenance services: public service profiles plus role-gated jobs, quotes,
+  work orders, schedule, messages, private documents, completion evidence,
+  reviews, problem reports, profile, and settings.
+- Administration: review/publication state machine, assignment calendar,
+  users/providers/verifiers/organisations, listing and space records,
+  occupancy/payment/receipt/adjustment oversight, maintenance, cases,
+  locations, content, notification templates/failures, analytics, reports,
+  settings, audit, and system health.
+- Platform: staff MFA, append-only audit and finance records, RLS, private
+  storage, upload quarantine, email queue, Resend idempotency and signed
+  delivery events, service worker/offline page, environment validation,
+  metadata/robots/sitemap, strict security headers, unit/browser/a11y/RLS
+  tests, and CI supply-chain checks.
 
-1. **Occupancy documents** — printable/PDF occupancy record in the five
-   languages (English, Chichewa, Swahili, French, Kirundi).
-2. **Payment ledger (Phase 2)** — charges, payment records
-   (cash/Airtel/TNM/DzalekaPay references), dual confirmation, receipts,
-   adjustments. Ledger only — no custody.
-3. **Payment ledger integration adapters** — typed disabled adapters for
-   DzalekaPay/Airtel/TNM, then ledger-only records and receipts. No custody.
-4. **Maintenance depth (remaining)** — richer requester ticket creation UI,
-   assignment workflows, and notification digests for maintenance updates.
-5. **Testing depth** — storage-policy tests, Playwright E2E of the core
-   journey, automated accessibility checks and dependency scanning (RLS +
-   workflow-guard tests already in `scripts/test-rls.mjs`).
-6. **Residential pilot (Phase 4)** — only after written operational
-   guidance; flip `residential_listings` flag.
+## Release gates
 
-## Deliberately out of scope
+These are operational gates, not unimplemented application pages:
 
-Land/shelter sales, ownership certificates, deposit/rent custody, credit
-checks, eviction tooling, public exact locations, refugee-ID storage.
+1. Deploy the current release to `https://spaces.dzaleka.com` and confirm the
+   generated build identifier and headers match the release commit.
+2. Set `APP_ENV=production`, all Supabase variables, Resend variables, and the
+   32+ character worker secret in the hosting environment.
+3. Register `https://spaces.dzaleka.com/api/webhooks/resend`, select delivery
+   and failure events, and verify a signed staging event reaches the database.
+4. Schedule notification draining and database housekeeping with monitored
+   failure alerts.
+5. Require every moderator, administrator, finance user, and field verifier to
+   enrol TOTP before operational access.
+6. Complete a database and storage restore drill and record measured RPO/RTO.
+7. Run a supervised end-to-end pilot rehearsal with provider, verifier,
+   moderator, seeker/occupant, and service-provider accounts.
+8. Complete DPIA, safeguarding, retention, terms, privacy, and operational
+   sign-off by the named responsible people.
+
+## Deliberately disabled
+
+- Residential and family accommodation publication, pending written guidance
+  and a separately reviewed database migration.
+- Platform fund custody, deposit processing, mobile-money initiation, and
+  automated payment verification. The release records external transactions
+  only.
+- SMS, WhatsApp, and web push notification delivery. Email and in-app records
+  are the only enabled channels.
+- Land/shelter sales, ownership certificates, title claims, credit checks,
+  eviction tooling, public exact locations, and refugee identity storage.
+
+## Post-pilot change control
+
+Future work is admitted only through a reviewed change proposal with product,
+protection, privacy, security, migration, rollback, and test evidence. Enabling
+a protected flag requires a new migration; the admin UI cannot bypass locked
+pilot boundaries.

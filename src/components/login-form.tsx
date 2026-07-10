@@ -15,8 +15,7 @@ import { createClient } from "@/lib/supabase/client";
 
 const supabaseConfigured = Boolean(
   process.env.NEXT_PUBLIC_SUPABASE_URL &&
-    (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+  (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
 );
 
 type LoginFormProps = {
@@ -35,9 +34,8 @@ export function LoginForm({ mode = "sign-in" }: LoginFormProps) {
         <Info />
         <AlertTitle>Demo mode</AlertTitle>
         <AlertDescription>
-          Accounts are disabled until a Supabase project is connected. Add
-          NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY to
-          your .env.local to enable sign-in.
+          Accounts are disabled until a Supabase project is connected. Add NEXT_PUBLIC_SUPABASE_URL
+          and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY to your .env.local to enable sign-in.
         </AlertDescription>
       </Alert>
     );
@@ -49,8 +47,7 @@ export function LoginForm({ mode = "sign-in" }: LoginFormProps) {
         <Mail />
         <AlertTitle>Check your email</AlertTitle>
         <AlertDescription>
-          We sent you a one-time sign-in link. Open it on this device to
-          continue.
+          We sent you a one-time sign-in link. Open it on this device to continue.
         </AlertDescription>
       </Alert>
     );
@@ -62,8 +59,8 @@ export function LoginForm({ mode = "sign-in" }: LoginFormProps) {
         <Mail />
         <AlertTitle>Confirm your email</AlertTitle>
         <AlertDescription>
-          If email confirmation is enabled for this project, check your inbox
-          for a confirmation link. Otherwise you can{" "}
+          If email confirmation is enabled for this project, check your inbox for a confirmation
+          link. Otherwise you can{" "}
           <Link href="/sign-in" className="font-medium underline">
             sign in
           </Link>{" "}
@@ -174,8 +171,7 @@ export function LoginForm({ mode = "sign-in" }: LoginFormProps) {
               disabled={isPending}
             />
             <FieldDescription>
-              Use a password you can remember, or sign in later with a magic
-              link instead.
+              Use a password you can remember, or sign in later with a magic link instead.
             </FieldDescription>
           </Field>
           <Field>
@@ -229,6 +225,11 @@ export function LoginForm({ mode = "sign-in" }: LoginFormProps) {
                 required
                 disabled={isPending}
               />
+              <FieldDescription>
+                <Link href="/forgot-password" className="font-medium text-primary hover:underline">
+                  Forgot your password?
+                </Link>
+              </FieldDescription>
             </Field>
             <Field>
               <Button type="submit" disabled={isPending} className="w-full">

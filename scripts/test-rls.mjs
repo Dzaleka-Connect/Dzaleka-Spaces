@@ -36,9 +36,7 @@ function readEnv() {
 const env = readEnv();
 const directUrl = env.DIRECT_URL;
 const apiUrl = env.NEXT_PUBLIC_SUPABASE_URL;
-const anonKey =
-  env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
-  env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const anonKey = env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 if (!directUrl) {
   console.log("SKIP: DIRECT_URL not set — skipping RLS suite.");
@@ -49,6 +47,8 @@ const pg = require("pg");
 const client = new pg.Client({
   connectionString: directUrl,
   ssl: { rejectUnauthorized: false },
+  connectionTimeoutMillis: 10_000,
+  query_timeout: 120_000,
 });
 
 let passed = 0;
@@ -79,10 +79,9 @@ async function main() {
   await client.connect();
   console.log("Database workflow guards:");
 
-  const zone = await client.query(
-    "select id from zones where name = 'Kawale 1' limit 1"
-  );
+  const zone = await client.query("select id from zones where active = true order by name limit 1");
   const zoneId = zone.rows[0]?.id;
+  assert("an active zone exists for workflow tests", Boolean(zoneId));
 
   await client.query("begin");
 
@@ -128,39 +127,114 @@ async function main() {
     );
   }
 
-  // 3. One published listing per space.
+  // 3. Protected pilot flags cannot be enabled, even by a direct SQL role.
   {
-    const existing = await client.query(
-      "select space_id from listings where status = 'published' limit 1"
-    );
-    if (existing.rows.length) {
-      const err = await expectError("duplicate publish", async () => {
-        await client.query(
-          "insert into listings (space_id, slug, title, price_mwk, status) values ($1, 'rls-test-' || gen_random_uuid(), 'dup', 999, 'published')",
-          [existing.rows[0].space_id]
-        );
+    for (const flag of [
+      "residential_listings",
+      "family_accommodation",
+      "mobile_money_processing",
+      "deposit_processing",
+      "sms_notifications",
+      "whatsapp_notifications",
+      "web_push_notifications",
+    ]) {
+      const err = await expectError(`protected flag ${flag}`, async () => {
+        await client.query("update feature_flags set enabled = true where name = $1", [flag]);
       });
       assert(
-        "second published listing per space rejected",
-        Boolean(err && /one_published_listing_per_space|unique/i.test(err)),
+        `${flag} remains locked off`,
+        Boolean(err && /external operational approval/i.test(err)),
         err ?? "no error raised"
       );
-    } else {
-      assert("second published listing per space rejected", true, "no seed");
     }
   }
 
   await client.query("rollback");
+
+  console.log("Database security catalogue:");
+
+  const migrations = await client.query(
+    "select version from app_schema_migrations where version in ('00010', '00011', '00012') order by version"
+  );
+  assert(
+    "hardening migrations are recorded",
+    migrations.rows.map((row) => row.version).join(",") === "00010,00011,00012"
+  );
+
+  const privateTables = [
+    "space_internal",
+    "occupancies",
+    "payment_records",
+    "payment_receipts",
+    "payment_disputes",
+    "payment_adjustments",
+    "viewing_private_details",
+    "viewing_safety_checkins",
+    "verification_assignments",
+    "verification_evidence",
+    "file_uploads",
+    "privacy_requests",
+    "audit_events",
+    "email_delivery_events",
+  ];
+  const rls = await client.query(
+    "select relname, relrowsecurity from pg_class where relnamespace = 'public'::regnamespace and relname = any($1)",
+    [privateTables]
+  );
+  const rlsByTable = new Map(rls.rows.map((row) => [row.relname, row.relrowsecurity]));
+  for (const table of privateTables) {
+    assert(`${table} has RLS enabled`, rlsByTable.get(table) === true);
+  }
+
+  const immutableTriggers = await client.query(`
+    select tgname from pg_trigger
+    where not tgisinternal and tgname in (
+      'protect_payment_history',
+      'protect_allocation_history',
+      'protect_receipt_history',
+      'protect_adjustment_history',
+      'audit_events_append_only',
+      'protected_feature_flags_guard',
+      'listing_workflow_guard'
+    )
+  `);
+  assert(
+    "immutable ledger and workflow triggers are installed",
+    immutableTriggers.rowCount === 7,
+    `${immutableTriggers.rowCount} of 7 found`
+  );
+
+  const publicColumns = await client.query(
+    "select column_name from information_schema.columns where table_schema = 'public' and table_name = 'public_listings'"
+  );
+  const publicColumnNames = new Set(publicColumns.rows.map((row) => row.column_name));
+  for (const forbidden of [
+    "exact_address",
+    "latitude",
+    "longitude",
+    "authority_basis",
+    "identity_document",
+  ]) {
+    assert(`public_listings omits ${forbidden}`, !publicColumnNames.has(forbidden));
+  }
+
+  const buckets = await client.query(
+    "select id, public from storage.buckets where id in ('listing-public', 'verification-private', 'maintenance-private', 'message-private')"
+  );
+  assert("all required storage buckets exist", buckets.rowCount === 4);
+  for (const bucket of buckets.rows) {
+    assert(
+      `${bucket.id} visibility is correct`,
+      bucket.public === (bucket.id === "listing-public")
+    );
+  }
 
   // 4. Data API: anon exposure boundaries.
   if (apiUrl && anonKey) {
     console.log("Data API (anonymous) boundaries:");
     const headers = { apikey: anonKey, Authorization: `Bearer ${anonKey}` };
 
-    const pub = await fetch(
-      `${apiUrl}/rest/v1/public_listings?select=id&limit=1`,
-      { headers }
-    );
+    const pub = await fetch(`${apiUrl}/rest/v1/public_listings?select=id&limit=1`, { headers });
     assert("anon can read public_listings", pub.status === 200);
 
     for (const table of [
@@ -169,14 +243,39 @@ async function main() {
       "assisted_listing_requests",
       "reports",
       "audit_events",
+      "payment_records",
+      "payment_receipts",
+      "viewing_private_details",
+      "viewing_safety_checkins",
+      "verification_assignments",
+      "verification_evidence",
+      "file_uploads",
+      "privacy_requests",
+      "email_delivery_events",
     ]) {
       const res = await fetch(`${apiUrl}/rest/v1/${table}?select=*`, {
         headers,
       });
       const body = await res.json().catch(() => []);
-      const rows = Array.isArray(body) ? body.length : -1;
-      assert(`anon sees no ${table} rows`, rows === 0, `${rows} rows`);
+      const rows = Array.isArray(body) ? body.length : 0;
+      const denied = [401, 403, 404].includes(res.status);
+      assert(
+        `anon sees no ${table} rows`,
+        denied || (res.status === 200 && rows === 0),
+        `status ${res.status}, ${rows} rows`
+      );
     }
+
+    const claim = await fetch(`${apiUrl}/rest/v1/rpc/claim_notification_batch`, {
+      method: "POST",
+      headers: { ...headers, "Content-Type": "application/json" },
+      body: JSON.stringify({ batch_size: 1 }),
+    });
+    assert(
+      "anon cannot claim notification work",
+      [401, 403, 404].includes(claim.status),
+      `status ${claim.status}`
+    );
   } else {
     console.log("Data API checks skipped (no API URL / anon key).");
   }

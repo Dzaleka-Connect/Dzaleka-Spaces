@@ -112,44 +112,32 @@ export async function getAdminOverview(): Promise<{
 }> {
   const supabase = await createClient();
 
-  const [
-    published,
-    pending,
-    changes,
-    pendingVerifications,
-    enquiries,
-    reports,
-    audit,
-  ] = await Promise.all([
-    supabase
-      .from("listings")
-      .select("id", { count: "exact", head: true })
-      .eq("status", "published"),
-    supabase
-      .from("listings")
-      .select("id", { count: "exact", head: true })
-      .eq("status", "pending_review"),
-    supabase
-      .from("listings")
-      .select("id", { count: "exact", head: true })
-      .eq("status", "changes_requested"),
-    supabase
-      .from("verifications")
-      .select("id", { count: "exact", head: true })
-      .eq("status", "pending"),
-    supabase
-      .from("enquiries")
-      .select("id", { count: "exact", head: true }),
-    supabase
-      .from("reports")
-      .select("id", { count: "exact", head: true })
-      .eq("status", "open"),
-    supabase
-      .from("audit_events")
-      .select("id, action, entity, entity_id, actor_role, created_at")
-      .order("created_at", { ascending: false })
-      .limit(6),
-  ]);
+  const [published, pending, changes, pendingVerifications, enquiries, reports, audit] =
+    await Promise.all([
+      supabase
+        .from("listings")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "published"),
+      supabase
+        .from("listings")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "pending_review"),
+      supabase
+        .from("listings")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "changes_requested"),
+      supabase
+        .from("verifications")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "pending"),
+      supabase.from("enquiries").select("id", { count: "exact", head: true }),
+      supabase.from("reports").select("id", { count: "exact", head: true }).eq("status", "open"),
+      supabase
+        .from("audit_events")
+        .select("id, action, entity, entity_id, actor_role, created_at")
+        .order("created_at", { ascending: false })
+        .limit(6),
+    ]);
 
   const auditRows = (audit.data ?? []) as AuditRow[];
 
@@ -187,25 +175,18 @@ export async function getReviewListings(): Promise<ReviewListing[]> {
 
   const [{ data: spaces }, { data: verifications }] = await Promise.all([
     spaceIds.length
-      ? supabase
-          .from("spaces")
-          .select("id, category, landmark, zones(name)")
-          .in("id", spaceIds)
+      ? supabase.from("spaces").select("id, category, landmark, zones(name)").in("id", spaceIds)
       : Promise.resolve({ data: [] }),
     listingIds.length
       ? supabase
           .from("verifications")
-          .select(
-            "id, listing_id, status, created_at, verified_at, notes, checklist"
-          )
+          .select("id, listing_id, status, created_at, verified_at, notes, checklist")
           .in("listing_id", listingIds)
           .order("created_at", { ascending: false })
       : Promise.resolve({ data: [] }),
   ]);
 
-  const spaceById = new Map(
-    ((spaces ?? []) as SpaceRow[]).map((space) => [space.id, space])
-  );
+  const spaceById = new Map(((spaces ?? []) as SpaceRow[]).map((space) => [space.id, space]));
   const verificationByListing = new Map<string, VerificationRow>();
   for (const verification of (verifications ?? []) as VerificationRow[]) {
     if (!verificationByListing.has(verification.listing_id)) {

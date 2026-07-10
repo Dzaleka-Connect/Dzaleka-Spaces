@@ -22,18 +22,9 @@ export const metadata: Metadata = {
   title: "Listings",
 };
 
-const STATUS_FILTERS = [
-  "published",
-  "pending_review",
-  "changes_requested",
-  "rejected",
-  "paused",
-];
+const STATUS_FILTERS = ["published", "pending_review", "changes_requested", "rejected", "paused"];
 
-const STATUS_VARIANTS: Record<
-  string,
-  "default" | "secondary" | "outline" | "destructive"
-> = {
+const STATUS_VARIANTS: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
   published: "default",
   pending_review: "secondary",
   changes_requested: "destructive",
@@ -44,9 +35,7 @@ interface AdminListingsProps {
   searchParams: Promise<{ status?: string }>;
 }
 
-export default async function AdminListingsPage({
-  searchParams,
-}: AdminListingsProps) {
+export default async function AdminListingsPage({ searchParams }: AdminListingsProps) {
   if (!isSupabaseConfigured()) {
     return (
       <div className="mx-auto w-full max-w-2xl px-4 py-16">
@@ -54,8 +43,7 @@ export default async function AdminListingsPage({
           <Info />
           <AlertTitle>Demo mode</AlertTitle>
           <AlertDescription>
-            Listing administration is available once a Supabase project is
-            connected.
+            Listing administration is available once a Supabase project is connected.
           </AlertDescription>
         </Alert>
       </div>
@@ -84,17 +72,12 @@ export default async function AdminListingsPage({
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Listings</h1>
+          <h1 className="text-3xl font-bold">Listings</h1>
           <p className="mt-1 text-muted-foreground">
-            Every listing on the platform. Publication decisions happen in the
-            review queue.
+            Every listing on the platform. Publication decisions happen in the review queue.
           </p>
         </div>
-        <Button
-          variant="outline"
-          render={<Link href="/admin/review" />}
-          nativeButton={false}
-        >
+        <Button variant="outline" render={<Link href="/admin/review" />} nativeButton={false}>
           Open review queue
         </Button>
       </div>
@@ -150,8 +133,7 @@ export default async function AdminListingsPage({
                   {categoryLabel(space?.category)} · {space?.zones?.name}
                 </TableCell>
                 <TableCell>
-                  {formatMwk(l.price_mwk)}/
-                  {l.billing_period === "daily" ? "day" : "mo"}
+                  {formatMwk(l.price_mwk)}/{l.billing_period === "daily" ? "day" : "mo"}
                 </TableCell>
                 <TableCell>
                   <Badge variant={STATUS_VARIANTS[l.status] ?? "outline"}>

@@ -27,8 +27,7 @@ export default async function AdminUsersPage() {
           <Info />
           <AlertTitle>Demo mode</AlertTitle>
           <AlertDescription>
-            User administration is available once a Supabase project is
-            connected.
+            User administration is available once a Supabase project is connected.
           </AlertDescription>
         </Alert>
       </div>
@@ -61,7 +60,7 @@ export default async function AdminUsersPage() {
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Users</h1>
+        <h1 className="text-3xl font-bold">Users</h1>
         <p className="mt-1 text-muted-foreground">
           {profiles?.length ?? 0} registered user
           {(profiles?.length ?? 0) === 1 ? "" : "s"}.{" "}
@@ -86,9 +85,7 @@ export default async function AdminUsersPage() {
               <TableCell className="font-medium">
                 {p.full_name || "—"}
                 {p.id === user.id ? (
-                  <span className="ml-1 text-xs text-muted-foreground">
-                    (you)
-                  </span>
+                  <span className="ml-1 text-xs text-muted-foreground">(you)</span>
                 ) : null}
               </TableCell>
               <TableCell className="text-muted-foreground">
@@ -98,11 +95,7 @@ export default async function AdminUsersPage() {
                 {new Date(p.created_at).toLocaleDateString()}
               </TableCell>
               <TableCell>
-                <RoleManager
-                  userId={p.id}
-                  roles={rolesByUser.get(p.id) ?? []}
-                  canEdit={isAdmin}
-                />
+                <RoleManager userId={p.id} roles={rolesByUser.get(p.id) ?? []} canEdit={isAdmin} />
               </TableCell>
             </TableRow>
           ))}

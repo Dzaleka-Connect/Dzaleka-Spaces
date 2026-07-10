@@ -1,0 +1,10 @@
+.next
+.agents
+.claude
+.codex
+node_modules
+playwright-report
+test-results
+public/*.svg
+public/*.webp
+package-lock.json

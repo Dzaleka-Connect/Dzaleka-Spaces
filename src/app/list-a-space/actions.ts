@@ -9,18 +9,14 @@ export interface SubmitSpaceResult {
   spaceId?: string;
 }
 
-export async function submitSpace(
-  formData: FormData
-): Promise<SubmitSpaceResult> {
+export async function submitSpace(formData: FormData): Promise<SubmitSpaceResult> {
   const title = String(formData.get("title") ?? "").trim();
   const category = String(formData.get("category") ?? "").trim();
   const zone = String(formData.get("zone") ?? "").trim();
   const landmark = String(formData.get("landmark") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
   const price = Number(formData.get("price") ?? 0);
-  const deposit = formData.get("deposit")
-    ? Number(formData.get("deposit"))
-    : null;
+  const deposit = formData.get("deposit") ? Number(formData.get("deposit")) : null;
   const billingPeriod = String(formData.get("billing_period") ?? "monthly");
   const authorityBasis = String(formData.get("authority_basis") ?? "").trim();
   const facilities = formData.getAll("facilities").map(String);
@@ -31,8 +27,7 @@ export async function submitSpace(
   if (!authorityBasis) {
     return {
       ok: false,
-      message:
-        "Please state the basis on which you are authorised to offer this space.",
+      message: "Please state the basis on which you are authorised to offer this space.",
     };
   }
 

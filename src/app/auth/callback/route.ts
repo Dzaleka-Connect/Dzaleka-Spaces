@@ -11,7 +11,7 @@ export async function GET(request: Request) {
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
-      if (next) {
+      if (next?.startsWith("/") && !next.startsWith("//")) {
         return NextResponse.redirect(`${origin}${next}`);
       }
       const user = await getSessionUser();

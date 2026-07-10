@@ -4,7 +4,10 @@ import { ZONES } from "./types";
 import { getListings } from "./listings";
 
 export function zoneSlug(name: string): string {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
 }
 
 export interface ZoneSummary {

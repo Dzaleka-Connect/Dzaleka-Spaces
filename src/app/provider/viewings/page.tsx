@@ -4,13 +4,7 @@ import { redirect } from "next/navigation";
 import { Calendar } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Empty,
   EmptyDescription,
@@ -38,16 +32,12 @@ export default async function ProviderViewingsPage() {
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Viewings</h1>
+          <h1 className="text-3xl font-bold">Viewings</h1>
           <p className="mt-1 text-muted-foreground">
             Confirm times and share directions after confirmation.
           </p>
         </div>
-        <Button
-          variant="outline"
-          render={<Link href="/provider" />}
-          nativeButton={false}
-        >
+        <Button variant="outline" render={<Link href="/provider" />} nativeButton={false}>
           Dashboard
         </Button>
       </div>
@@ -60,8 +50,7 @@ export default async function ProviderViewingsPage() {
             </EmptyMedia>
             <EmptyTitle>No viewings scheduled</EmptyTitle>
             <EmptyDescription>
-              Viewing requests appear here when seekers ask from an enquiry
-              thread.
+              Viewing requests appear here when seekers ask from an enquiry thread.
             </EmptyDescription>
           </EmptyHeader>
         </Empty>
@@ -76,18 +65,16 @@ export default async function ProviderViewingsPage() {
                   </CardTitle>
                   <Badge variant="outline">{v.status}</Badge>
                 </div>
-                <CardDescription>
-                  {new Date(v.proposedAt).toLocaleString()}
-                </CardDescription>
+                <CardDescription>{new Date(v.proposedAt).toLocaleString()}</CardDescription>
               </CardHeader>
               <CardContent>
                 <Button
                   variant="outline"
                   size="sm"
-                  render={<Link href={`/provider/enquiries/${v.enquiryId}`} />}
+                  render={<Link href={`/provider/viewings/${v.id}`} />}
                   nativeButton={false}
                 >
-                  Open enquiry
+                  Manage viewing
                 </Button>
               </CardContent>
             </Card>

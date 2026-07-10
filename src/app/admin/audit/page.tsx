@@ -67,23 +67,19 @@ export default async function AdminAuditPage({ searchParams }: AuditPageProps) {
 
   const { data: events } = await query;
 
-  const actorIds = [
-    ...new Set((events ?? []).map((e) => e.actor_id).filter(Boolean)),
-  ] as string[];
+  const actorIds = [...new Set((events ?? []).map((e) => e.actor_id).filter(Boolean))] as string[];
   const { data: actors } = actorIds.length
     ? await supabase.from("profiles").select("id, full_name").in("id", actorIds)
     : { data: [] };
-  const actorById = new Map(
-    (actors ?? []).map((a) => [a.id, a.full_name as string])
-  );
+  const actorById = new Map((actors ?? []).map((a) => [a.id, a.full_name as string]));
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Audit log</h1>
+        <h1 className="text-3xl font-bold">Audit log</h1>
         <p className="mt-1 text-muted-foreground">
-          Append-only record of significant actions. Showing the latest 100
-          events{entity ? ` for ${entity} records` : ""}.
+          Append-only record of significant actions. Showing the latest 100 events
+          {entity ? ` for ${entity} records` : ""}.
         </p>
       </div>
 
@@ -117,8 +113,8 @@ export default async function AdminAuditPage({ searchParams }: AuditPageProps) {
             </EmptyMedia>
             <EmptyTitle>No audit events</EmptyTitle>
             <EmptyDescription>
-              Actions like publication decisions, role changes and occupancy
-              updates appear here as they happen.
+              Actions like publication decisions, role changes and occupancy updates appear here as
+              they happen.
             </EmptyDescription>
           </EmptyHeader>
         </Empty>
@@ -140,13 +136,9 @@ export default async function AdminAuditPage({ searchParams }: AuditPageProps) {
                   {new Date(e.created_at).toLocaleString()}
                 </TableCell>
                 <TableCell>
-                  {e.actor_id
-                    ? (actorById.get(e.actor_id) ?? "User")
-                    : "System"}
+                  {e.actor_id ? (actorById.get(e.actor_id) ?? "User") : "System"}
                   {e.actor_role ? (
-                    <span className="ml-1 text-xs text-muted-foreground">
-                      ({e.actor_role})
-                    </span>
+                    <span className="ml-1 text-xs text-muted-foreground">({e.actor_role})</span>
                   ) : null}
                 </TableCell>
                 <TableCell className="font-medium">{e.action}</TableCell>

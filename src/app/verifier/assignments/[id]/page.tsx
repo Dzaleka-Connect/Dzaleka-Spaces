@@ -4,13 +4,7 @@ import { AlertTriangle, MapPin } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Field,
@@ -50,17 +44,19 @@ export default async function AssignmentDetailPage({
   const { error } = await searchParams;
 
   const supabase = await createClient();
-  const { data: listing } = await supabase
-    .from("listings")
+  const { data: assignment } = await supabase
+    .from("verification_assignments")
     .select(
-      "id, title, price_mwk, deposit_mwk, billing_period, status, spaces(id, category, landmark, description, facilities, rooms, capacity, zones(name))"
+      "id, listing_id, status, due_at, listings(id, title, price_mwk, deposit_mwk, billing_period, status, spaces(id, category, landmark, description, facilities, rooms, capacity, zones(name)))"
     )
     .eq("id", id)
+    .eq("verifier_id", user.id)
     .maybeSingle();
 
-  if (!listing) notFound();
+  if (!assignment) notFound();
 
   /* eslint-disable @typescript-eslint/no-explicit-any */
+  const listing = assignment.listings as any;
   const space = listing.spaces as any;
   const { data: internal } = await supabase
     .from("space_internal")
@@ -68,18 +64,16 @@ export default async function AssignmentDetailPage({
     .eq("space_id", space?.id)
     .maybeSingle();
 
-  const submitAction = submitChecklist.bind(null, listing.id);
+  const submitAction = submitChecklist.bind(null, assignment.id);
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-8">
       <div className="flex flex-col gap-2">
         <div className="flex flex-wrap gap-1.5">
           <Badge variant="outline">{categoryLabel(space?.category)}</Badge>
-          <Badge variant="secondary">
-            {String(listing.status).replace(/_/g, " ")}
-          </Badge>
+          <Badge variant="secondary">{String(listing.status).replace(/_/g, " ")}</Badge>
         </div>
-        <h1 className="text-2xl font-bold tracking-tight">{listing.title}</h1>
+        <h1 className="text-2xl font-bold">{listing.title}</h1>
         <p className="flex items-center gap-1.5 text-muted-foreground">
           <MapPin className="size-4" />
           {space?.zones?.name} · {space?.landmark}
@@ -100,9 +94,7 @@ export default async function AssignmentDetailPage({
           <CardDescription>
             Price {formatMwk(listing.price_mwk)}/
             {listing.billing_period === "daily" ? "day" : "month"}
-            {listing.deposit_mwk
-              ? ` · Deposit ${formatMwk(listing.deposit_mwk)}`
-              : " · No deposit"}
+            {listing.deposit_mwk ? ` · Deposit ${formatMwk(listing.deposit_mwk)}` : " · No deposit"}
             {space?.rooms ? ` · ${space.rooms} room(s)` : ""}
             {space?.capacity ? ` · capacity ${space.capacity}` : ""}
           </CardDescription>
@@ -126,9 +118,7 @@ export default async function AssignmentDetailPage({
                 : "No authority record — the reviewer cannot publish without one."}
             </p>
             {internal?.authority_notes ? (
-              <p className="mt-1 text-muted-foreground">
-                {internal.authority_notes}
-              </p>
+              <p className="mt-1 text-muted-foreground">{internal.authority_notes}</p>
             ) : null}
           </div>
         </CardContent>
@@ -138,8 +128,8 @@ export default async function AssignmentDetailPage({
         <CardHeader>
           <CardTitle>Field checklist</CardTitle>
           <CardDescription>
-            Complete during the visit. You collect evidence — a separate
-            reviewer approves or rejects publication.
+            Complete during the visit. You collect evidence — a separate reviewer approves or
+            rejects publication.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -151,10 +141,7 @@ export default async function AssignmentDetailPage({
                   {CHECKLIST_ITEMS.map((item) => (
                     <div key={item.key} className="flex items-center gap-2">
                       <Checkbox id={item.key} name={item.key} />
-                      <FieldLabel
-                        htmlFor={item.key}
-                        className="font-normal"
-                      >
+                      <FieldLabel htmlFor={item.key} className="font-normal">
                         {item.label}
                       </FieldLabel>
                     </div>
@@ -175,10 +162,7 @@ export default async function AssignmentDetailPage({
                         defaultChecked={i === 0}
                         className="size-4 accent-primary"
                       />
-                      <FieldLabel
-                        htmlFor={`rec-${r.value}`}
-                        className="font-normal"
-                      >
+                      <FieldLabel htmlFor={`rec-${r.value}`} className="font-normal">
                         {r.label}
                       </FieldLabel>
                     </div>
@@ -187,17 +171,13 @@ export default async function AssignmentDetailPage({
               </FieldSet>
 
               <Field>
-                <FieldLabel htmlFor="safety_notes">
-                  Safety concerns (if any)
-                </FieldLabel>
+                <FieldLabel htmlFor="safety_notes">Safety concerns (if any)</FieldLabel>
                 <Textarea id="safety_notes" name="safety_notes" />
               </Field>
               <Field>
                 <FieldLabel htmlFor="notes">Notes for the reviewer</FieldLabel>
                 <Textarea id="notes" name="notes" />
-                <FieldDescription>
-                  Notes are internal and never shown publicly.
-                </FieldDescription>
+                <FieldDescription>Notes are internal and never shown publicly.</FieldDescription>
               </Field>
               <Field>
                 <Button type="submit">Submit checklist</Button>

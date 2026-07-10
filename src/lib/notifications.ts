@@ -82,9 +82,7 @@ export async function queueEnquiryMessageEmail(
   const supabase = createAdminClient();
   const { data: enquiry, error } = await supabase
     .from("enquiries")
-    .select(
-      "id, contact, seeker_id, listing_id, listings(title, spaces(provider_id))"
-    )
+    .select("id, contact, seeker_id, listing_id, listings(title, spaces(provider_id))")
     .eq("id", enquiryId)
     .maybeSingle();
 
@@ -144,15 +142,9 @@ export async function processPendingNotifications(limit = 20) {
   }
 
   const supabase = createAdminClient();
-  const { data, error } = await supabase
-    .from("notification_queue")
-    .select(
-      "id, recipient_email, template_key, subject, body_text, payload, attempts, idempotency_key"
-    )
-    .eq("status", "pending")
-    .lte("next_attempt_at", new Date().toISOString())
-    .order("created_at", { ascending: true })
-    .limit(limit);
+  const { data, error } = await supabase.rpc("claim_notification_batch", {
+    batch_size: Math.max(1, Math.min(limit, 100)),
+  });
 
   if (error) {
     console.error("processPendingNotifications read failed:", error.message);
@@ -164,15 +156,6 @@ export async function processPendingNotifications(limit = 20) {
   const rows = (data ?? []) as NotificationRow[];
 
   for (const row of rows) {
-    await supabase
-      .from("notification_queue")
-      .update({
-        status: "processing",
-        locked_at: new Date().toISOString(),
-        attempts: row.attempts + 1,
-      })
-      .eq("id", row.id);
-
     const result = await sendTransactionalEmail({
       to: row.recipient_email,
       subject: row.subject,
@@ -210,9 +193,7 @@ export async function processPendingNotifications(limit = 20) {
         .update({
           status: row.attempts >= 4 ? "failed" : "pending",
           error: result.error ?? "Email send failed.",
-          next_attempt_at: new Date(
-            Date.now() + delayMinutes * 60 * 1000
-          ).toISOString(),
+          next_attempt_at: new Date(Date.now() + delayMinutes * 60 * 1000).toISOString(),
         })
         .eq("id", row.id);
     }

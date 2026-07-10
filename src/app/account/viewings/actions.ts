@@ -23,10 +23,7 @@ async function assertEnquiryParticipant(enquiryId: string, userId: string) {
   return { enquiry, isSeeker, isProvider };
 }
 
-export async function requestViewing(
-  enquiryId: string,
-  formData: FormData
-): Promise<ActionResult> {
+export async function requestViewing(enquiryId: string, formData: FormData): Promise<ActionResult> {
   const proposedAt = String(formData.get("proposed_at") ?? "");
   if (!proposedAt) return { ok: false, error: "Choose a viewing time." };
 
@@ -58,10 +55,7 @@ export async function requestViewing(
   return { ok: true };
 }
 
-export async function confirmViewing(
-  viewingId: string,
-  formData: FormData
-): Promise<ActionResult> {
+export async function confirmViewing(viewingId: string, formData: FormData): Promise<ActionResult> {
   if (!isSupabaseConfigured()) return { ok: true };
 
   const user = await getSessionUser();
@@ -91,7 +85,6 @@ export async function confirmViewing(
     .update({
       status: "confirmed",
       confirmed_at: new Date().toISOString(),
-      location_released_at: new Date().toISOString(),
       provider_notes: providerNotes || null,
       alternative_at: alternativeAt,
     })
@@ -108,10 +101,68 @@ export async function confirmViewing(
   return { ok: true };
 }
 
-export async function proposeViewing(
+export async function releaseViewingDirections(
   viewingId: string,
   formData: FormData
 ): Promise<ActionResult> {
+  const directions = String(formData.get("directions") ?? "").trim();
+  const contact = String(formData.get("meeting_contact") ?? "").trim();
+  if (directions.length < 10) {
+    return { ok: false, error: "Provide clear meeting directions." };
+  }
+  if (!isSupabaseConfigured()) return { ok: true };
+  const user = await getSessionUser();
+  if (!user) return { ok: false, error: "Please sign in." };
+  const supabase = await createClient();
+  const releasedAt = new Date().toISOString();
+  const { error } = await supabase.from("viewing_private_details").upsert({
+    viewing_id: viewingId,
+    detailed_directions: directions,
+    meeting_contact: contact || null,
+    released_at: releasedAt,
+    updated_by: user.id,
+    updated_at: releasedAt,
+  });
+  if (error) {
+    console.error("releaseViewingDirections failed:", error.message);
+    return { ok: false, error: "Could not release the directions." };
+  }
+  const { error: viewingError } = await supabase
+    .from("viewings")
+    .update({ location_released_at: releasedAt })
+    .eq("id", viewingId)
+    .eq("status", "confirmed");
+  if (viewingError) {
+    console.error("releaseViewingDirections viewing update failed:", viewingError.message);
+    return { ok: false, error: "Directions were saved but release status could not be updated." };
+  }
+  revalidatePath(`/provider/viewings/${viewingId}`);
+  revalidatePath(`/account/viewings/${viewingId}`);
+  return { ok: true };
+}
+
+export async function recordViewingSafetyCheckIn(
+  viewingId: string,
+  status: "departing" | "arrived" | "safe" | "needs_help"
+): Promise<ActionResult> {
+  if (!isSupabaseConfigured()) return { ok: true };
+  const user = await getSessionUser();
+  if (!user) return { ok: false, error: "Please sign in." };
+  const supabase = await createClient();
+  const { error } = await supabase.from("viewing_safety_checkins").insert({
+    viewing_id: viewingId,
+    user_id: user.id,
+    status,
+  });
+  if (error) {
+    console.error("recordViewingSafetyCheckIn failed:", error.message);
+    return { ok: false, error: "Could not record the safety check-in." };
+  }
+  revalidatePath(`/account/viewings/${viewingId}`);
+  return { ok: true };
+}
+
+export async function proposeViewing(viewingId: string, formData: FormData): Promise<ActionResult> {
   const proposedAt = String(formData.get("proposed_at") ?? "");
   if (!proposedAt) return { ok: false, error: "Choose a time." };
 

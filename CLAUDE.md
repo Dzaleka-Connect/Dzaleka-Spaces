@@ -11,6 +11,8 @@ database conventions change.
   language.
 - The pilot records payments only. Do not enable fund custody, deposit
   processing or mobile-money processing.
+- Notifications are Resend email plus in-app records only. Do not enable SMS,
+  WhatsApp or web push delivery.
 - Residential categories are present in the database enum but publication is
   blocked until written operational guidance authorises the pilot.
 - Public location data is approximate: zone plus landmark only. Exact
@@ -33,14 +35,24 @@ checklist at `/verifier/assignments`, a moderator/admin publishes from
   `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
 - Demo mode must keep public data helpers working when Supabase env vars are
   absent.
+- Canonical production origin is `https://spaces.dzaleka.com`.
 
 ## Commands
 
 ```bash
 npm run dev
 npm run lint
+npm run typecheck
+npm run check:content
+npm test
+npm run test:e2e
+npm run test:rls
 npm run build
 ```
 
 Use `scripts/db-apply.mjs` with `DIRECT_URL` for SQL on this machine; do not
-assume `psql` or the Supabase CLI is installed.
+assume `psql` or the Supabase CLI is installed. Run `--check` first and never
+edit a migration after its checksum has been recorded; add a new migration.
+
+Update the relevant architecture, permission, workflow, route, production
+readiness and operations documents in the same change as the code.

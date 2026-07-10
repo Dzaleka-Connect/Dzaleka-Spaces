@@ -57,74 +57,16 @@ async function insertAudit(
 }
 
 export async function approveAndPublish(listingId: string) {
-  const user = await requireReviewer();
+  await requireReviewer();
   const supabase = await createClient();
 
-  const [{ data: listing, error: listingError }, { data: verification }] =
-    await Promise.all([
-      supabase
-        .from("listings")
-        .select("id, status")
-        .eq("id", listingId)
-        .maybeSingle(),
-      supabase
-        .from("verifications")
-        .select("id, status, checklist")
-        .eq("listing_id", listingId)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle(),
-    ]);
-
-  if (listingError || !listing) {
-    redirectWithError("/admin/review", "Listing not found.");
-  }
-  if (!verification) {
-    redirectWithError(
-      "/admin/review",
-      "A field checklist is required before publication."
-    );
-  }
-
-  const now = new Date();
-  const reverifyBy = new Date(now);
-  reverifyBy.setDate(reverifyBy.getDate() + 90);
-
-  const checklist = {
-    ...jsonObject(verification.checklist),
-    reviewer_decision: "approved",
-    reviewer_id: user.id,
-  };
-
-  const { error: verificationError } = await supabase
-    .from("verifications")
-    .update({
-      status: "approved",
-      verified_at: now.toISOString(),
-      reverify_by: reverifyBy.toISOString().slice(0, 10),
-      checklist,
-    })
-    .eq("id", verification.id);
-
-  if (verificationError) {
-    redirectWithError("/admin/review", verificationError.message);
-  }
-
-  const { error: listingUpdateError } = await supabase
-    .from("listings")
-    .update({ status: "published" })
-    .eq("id", listingId);
+  const { error: listingUpdateError } = await supabase.rpc("approve_and_publish_listing", {
+    target_listing: listingId,
+  });
 
   if (listingUpdateError) {
     redirectWithError("/admin/review", listingUpdateError.message);
   }
-
-  await insertAudit(
-    "listing.published",
-    listingId,
-    { status: listing.status, verification_status: verification.status },
-    { status: "published", verification_status: "approved" }
-  );
 
   revalidatePath("/admin");
   revalidatePath("/admin/review");

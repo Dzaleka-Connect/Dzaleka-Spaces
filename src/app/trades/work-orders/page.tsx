@@ -4,13 +4,7 @@ import { redirect } from "next/navigation";
 import { Hammer, SearchX } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Empty,
   EmptyDescription,
@@ -34,7 +28,7 @@ export default async function WorkOrdersPage() {
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Work orders</h1>
+        <h1 className="text-3xl font-bold">Work orders</h1>
         <p className="mt-1 text-muted-foreground">
           Assigned maintenance jobs and completion status.
         </p>
@@ -48,8 +42,7 @@ export default async function WorkOrdersPage() {
             </EmptyMedia>
             <EmptyTitle>No assigned work orders</EmptyTitle>
             <EmptyDescription>
-              Accepted quotes become work orders after requester or staff
-              confirmation.
+              Accepted quotes become work orders after requester or staff confirmation.
             </EmptyDescription>
           </EmptyHeader>
         </Empty>

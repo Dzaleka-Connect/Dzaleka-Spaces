@@ -1,99 +1,154 @@
-# Core workflows
+# Core Workflows
 
-## The launch journey
-
-> A provider submits a space, a field representative verifies it, an
-> administrator publishes it, and a seeker discovers it and requests a
-> viewing.
+## Listing, verification and publication
 
 ```text
-Provider: /list-a-space form
-   → spaces row (provider-owned)
-   → space_internal row (authority basis — never public)
-   → listings row (status: pending_review)
-        ↓
-Verifier: /verifier/assignments
-   → opens assignment, completes field checklist
-   → verifications row (status: pending, checklist jsonb, verifier_id)
-        ↓
-Admin: /admin/review
-   → reviews listing + checklist
-   → APPROVE: verification → approved (verified_at now),
-              listing → published (trigger re-checks zone/authority/flags),
-              audit event
-   → REQUEST CHANGES: listing → changes_requested, audit event
-   → REJECT: listing → rejected, audit event
-        ↓
-Seeker: /spaces
-   → sees published listing with Verified badge
-   → optionally saves or compares listings while evaluating options
-   → submits enquiry (anonymous or signed-in)
-   → provider sees it in /provider, replies via chosen channel
+provider draft/submission
+  -> pending review / authority review
+  -> moderator creates assigned field visit
+  -> verification scheduled
+  -> assigned verifier submits checklist and evidence
+  -> verification completed
+  -> supervisor review
+  -> verification approved
+  -> listing approved
+  -> listing published
 ```
 
-## Enquiry rules
+1. `/list-a-space` creates/updates `spaces`, writes the authority statement to
+   `space_internal`, registers media and creates the listing submission.
+2. A moderator uses `/admin/verifications` to call
+   `assign_verification_visit()`. The RPC validates the verifier role/account,
+   locks the listing, creates one active assignment and advances state.
+3. The assigned verifier uses `/verifier/assignments/[id]` or the encrypted
+   offline queue. `submit_verification_assignment()` validates assignment,
+   expiry, MFA, recommendation and idempotency; it creates the verification and
+   advances the listing atomically.
+4. A moderator reviews public media, authority statement, field result, risk
+   flags and history. `approve_and_publish_listing()` approves verification and
+   advances supervisor/approved/published states in one transaction.
+5. `enforce_listing_publication()` independently blocks publication without a
+   zone, authority record, approved current verification, approved public
+   media, allowed category and authorised reviewer.
+6. Changes/rejection/suspension write state history and append audit events.
 
-- Anonymous enquiries are allowed on published listings only (RLS).
-- Provider contact details are only released per the provider's preference.
-- Every listing page carries the "view before paying" safety notice.
-- Signed-in participants can reply in enquiry threads. Private attachments are
-  stored in `message-private` and downloaded through signed URLs after RLS
-  verifies the requester is an enquiry participant.
+Verification means listing details and stated authority were reviewed. It does
+not establish ownership or legal title.
+
+## Public discovery and enquiry
+
+1. `/spaces` calls `search_public_listings()` with validated URL-backed
+   filters, sort, page and page size.
+2. Results contain only the invoker-rights `public_listings` columns. Public
+   location is zone plus landmark.
+3. A user can save/compare, report, send an enquiry, or request a viewing.
+4. Enquiry messages and attachments are participant-only. Attachments use the
+   `message-private` bucket and signed download endpoint.
+5. Reports are readable only by authorised staff so reporter information is
+   not exposed to the listing provider.
+
+## Viewing and safety
+
+```text
+requested -> proposed/accepted -> confirmed -> completed/cancelled/no-show
+```
+
+- Participants propose/accept time and can export an authenticated calendar
+  file.
+- Exact directions are stored separately. The provider releases them only for
+  a confirmed viewing; access uses an audited RPC.
+- Safety check-ins record departing, arrived, safe or needs-help without
+  publishing exact location.
+- Viewing outcomes can lead to an occupancy record but never create one
+  automatically without participant confirmation.
+
+## Occupancy records
+
+1. A provider creates terms for an eligible space and adds provider/occupant
+   parties.
+2. Each party confirms in-app, in-person or staff-assisted. Method and time are
+   retained.
+3. One live occupancy per space is enforced.
+4. Active records expose charges, payment records, maintenance, messages,
+   documents, notices and history to the parties.
+5. Notice/completion/cancellation are documented lifecycle events. There is no
+   eviction automation.
+
+## Charges, external payment records and receipts
+
+1. Provider creates an idempotent charge through `ledger_create_charge()`.
+2. Either party records an externally completed payment through
+   `ledger_record_payment()` using a stable form idempotency key.
+3. The recording party is marked confirmed; the other party reviews and
+   confirms or disputes.
+4. On dual confirmation, the database applies FIFO allocations and creates one
+   immutable receipt number and verification code.
+5. Rejection, dispute, void and adjustment use dedicated RPCs. Confirmed
+   amounts, allocations, receipts, and audit history are never rewritten.
+6. Mobile-money/DzalekaPay values are references only. Adapters cannot initiate
+   or verify funds during the pilot.
 
 ## Maintenance marketplace
 
-- Service providers create/update `/trades/profile`.
-- Open maintenance tickets appear in `/trades/jobs`; exact locations remain
-  hidden until assignment.
-- Service providers submit quotes from `/trades/quotes/new`.
-- Accepted quotes become `/trades/work-orders`. Providers mark work completed
-  with notes; requesters leave reviews at `/trades/reviews`.
-- Participants message on `/trades/messages/[ticketId]` (ticket participants
-  only). Private evidence uploads go to `maintenance-private` and are listed
-  at `/trades/documents`, downloaded via signed URLs after RLS checks.
+```text
+request -> triage/open job -> quote -> accepted work order -> scheduled
+-> in progress -> completion evidence -> confirmation -> review
+```
 
-## Notifications
+- Open jobs omit exact work directions.
+- Quotes are visible only to eligible parties and staff.
+- Work order messages and files use participant RLS and
+  `maintenance-private`.
+- Reviews require completed work. Problems can escalate to a moderation case.
 
-- App code writes transactional email work to `notification_queue` with
-  idempotency keys.
-- `/api/jobs/process-notifications` is protected by
-  `NOTIFICATION_WORKER_SECRET` and sends through Resend when configured.
-- SMS, WhatsApp and push adapters remain disabled.
+## Verifier offline workflow
 
-## Verifier offline
+- The service worker caches only static application assets and a generic
+  offline document; it does not cache private HTML responses.
+- Downloaded assignment drafts and evidence are encrypted in IndexedDB with a
+  non-exportable AES-GCM key generated for that browser profile.
+- Public image metadata is stripped before local storage. The sync endpoint
+  re-encodes evidence images and places non-image evidence in quarantine.
+- Queue order is oldest first. Each event has a client-generated idempotency
+  identifier. A local item is removed only after a successful server response.
+- Fifteen minutes of inactivity locks the verifier surface and requires a
+  fresh TOTP challenge. Clear-device removes queue and key material.
 
-- The service worker caches verifier pages.
-- `/verifier/offline` stores minimal local sync events and posts them to
-  `/api/verifier/sync` when connectivity returns.
-- Offline records must not include refugee ID numbers or unnecessary private
-  household details.
+This is practical browser protection, not hardware-backed custody. Managed
+devices, screen locks and immediate offboarding remain operational controls.
 
-## Saved listings, comparison and reports
+## Email notifications
 
-- Signed-in seekers can save published listings for later review in
-  `/account/saved-spaces`.
-- `/compare?ids=...` accepts up to three published listing IDs and shows only
-  public listing data: zone, landmark, category, price, facilities and
-  verification badge state.
-- Anyone can report a public listing, but report contents are staff-only. The
-  report form must not ask for refugee ID numbers, exact household
-  coordinates, or private evidence.
+1. Application events enqueue a template-expanded email row with a unique
+   idempotency key.
+2. A scheduler calls `/api/jobs/process-notifications` with the worker bearer
+   secret.
+3. `claim_notification_batch()` atomically claims ready rows with
+   `FOR UPDATE SKIP LOCKED`, allowing safe concurrent workers.
+4. Resend receives the same idempotency key and returns a provider message ID.
+5. Resend posts delivery events to `/api/webhooks/resend`. The route verifies
+   the raw-body Svix signature before calling a service-only RPC.
+6. Provider event IDs are deduplicated. Delivered/delayed state is recorded;
+   bounce, complaint, suppression and failure mark the delivery and queue row
+   failed for operator review.
+7. Only email and in-app records are enabled. SMS, WhatsApp and web push are
+   trigger-locked off.
 
-## Verification meaning (public copy — keep consistent)
+## Privacy requests and case escalation
 
-> Dzaleka Spaces verified the listing details and the provider's stated
-> authority to offer this space. This verification does not establish
-> ownership of land or property.
+- Users submit access, correction, deletion or restriction requests from
+  `/account/privacy`.
+- Staff triage with case notes and append-only events.
+- Restricted cases are available only to authorised/assigned staff.
+- Deletion is evaluated against safety, financial-record and legal retention
+  needs; immutable records may be minimised/restricted instead of erased.
 
-## Publication guard (database trigger)
+## Scheduled operations
 
-A listing can transition to `published` only when:
-1. its space has a zone,
-2. an authority record exists in `space_internal`,
-3. its category is not residential-gated (feature flags),
-4. no other listing for the same space is already published.
-
-## Re-verification
-
-`verifications.reverify_by` (90 days by default in seed) marks when a
-listing should be checked again. Expiry automation is a Phase 2 cron job.
+- Notification queue drain: external scheduler, every minute or operationally
+  approved interval.
+- Saved-search enqueue: database cron function at the approved digest interval.
+- Listing/verification stale checks and viewing reminders: database cron,
+  monitored for failure.
+- Retention/anonymisation and audit partition/archive: scheduled per retention
+  policy with dry-run and operator approval for destructive stages.

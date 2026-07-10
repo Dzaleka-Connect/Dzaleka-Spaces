@@ -57,9 +57,7 @@ export function ProviderOccupancyActions({
 }) {
   return (
     <div className="flex flex-wrap gap-2">
-      {status === "awaiting_occupant_confirmation" &&
-      !occupantHasAccount &&
-      !occupantConfirmed ? (
+      {status === "awaiting_occupant_confirmation" && !occupantHasAccount && !occupantConfirmed ? (
         <ActionButton
           label="Record in-person confirmation"
           variant="default"
@@ -67,16 +65,10 @@ export function ProviderOccupancyActions({
         />
       ) : null}
       {status === "active" ? (
-        <ActionButton
-          label="Record notice given"
-          action={() => giveNotice(occupancyId)}
-        />
+        <ActionButton label="Record notice given" action={() => giveNotice(occupancyId)} />
       ) : null}
       {status === "active" || status === "notice_given" ? (
-        <ActionButton
-          label="Mark completed"
-          action={() => completeOccupancy(occupancyId)}
-        />
+        <ActionButton label="Mark completed" action={() => completeOccupancy(occupancyId)} />
       ) : null}
       {status === "awaiting_occupant_confirmation" ? (
         <ActionButton
@@ -89,11 +81,7 @@ export function ProviderOccupancyActions({
   );
 }
 
-export function OccupantConfirmButton({
-  occupancyId,
-}: {
-  occupancyId: string;
-}) {
+export function OccupantConfirmButton({ occupancyId }: { occupancyId: string }) {
   return (
     <ActionButton
       label="Confirm this arrangement"

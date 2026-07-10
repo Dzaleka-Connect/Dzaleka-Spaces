@@ -1,5 +1,3 @@
-import { featureEnabled } from "../features";
-
 export interface PaymentAdapterResult {
   ok: boolean;
   message: string;
@@ -18,132 +16,46 @@ export interface PaymentAdapter {
   verifyTransaction(referenceId: string): Promise<PaymentAdapterResult>;
 }
 
-export class AirtelMoneyAdapter implements PaymentAdapter {
+abstract class DisabledPilotPaymentAdapter implements PaymentAdapter {
+  abstract name: string;
+
+  async isEnabled(): Promise<boolean> {
+    return false;
+  }
+
+  async initiatePayment(
+    amountMwk: number,
+    phoneNumber: string,
+    narration: string
+  ): Promise<PaymentAdapterResult> {
+    void amountMwk;
+    void phoneNumber;
+    void narration;
+    return {
+      ok: false,
+      message: `${this.name} processing is unavailable during the non-custodial pilot. Record externally completed payments in the ledger instead.`,
+      transactionStatus: "failed",
+    };
+  }
+
+  async verifyTransaction(referenceId: string): Promise<PaymentAdapterResult> {
+    void referenceId;
+    return {
+      ok: false,
+      message: `${this.name} processing is unavailable during the non-custodial pilot.`,
+      transactionStatus: "failed",
+    };
+  }
+}
+
+export class AirtelMoneyAdapter extends DisabledPilotPaymentAdapter {
   name = "Airtel Money";
-
-  async isEnabled(): Promise<boolean> {
-    return await featureEnabled("mobile_money_integrations");
-  }
-
-  async initiatePayment(
-    amountMwk: number,
-    phoneNumber: string,
-    narration: string
-  ): Promise<PaymentAdapterResult> {
-    if (!(await this.isEnabled())) {
-      return {
-        ok: false,
-        message: "Airtel Money integration is disabled during the pilot (ledger-only).",
-        transactionStatus: "failed",
-      };
-    }
-    // Sandbox / Mock logic if enabled (otherwise disabled)
-    return {
-      ok: true,
-      message: "Payment initiated.",
-      referenceId: `airtel-${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
-      transactionStatus: "pending",
-    };
-  }
-
-  async verifyTransaction(referenceId: string): Promise<PaymentAdapterResult> {
-    if (!(await this.isEnabled())) {
-      return {
-        ok: false,
-        message: "Integration disabled.",
-        transactionStatus: "failed",
-      };
-    }
-    return {
-      ok: true,
-      message: "Transaction verified successfully.",
-      transactionStatus: "success",
-    };
-  }
 }
 
-export class TnmMpambaAdapter implements PaymentAdapter {
+export class TnmMpambaAdapter extends DisabledPilotPaymentAdapter {
   name = "TNM Mpamba";
-
-  async isEnabled(): Promise<boolean> {
-    return await featureEnabled("mobile_money_integrations");
-  }
-
-  async initiatePayment(
-    amountMwk: number,
-    phoneNumber: string,
-    narration: string
-  ): Promise<PaymentAdapterResult> {
-    if (!(await this.isEnabled())) {
-      return {
-        ok: false,
-        message: "TNM Mpamba integration is disabled during the pilot (ledger-only).",
-        transactionStatus: "failed",
-      };
-    }
-    return {
-      ok: true,
-      message: "Payment initiated.",
-      referenceId: `mpamba-${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
-      transactionStatus: "pending",
-    };
-  }
-
-  async verifyTransaction(referenceId: string): Promise<PaymentAdapterResult> {
-    if (!(await this.isEnabled())) {
-      return {
-        ok: false,
-        message: "Integration disabled.",
-        transactionStatus: "failed",
-      };
-    }
-    return {
-      ok: true,
-      message: "Transaction verified successfully.",
-      transactionStatus: "success",
-    };
-  }
 }
 
-export class DzalekaPayAdapter implements PaymentAdapter {
+export class DzalekaPayAdapter extends DisabledPilotPaymentAdapter {
   name = "DzalekaPay";
-
-  async isEnabled(): Promise<boolean> {
-    return await featureEnabled("payment_processing");
-  }
-
-  async initiatePayment(
-    amountMwk: number,
-    phoneNumber: string,
-    narration: string
-  ): Promise<PaymentAdapterResult> {
-    if (!(await this.isEnabled())) {
-      return {
-        ok: false,
-        message: "DzalekaPay integration is disabled during the pilot (ledger-only).",
-        transactionStatus: "failed",
-      };
-    }
-    return {
-      ok: true,
-      message: "Payment initiated.",
-      referenceId: `dzpay-${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
-      transactionStatus: "pending",
-    };
-  }
-
-  async verifyTransaction(referenceId: string): Promise<PaymentAdapterResult> {
-    if (!(await this.isEnabled())) {
-      return {
-        ok: false,
-        message: "Integration disabled.",
-        transactionStatus: "failed",
-      };
-    }
-    return {
-      ok: true,
-      message: "Transaction verified successfully.",
-      transactionStatus: "success",
-    };
-  }
 }

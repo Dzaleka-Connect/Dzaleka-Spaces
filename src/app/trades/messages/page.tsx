@@ -27,7 +27,7 @@ export default async function TradeMessagesPage() {
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Trade messages</h1>
+        <h1 className="text-3xl font-bold">Trade messages</h1>
         <p className="mt-1 text-muted-foreground">
           Conversations on jobs you requested or were assigned.
         </p>
@@ -41,15 +41,11 @@ export default async function TradeMessagesPage() {
             </EmptyMedia>
             <EmptyTitle>No maintenance threads</EmptyTitle>
             <EmptyDescription>
-              Messages appear after you are linked to a maintenance job as
-              requester or assigned service provider.
+              Messages appear after you are linked to a maintenance job as requester or assigned
+              service provider.
             </EmptyDescription>
           </EmptyHeader>
-          <Button
-            variant="outline"
-            render={<Link href="/trades/jobs" />}
-            nativeButton={false}
-          >
+          <Button variant="outline" render={<Link href="/trades/jobs" />} nativeButton={false}>
             Open jobs
           </Button>
         </Empty>

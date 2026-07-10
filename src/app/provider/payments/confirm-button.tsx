@@ -6,7 +6,13 @@ import { Button } from "@/components/ui/button";
 import { confirmPaymentAction } from "./actions";
 import { toast } from "sonner";
 
-export function ConfirmPaymentButton({ paymentId, occupancyId }: { paymentId: string; occupancyId: string }) {
+export function ConfirmPaymentButton({
+  paymentId,
+  occupancyId,
+}: {
+  paymentId: string;
+  occupancyId: string;
+}) {
   const [isPending, startTransition] = useTransition();
 
   const handleConfirm = () => {
