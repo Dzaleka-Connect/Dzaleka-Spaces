@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { getSessionUser } from "@/lib/auth";
+import { isDzalekaPayTransactionId } from "@/lib/dzalekapay/contract";
+import { reconcileRecordedDzalekaPayPayment } from "@/lib/dzalekapay/reconciliation";
 import {
   PAYMENT_METHODS,
   recordPayment,
@@ -33,6 +35,12 @@ export async function recordPaymentAction(prevState: unknown, formData: FormData
   if (!PAYMENT_METHODS.includes(method as PaymentMethod)) {
     return { ok: false, message: "Choose a valid payment method." };
   }
+  if (method === "dzalekapay" && !isDzalekaPayTransactionId(externalReference)) {
+    return {
+      ok: false,
+      message: "Enter the DzalekaPay transaction ID, not the DZALEKA receipt reference.",
+    };
+  }
   if (
     !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
       idempotencyKey
@@ -59,6 +67,13 @@ export async function recordPaymentAction(prevState: unknown, formData: FormData
 
   revalidatePath(`/provider/payments`);
   revalidatePath(`/provider/occupancies/${occupancyId}`);
+  if (method === "dzalekapay" && res.payment) {
+    const reconciliation = await reconcileRecordedDzalekaPayPayment(res.payment);
+    return {
+      ok: true,
+      message: `Payment recorded. ${reconciliation.message}`,
+    };
+  }
   return { ok: true, message: "Payment recorded successfully." };
 }
 

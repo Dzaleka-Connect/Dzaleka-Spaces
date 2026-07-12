@@ -149,6 +149,105 @@ async function main() {
     }
   }
 
+  // 4. DzalekaPay confirmation requires a completed, amount-matched provider record.
+  {
+    const profile = await client.query("select id from profiles order by created_at limit 1");
+    if (!profile.rows.length) {
+      console.log("  skip  no profile present for DzalekaPay guard test");
+    } else {
+      const space = await client.query(
+        "insert into spaces (category, zone_id, landmark, description) values ('shop', $1, 'DzalekaPay test', 'Rolled-back integration test') returning id",
+        [zoneId]
+      );
+      const occupancy = await client.query(
+        "insert into occupancies (space_id, provider_id, start_date, agreed_amount_mwk) values ($1, $2, current_date, 5000) returning id",
+        [space.rows[0].id, profile.rows[0].id]
+      );
+      const payment = await client.query(
+        `insert into payment_records (
+          occupancy_id, amount_mwk, payment_date, method, external_reference,
+          provider_confirmed_at, payer_confirmed_at
+        ) values ($1, 5000, current_date, 'dzalekapay',
+          '11111111-1111-4111-8111-111111111111', now(), now()) returning id`,
+        [occupancy.rows[0].id]
+      );
+      const beforeVerification = await expectError("DzalekaPay receipt guard", () =>
+        client.query("update payment_records set status = 'confirmed' where id = $1", [
+          payment.rows[0].id,
+        ])
+      );
+      assert(
+        "DzalekaPay payment cannot confirm before provider verification",
+        Boolean(beforeVerification && /completed and amount-matched/i.test(beforeVerification)),
+        beforeVerification ?? "no error raised"
+      );
+
+      const reconciliation = await client.query(
+        `select record_dzalekapay_reconciliation(
+          $1, '11111111-1111-4111-8111-111111111111',
+          '22222222-2222-4222-8222-222222222222', 'completed', 5000,
+          'DZALEKA-TEST', '2026-07-13T00:00:00Z', '2026-07-13T00:01:00Z'
+        ) status`,
+        [payment.rows[0].id]
+      );
+      assert(
+        "DzalekaPay API reconciliation RPC records an amount match",
+        reconciliation.rows[0]?.status === "verified"
+      );
+      const confirmed = await client.query(
+        "update payment_records set status = 'confirmed' where id = $1 returning status",
+        [payment.rows[0].id]
+      );
+      assert(
+        "DzalekaPay payment can confirm after completed amount match",
+        confirmed.rows[0]?.status === "confirmed"
+      );
+
+      const webhook = await client.query(
+        `select record_dzalekapay_webhook_event(
+          '33333333-3333-4333-8333-333333333333', 'transaction.updated',
+          '11111111-1111-4111-8111-111111111111',
+          '22222222-2222-4222-8222-222222222222', 'refunded', 5000,
+          'DZALEKA-TEST', '2026-07-13T00:03:00Z',
+          '2026-07-13T00:00:00Z', '2026-07-13T00:03:00Z'
+        ) result`
+      );
+      const replay = await client.query(
+        `select record_dzalekapay_webhook_event(
+          '33333333-3333-4333-8333-333333333333', 'transaction.updated',
+          '11111111-1111-4111-8111-111111111111',
+          '22222222-2222-4222-8222-222222222222', 'refunded', 5000,
+          'DZALEKA-TEST', '2026-07-13T00:03:00Z',
+          '2026-07-13T00:00:00Z', '2026-07-13T00:03:00Z'
+        ) result`
+      );
+      assert(
+        "DzalekaPay webhook matches once and duplicate delivery is ignored",
+        webhook.rows[0]?.result?.inserted === true &&
+          webhook.rows[0]?.result?.matched === true &&
+          replay.rows[0]?.result?.inserted === false
+      );
+
+      await client.query(
+        `select record_dzalekapay_webhook_event(
+          '44444444-4444-4444-8444-444444444444', 'transaction.updated',
+          '11111111-1111-4111-8111-111111111111',
+          '22222222-2222-4222-8222-222222222222', 'pending', 5000,
+          'DZALEKA-TEST', '2026-07-13T00:04:00Z',
+          '2026-07-13T00:00:00Z', '2026-07-13T00:02:00Z'
+        )`
+      );
+      const latest = await client.query(
+        "select provider_status, source from dzalekapay_reconciliations where payment_id = $1",
+        [payment.rows[0].id]
+      );
+      assert(
+        "out-of-order DzalekaPay event cannot regress provider state",
+        latest.rows[0]?.provider_status === "refunded" && latest.rows[0]?.source === "webhook"
+      );
+    }
+  }
+
   await client.query("rollback");
 
   // Regression guard for the 00010 -> 00013 staff MFA bootstrap lockout.
@@ -201,11 +300,11 @@ async function main() {
   console.log("Database security catalogue:");
 
   const migrations = await client.query(
-    "select version from app_schema_migrations where version in ('00010', '00011', '00012') order by version"
+    "select version from app_schema_migrations where version between '00010' and '00015' order by version"
   );
   assert(
     "hardening migrations are recorded",
-    migrations.rows.map((row) => row.version).join(",") === "00010,00011,00012"
+    migrations.rows.map((row) => row.version).join(",") === "00010,00011,00012,00013,00014,00015"
   );
 
   const privateTables = [
@@ -223,6 +322,8 @@ async function main() {
     "privacy_requests",
     "audit_events",
     "email_delivery_events",
+    "dzalekapay_reconciliations",
+    "dzalekapay_webhook_events",
   ];
   const rls = await client.query(
     "select relname, relrowsecurity from pg_class where relnamespace = 'public'::regnamespace and relname = any($1)",
@@ -242,13 +343,14 @@ async function main() {
       'protect_adjustment_history',
       'audit_events_append_only',
       'protected_feature_flags_guard',
-      'listing_workflow_guard'
+      'listing_workflow_guard',
+      'dzalekapay_receipt_verification_guard'
     )
   `);
   assert(
     "immutable ledger and workflow triggers are installed",
-    immutableTriggers.rowCount === 7,
-    `${immutableTriggers.rowCount} of 7 found`
+    immutableTriggers.rowCount === 8,
+    `${immutableTriggers.rowCount} of 8 found`
   );
 
   const publicColumns = await client.query(
@@ -299,6 +401,8 @@ async function main() {
       "file_uploads",
       "privacy_requests",
       "email_delivery_events",
+      "dzalekapay_reconciliations",
+      "dzalekapay_webhook_events",
     ]) {
       const res = await fetch(`${apiUrl}/rest/v1/${table}?select=*`, {
         headers,

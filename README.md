@@ -69,6 +69,11 @@ Production and staging fail at startup when required configuration is missing.
 | `RESEND_WEBHOOK_SECRET`                | Server        | Signature verification for Resend events                     |
 | `EMAIL_FROM` / `EMAIL_REPLY_TO`        | Server        | Verified sender and monitored reply address                  |
 | `NOTIFICATION_WORKER_SECRET`           | Server        | Bearer token for the queue worker endpoint                   |
+| `DZALEKAPAY_RECONCILIATION_ENABLED`    | Server        | Explicit gate for read-only transaction reconciliation       |
+| `DZALEKAPAY_API_KEY`                   | Server        | Scoped `transactions:read` merchant key                      |
+| `DZALEKAPAY_WEBHOOK_SECRET`            | Server        | `whsec_` raw-body signature verification secret              |
+| `DZALEKAPAY_MERCHANT_ID`               | Server        | Store UUID bound to the key and webhook                      |
+| `DZALEKAPAY_BASE_URL`                  | Server        | Optional; defaults to `https://pay.dzaleka.com`              |
 
 ## Database setup
 
@@ -93,6 +98,11 @@ The current schema ends at:
   processing; adds idempotent charge creation.
 - `00012_email_delivery_events.sql`: concurrent-safe email queue claims and
   signed, idempotent Resend delivery events.
+- `00013_fix_staff_mfa_bootstrap.sql` and
+  `00014_grant_storage_helper_execute.sql`: staff bootstrap and storage-policy
+  permission corrections.
+- `00015_dzalekapay_reconciliation.sql`: read-only DzalekaPay transaction
+  reconciliation, signed event deduplication, RLS, and receipt transition guard.
 
 To bootstrap the first administrator after that user has signed in once:
 
@@ -114,6 +124,26 @@ node scripts/grant-admin.mjs person@example.org
 Queue rows are claimed with `FOR UPDATE SKIP LOCKED`. Resend sends use stable
 idempotency keys. Signed provider events are deduplicated before delivery state
 is changed.
+
+## DzalekaPay reconciliation setup
+
+Dzaleka Spaces does not create DzalekaPay payments. A party records the
+DzalekaPay transaction UUID after paying outside this platform. The server can
+then read the transaction and receive signed status events; a completed,
+amount-matched result is required before the internal dual-confirmation receipt
+can be issued.
+
+1. Create a store-bound key with only `transactions:read` in DzalekaPay.
+2. Register `https://spaces.dzaleka.com/api/webhooks/dzalekapay` for
+   `transaction.created` and `transaction.updated`.
+3. Store the key, one-time `whsec_` secret and store UUID in server-only
+   environment variables.
+4. Set `DZALEKAPAY_RECONCILIATION_ENABLED=true` only after a signed staging
+   event, duplicate replay, amount mismatch and completed transaction pass.
+5. Keep `payment_processing`, `mobile_money_processing`,
+   `mobile_money_integrations`, `deposit_processing` and `deposit_custody` off.
+
+See [the DzalekaPay runbook](docs/operations/dzalekapay-runbook.md).
 
 ## Quality gates
 

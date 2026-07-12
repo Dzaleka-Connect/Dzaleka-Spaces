@@ -8,6 +8,8 @@
 | Supabase Postgres operator connection | `scripts/db-apply.mjs`, `scripts/test-rls.mjs` | `DIRECT_URL`                        | TLS, transaction, advisory lock, checksum ledger, rollback tests |
 | Resend send API                       | `src/lib/email/resend.ts`                      | API key, sender, reply address      | Stable idempotency key; structured disabled/error result         |
 | Resend delivery webhook               | `/api/webhooks/resend`                         | API key and webhook signing secret  | Raw-body Svix verification; service-only idempotent RPC          |
+| DzalekaPay transaction reads          | `src/lib/dzalekapay/*`                         | Store-bound `transactions:read` key | Server-only, 10s timeout, minimal DTO, no automatic POST retry   |
+| DzalekaPay transaction webhook        | `/api/webhooks/dzalekapay`                     | Store UUID and `whsec_` secret      | Raw-body HMAC, five-minute window, delivery dedupe, amount guard |
 | Render                                | Production Next.js runtime                     | Hosting environment                 | `APP_ENV=production` fail-fast validation                        |
 | Cloudflare                            | DNS, TLS and edge transport                    | Operator-managed                    | HTTPS, HSTS and origin/header verification                       |
 
@@ -18,13 +20,15 @@ provider.
 ## Disabled by pilot policy
 
 - SMS, WhatsApp and web push notification delivery.
-- DzalekaPay, Airtel Money and TNM Mpamba initiation or transaction
-  verification.
+- DzalekaPay, Airtel Money and TNM Mpamba payment initiation.
+- Airtel Money and TNM Mpamba transaction verification.
 - Deposit/rent custody or escrow.
 
-Payment adapters in `src/lib/adapters/payment-adapters.ts` always return
-disabled/failed. Enabling these integrations requires a new migration and
-operational/privacy/security approval; the admin UI cannot turn them on.
+All initiation adapters return disabled/failed. DzalekaPay alone supports
+server-side read reconciliation for a UUID recorded after an external payment.
+It cannot mutate internal confirmation state; database transition guards require
+a `completed`, amount-matched provider result before dual confirmation can issue
+a receipt. See `docs/operations/dzalekapay-runbook.md`.
 
 ## Deployment services
 

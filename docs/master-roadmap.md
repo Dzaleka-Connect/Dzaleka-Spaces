@@ -5,7 +5,7 @@ non-residential, non-custodial, email-only pilot implementation is represented
 in the current codebase; `docs/roadmap.md` tracks release gates and deliberately
 disabled scope, while `docs/route-matrix.md` maps every required route.
 
-Implementation status as of 10 July 2026:
+Implementation status as of 13 July 2026:
 
 - Required route surface: implemented through explicit pages or allowlisted
   role-gated portal route handlers.
@@ -511,7 +511,9 @@ The following integrations are deliberately disabled or replaced with a local
 privacy-preserving implementation during the pilot:
 
 - SMS, WhatsApp and web push delivery.
-- DzalekaPay, Airtel Money and TNM Mpamba payment initiation/verification.
+- DzalekaPay, Airtel Money and TNM Mpamba payment initiation, plus Airtel/TNM
+  verification. DzalekaPay read-only reconciliation and signed webhooks are
+  implemented without enabling processing.
 - Third-party map tiles and geocoding; public discovery uses curated zones and
   landmarks.
 

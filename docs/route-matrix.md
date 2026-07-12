@@ -1,6 +1,6 @@
 # Route Matrix
 
-Updated: 10 July 2026
+Updated: 13 July 2026
 
 All master-prompt routes are handled by an explicit page or an allowlisted
 portal catch-all. Unknown catch-all paths call `notFound()`; they never render a
@@ -117,6 +117,7 @@ forms. Sensitive evidence is not exposed by the generic renderer.
 | --------------------------------- | --------------------------------------------------------------------------------------------- |
 | `/api/jobs/process-notifications` | 32+ character bearer secret; atomic DB claims                                                 |
 | `/api/webhooks/resend`            | Raw-body Svix signature verification and idempotent event RPC                                 |
+| `/api/webhooks/dzalekapay`        | Raw-body HMAC, timestamp window, merchant match and idempotent event RPC                      |
 | `/api/verifier/sync`              | Authenticated assigned verifier, MFA, expiry/idempotency checks, media re-encoding/quarantine |
 | `/api/enquiry-attachments/[id]`   | Enquiry participant RLS and signed private download                                           |
 | `/api/maintenance-documents/[id]` | Ticket participant RLS and signed private download                                            |

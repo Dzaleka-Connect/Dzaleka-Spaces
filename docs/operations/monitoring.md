@@ -7,6 +7,9 @@
 - **Errors** — server action / route handler error rate; client console errors.
 - **Notifications** — ready/processing age, failed queue rows, delivery state,
   webhook 4xx/5xx and bounce/complaint rate.
+- **DzalekaPay:** transaction-read latency/401/403/429/5xx, webhook invalid
+  signature and 5xx, unmatched event count, pending age, amount mismatch and
+  refunded-after-confirmation count. Never include phone numbers or payloads.
 - **Cron** — expiry, re-verification, notification drain and log-pruning jobs
   ran on schedule.
 - **Database** — connection pool saturation, slow queries, RLS-denied spikes

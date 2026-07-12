@@ -21,8 +21,8 @@ data. Authenticated write and staff workflows require Supabase.
 Migrations live in `supabase/migrations/*.sql`, applied in order:
 
 ```bash
-node scripts/db-apply.mjs supabase/migrations/00012_email_delivery_events.sql --check
-node scripts/db-apply.mjs supabase/migrations/00012_email_delivery_events.sql
+node scripts/db-apply.mjs supabase/migrations/00015_dzalekapay_reconciliation.sql --check
+node scripts/db-apply.mjs supabase/migrations/00015_dzalekapay_reconciliation.sql
 ```
 
 `db-apply.mjs` uses `DIRECT_URL` from `.env.local`, takes an advisory lock,

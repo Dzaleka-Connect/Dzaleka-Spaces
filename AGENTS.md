@@ -19,6 +19,8 @@ ecosystem (DzalekaPay, Visit Dzaleka, Dzaleka Online Services).
   never ownership. Refugees cannot legally own land/property in Malawi.
 - **No fund custody during the pilot.** Payments are _recorded_ (ledger),
   never held. `deposit_processing` / `mobile_money_processing` flags stay off.
+  DzalekaPay integration is transaction-read reconciliation plus signed
+  webhooks only; it never initiates a payment and never auto-confirms a receipt.
 - **Email delivery only during the pilot.** Resend email and in-app records are
   supported. SMS, WhatsApp and web push delivery flags stay off.
 - **Residential listings are gated.** `room`, `shared_room`,

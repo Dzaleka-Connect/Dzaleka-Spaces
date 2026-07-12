@@ -56,6 +56,59 @@ export class TnmMpambaAdapter extends DisabledPilotPaymentAdapter {
   name = "TNM Mpamba";
 }
 
-export class DzalekaPayAdapter extends DisabledPilotPaymentAdapter {
+export class DzalekaPayAdapter implements PaymentAdapter {
   name = "DzalekaPay";
+
+  async isEnabled(): Promise<boolean> {
+    // Processing remains locked off. Only server-side transaction reads are supported.
+    return false;
+  }
+
+  async initiatePayment(
+    amountMwk: number,
+    phoneNumber: string,
+    narration: string
+  ): Promise<PaymentAdapterResult> {
+    void amountMwk;
+    void phoneNumber;
+    void narration;
+    return {
+      ok: false,
+      message:
+        "DzalekaPay initiation is unavailable during the non-custodial pilot. Record an externally completed transaction instead.",
+      transactionStatus: "failed",
+    };
+  }
+
+  async verifyTransaction(referenceId: string): Promise<PaymentAdapterResult> {
+    try {
+      const { dzalekaPayReconciliationEnabled, getDzalekaPayTransaction } =
+        await import("@/lib/dzalekapay/server");
+      if (!dzalekaPayReconciliationEnabled()) {
+        return {
+          ok: false,
+          message: "DzalekaPay reconciliation is not enabled.",
+          transactionStatus: "failed",
+        };
+      }
+      const transaction = await getDzalekaPayTransaction(referenceId);
+      return {
+        ok: transaction.status === "completed",
+        message: `DzalekaPay reports this transaction as ${transaction.status}.`,
+        referenceId: transaction.id,
+        transactionStatus:
+          transaction.status === "completed"
+            ? "success"
+            : transaction.status === "pending"
+              ? "pending"
+              : "failed",
+      };
+    } catch {
+      return {
+        ok: false,
+        message: "DzalekaPay could not verify this transaction right now.",
+        transactionStatus: "failed",
+      };
+    }
+  }
 }

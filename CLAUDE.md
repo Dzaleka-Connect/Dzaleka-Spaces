@@ -10,7 +10,9 @@ database conventions change.
   claims. Use "space provider" and "authority to offer", never landlord/title
   language.
 - The pilot records payments only. Do not enable fund custody, deposit
-  processing or mobile-money processing.
+  processing or mobile-money processing. DzalekaPay may verify an external
+  transaction through server-only reads and signed webhooks, but must not
+  initiate it or bypass dual confirmation.
 - Notifications are Resend email plus in-app records only. Do not enable SMS,
   WhatsApp or web push delivery.
 - Residential categories are present in the database enum but publication is

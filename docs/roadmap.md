@@ -1,6 +1,6 @@
 # Release Roadmap
 
-Updated: 10 July 2026
+Updated: 13 July 2026
 
 This is the release-control roadmap. The original feature inventory remains in
 `docs/master-roadmap.md`; route-level ownership is in `docs/route-matrix.md`.
@@ -49,23 +49,25 @@ These are operational gates, not unimplemented application pages:
    32+ character worker secret in the hosting environment.
 3. Register `https://spaces.dzaleka.com/api/webhooks/resend`, select delivery
    and failure events, and verify a signed staging event reaches the database.
-4. Schedule notification draining and database housekeeping with monitored
+4. Configure the store-bound DzalekaPay `transactions:read` key, store UUID and
+   signed webhook; test completed, pending, mismatch, replay and stale events.
+5. Schedule notification draining and database housekeeping with monitored
    failure alerts.
-5. Require every moderator, administrator, finance user, and field verifier to
+6. Require every moderator, administrator, finance user, and field verifier to
    enrol TOTP before operational access.
-6. Complete a database and storage restore drill and record measured RPO/RTO.
-7. Run a supervised end-to-end pilot rehearsal with provider, verifier,
+7. Complete a database and storage restore drill and record measured RPO/RTO.
+8. Run a supervised end-to-end pilot rehearsal with provider, verifier,
    moderator, seeker/occupant, and service-provider accounts.
-8. Complete DPIA, safeguarding, retention, terms, privacy, and operational
+9. Complete DPIA, safeguarding, retention, terms, privacy, and operational
    sign-off by the named responsible people.
 
 ## Deliberately disabled
 
 - Residential and family accommodation publication, pending written guidance
   and a separately reviewed database migration.
-- Platform fund custody, deposit processing, mobile-money initiation, and
-  automated payment verification. The release records external transactions
-  only.
+- Platform fund custody, deposit processing, and mobile-money initiation. The
+  release records external transactions; DzalekaPay status reconciliation is
+  read-only and never replaces party confirmation.
 - SMS, WhatsApp, and web push notification delivery. Email and in-app records
   are the only enabled channels.
 - Land/shelter sales, ownership certificates, title claims, credit checks,

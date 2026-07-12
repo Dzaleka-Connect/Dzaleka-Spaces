@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { PaymentRecordDocument } from "@/components/payment-record-document";
+import { DzalekaPayReconciliationPanel } from "@/components/dzalekapay-reconciliation-panel";
 import { getSessionUser } from "@/lib/auth";
+import { dzalekaPayReconciliationConfigured } from "@/lib/dzalekapay/server";
 import { getPaymentForUser } from "@/lib/payments";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { ReceiptHeader } from "./receipt-header";
@@ -24,6 +26,13 @@ export default async function AccountPaymentDetailPage({
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-8">
       <ReceiptHeader />
       <PaymentRecordDocument payment={payment} />
+      {payment.method === "dzalekapay" ? (
+        <DzalekaPayReconciliationPanel
+          paymentId={payment.id}
+          reconciliation={payment.dzalekaPayReconciliation ?? null}
+          enabled={dzalekaPayReconciliationConfigured()}
+        />
+      ) : null}
     </div>
   );
 }

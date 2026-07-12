@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { isSupabaseConfigured } from "./supabase/config";
 import { createClient } from "./supabase/server";
+import type { DzalekaPayReconciliation } from "./dzalekapay/contract";
 
 export type PaymentMethod =
   | "cash"
@@ -55,6 +56,7 @@ export interface PaymentRecord {
   receiptVerificationCode?: string | null;
   receiptIssuedAt?: string | null;
   disputeReason?: string | null;
+  dzalekaPayReconciliation?: DzalekaPayReconciliation | null;
   spaceTitle?: string;
   spaceZone?: string;
 }
@@ -78,6 +80,10 @@ export interface LedgerBalance {
 function mapPayment(p: any): PaymentRecord {
   const receiptValue = p.payment_receipts;
   const receipt = Array.isArray(receiptValue) ? receiptValue[0] : receiptValue;
+  const reconciliationValue = p.dzalekapay_reconciliations;
+  const reconciliation = Array.isArray(reconciliationValue)
+    ? reconciliationValue[0]
+    : reconciliationValue;
 
   return {
     id: p.id,
@@ -97,6 +103,19 @@ function mapPayment(p: any): PaymentRecord {
     receiptVerificationCode: receipt?.verification_code ?? null,
     receiptIssuedAt: receipt?.issued_at ?? null,
     disputeReason: p.dispute_reason ?? null,
+    dzalekaPayReconciliation: reconciliation
+      ? {
+          transactionId: reconciliation.transaction_id,
+          merchantId: reconciliation.merchant_id,
+          providerStatus: reconciliation.provider_status,
+          reconciliationStatus: reconciliation.reconciliation_status,
+          amountMwk: reconciliation.amount_mwk,
+          reference: reconciliation.reference,
+          providerUpdatedAt: reconciliation.provider_updated_at,
+          lastVerifiedAt: reconciliation.last_verified_at,
+          source: reconciliation.source,
+        }
+      : null,
   };
 }
 
@@ -325,7 +344,9 @@ export async function listPaymentsForOccupancy(occupancyId: string): Promise<Pay
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("payment_records")
-    .select("*, payment_receipts(receipt_number, verification_code, issued_at)")
+    .select(
+      "*, payment_receipts(receipt_number, verification_code, issued_at), dzalekapay_reconciliations(transaction_id, merchant_id, provider_status, reconciliation_status, amount_mwk, reference, provider_updated_at, last_verified_at, source)"
+    )
     .eq("occupancy_id", occupancyId)
     .order("payment_date", { ascending: false });
 
@@ -445,7 +466,7 @@ export async function listAllPaymentsForProvider(providerId: string): Promise<Pa
   const { data, error } = await supabase
     .from("payment_records")
     .select(
-      "*, payment_receipts(receipt_number, verification_code, issued_at), occupancies!inner(provider_id, spaces(category, landmark, zones(name)))"
+      "*, payment_receipts(receipt_number, verification_code, issued_at), dzalekapay_reconciliations(transaction_id, merchant_id, provider_status, reconciliation_status, amount_mwk, reference, provider_updated_at, last_verified_at, source), occupancies!inner(provider_id, spaces(category, landmark, zones(name)))"
     )
     .eq("occupancies.provider_id", providerId)
     .order("payment_date", { ascending: false });
@@ -518,7 +539,7 @@ export async function listAllPaymentsForOccupant(occupantId: string): Promise<Pa
   const { data, error } = await supabase
     .from("payment_records")
     .select(
-      "*, payment_receipts(receipt_number, verification_code, issued_at), occupancies!inner(spaces(category, landmark, zones(name)))"
+      "*, payment_receipts(receipt_number, verification_code, issued_at), dzalekapay_reconciliations(transaction_id, merchant_id, provider_status, reconciliation_status, amount_mwk, reference, provider_updated_at, last_verified_at, source), occupancies!inner(spaces(category, landmark, zones(name)))"
     )
     .in("occupancy_id", ids)
     .order("payment_date", { ascending: false });
@@ -545,7 +566,7 @@ export async function getPaymentForUser(
   const { data, error } = await supabase
     .from("payment_records")
     .select(
-      "*, payment_receipts(receipt_number, verification_code, issued_at), occupancies!inner(provider_id, spaces(category, landmark, zones(name)), occupancy_parties(user_id))"
+      "*, payment_receipts(receipt_number, verification_code, issued_at), dzalekapay_reconciliations(transaction_id, merchant_id, provider_status, reconciliation_status, amount_mwk, reference, provider_updated_at, last_verified_at, source), occupancies!inner(provider_id, spaces(category, landmark, zones(name)), occupancy_parties(user_id))"
     )
     .eq("id", paymentId)
     .maybeSingle();

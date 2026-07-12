@@ -90,12 +90,20 @@ external payments; they never represent a platform wallet or escrow.
 | `payment_receipts`                  | Receipt number/code issued after both parties confirm | Internal RPC only; immutable                               |
 | `payment_disputes`                  | Dispute reason and resolution state                   | Participant/staff RPCs; history retained                   |
 | `payment_adjustments`               | Additive correction rather than rewriting history     | Finance/admin RPC only; immutable                          |
+| `dzalekapay_reconciliations`        | Latest minimal provider status and amount match       | Payment parties read; service-only RPC write               |
+| `dzalekapay_webhook_events`         | Signed delivery dedupe without raw payload/phone      | Service only; append-only                                  |
 | `provider_expenses`                 | Provider-private operating notes                      | Provider/team permission scope                             |
 
 Critical RPCs include `ledger_create_charge`, `ledger_record_payment`,
 `ledger_confirm_payment`, `ledger_dispute_payment`, `ledger_reject_payment`,
 `ledger_void_charge`, and `ledger_create_adjustment`. Direct payment mutation is
 revoked. Idempotency keys prevent retry duplicates.
+
+DzalekaPay reconciliation stores transaction/store UUIDs, provider status,
+amount, masked/reference value and timestamps only. It does not store the payer
+phone or upstream payload. `dzalekapay_receipt_verification_guard` blocks the
+transition to `confirmed` unless provider status is `completed`, the amount
+matches and the local transaction UUID is the reconciled UUID.
 
 ## Maintenance marketplace
 

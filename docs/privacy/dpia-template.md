@@ -1,7 +1,7 @@
 # Data Protection Impact Assessment
 
 Baseline assessment for the non-residential, non-custodial, email-only pilot.
-Assessment date: 10 July 2026. Named organisational approvals must be completed
+Assessment date: 13 July 2026. Named organisational approvals must be completed
 before pilot sign-off.
 
 ## Processing and purpose
@@ -17,16 +17,16 @@ biometrics or platform-held funds.
 
 ## Data inventory
 
-| Category           | Examples                                                                                   | Purpose                                            | Public?                                                           |
-| ------------------ | ------------------------------------------------------------------------------------------ | -------------------------------------------------- | ----------------------------------------------------------------- |
-| Account            | Email, name, optional phone/messaging contact, language, roles, status                     | Authentication, contact and access control         | Provider display name only when associated with published content |
-| Public space       | Category, zone, landmark, description, facilities, amount, availability, approved media    | Discovery/comparison                               | Yes after moderation/publication                                  |
-| Restricted space   | Exact point/directions, authority basis/notes, field evidence                              | Verification and safe operational access           | No                                                                |
-| Interaction        | Saves/searches, enquiry messages/attachments, viewing state/check-ins                      | User workflow and safety                           | No                                                                |
-| Occupancy/finance  | Parties, terms, charges, external references, confirmations, receipts/disputes             | Document direct arrangements                       | No                                                                |
-| Maintenance        | Problem description, quote, messages, work evidence/review                                 | Repair workflow                                    | Active public provider profile/review only where approved         |
-| Administration     | Reports, cases, role/flag/settings changes, audit events                                   | Safety, fraud, governance and accountability       | No                                                                |
-| Delivery/technical | Recipient email, queue/delivery IDs, provider events, IP/request logs at hosting providers | Transactional notification and security operations | No                                                                |
+| Category           | Examples                                                                                                         | Purpose                                                            | Public?                                                           |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | ----------------------------------------------------------------- |
+| Account            | Email, name, optional phone/messaging contact, language, roles, status                                           | Authentication, contact and access control                         | Provider display name only when associated with published content |
+| Public space       | Category, zone, landmark, description, facilities, amount, availability, approved media                          | Discovery/comparison                                               | Yes after moderation/publication                                  |
+| Restricted space   | Exact point/directions, authority basis/notes, field evidence                                                    | Verification and safe operational access                           | No                                                                |
+| Interaction        | Saves/searches, enquiry messages/attachments, viewing state/check-ins                                            | User workflow and safety                                           | No                                                                |
+| Occupancy/finance  | Parties, terms, charges, external references, confirmations, receipts/disputes, minimal DzalekaPay status/amount | Document direct arrangements and reconcile an external transaction | No                                                                |
+| Maintenance        | Problem description, quote, messages, work evidence/review                                                       | Repair workflow                                                    | Active public provider profile/review only where approved         |
+| Administration     | Reports, cases, role/flag/settings changes, audit events                                                         | Safety, fraud, governance and accountability                       | No                                                                |
+| Delivery/technical | Recipient email, queue/delivery IDs, provider events, IP/request logs at hosting providers                       | Transactional notification and security operations                 | No                                                                |
 
 ## Data flows and processors
 
@@ -38,7 +38,10 @@ biometrics or platform-held funds.
    storage and assigned verification records.
 5. Next.js sends template-rendered transactional email to Resend. Signed
    delivery events return to the canonical webhook.
-6. Render and Cloudflare process operational HTTP/log data according to their
+6. When enabled, Next.js sends a DzalekaPay transaction UUID through a scoped
+   server key and receives signed transaction events. Only merchant/status/
+   amount/reference/timestamps are retained; phone/provider payload is discarded.
+7. Render and Cloudflare process operational HTTP/log data according to their
    configured service roles.
 
 See `docs/privacy/data-flow-map.md` for the diagram and
@@ -51,7 +54,8 @@ See `docs/privacy/data-flow-map.md` for the diagram and
   but are withheld from providers/public after submission except through a
   controlled operational process.
 - Payment records are necessary for shared confirmation/receipt history; the
-  platform does not initiate or hold the money.
+  platform does not initiate or hold the money. DzalekaPay reads reduce false
+  receipt risk without replacing confirmation by either party.
 - Verifier photo/coordinate/voice evidence is restricted to assigned work and
   supervisor review, then retained under policy rather than reused publicly.
 - First-party analytics avoids sending private behavioural/location data to a
@@ -77,6 +81,8 @@ corrections.
   sync.
 - Append-only audit/finance/receipt history and checksummed migrations.
 - Resend send/webhook idempotency and verified signatures.
+- DzalekaPay least-scope read key, raw-body HMAC, merchant/amount match,
+  delivery dedupe, no raw payload persistence and receipt transition guard.
 - Protected flags prevent residential/payment/delivery expansion in-app.
 
 ## Risk assessment
@@ -89,6 +95,8 @@ corrections.
 | Staff misuse                               | High        | MFA, least privilege, restricted cases, append-only audit, access review                 | Medium                           |
 | Shared/lost verifier device                | High        | Encryption, TOTP inactivity lock, managed-device procedure, delete after sync            | Medium                           |
 | False payment/receipt record               | High        | Dual confirmation, idempotency, immutable receipt, disputes/adjustments                  | Low/medium                       |
+| Forged or mismatched DzalekaPay status     | High        | HMAC/timestamp, merchant/UUID/amount checks, dedupe, service-only RPC, DB receipt guard  | Low/medium                       |
+| DzalekaPay transaction data overcollection | Medium      | Minimal DTO/event schema; payer phone/raw payload discarded; restricted RLS              | Low                              |
 | Notification reveals sensitive context     | Medium      | Email/in-app only, generic text, preferences, signed app access                          | Low                              |
 | Malicious attachment                       | High        | Type/size checks, re-encode, quarantine and scanner requirement                          | Medium until scanned             |
 | Re-identification from zone/landmark/media | Medium/high | Data minimisation, landmark/photo review, reporting/removal                              | Medium                           |

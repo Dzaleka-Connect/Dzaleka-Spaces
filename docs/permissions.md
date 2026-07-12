@@ -43,7 +43,7 @@ management remains administrator-only.
 | Enquiries/messages/attachments                              | None except enquiry creation | Own thread                                | Related listing thread                     | None                        | Case-authorised access                                        |
 | Viewing record                                              | None                         | Participant                               | Participant                                | None                        | Authorised oversight                                          |
 | Released viewing directions                                 | None                         | Confirmed participant through audited RPC | Confirmed participant through audited RPC  | None                        | Audited access                                                |
-| Occupancy/charges/payments/receipts                         | None                         | Occupancy party                           | Provider or delegated finance permission   | None                        | Scoped oversight; adjustment by authorised role               |
+| Occupancy/charges/payments/receipts/reconciliation          | None                         | Occupancy party                           | Provider or delegated finance permission   | None                        | Scoped oversight; adjustment by authorised role               |
 | Maintenance private records/files                           | None                         | Requester/party                           | Related space/party                        | None                        | Authorised oversight                                          |
 | Notification queue/deliveries                               | None                         | Own recipient rows                        | Own recipient rows                         | Own recipient rows          | Operational oversight with MFA                                |
 | Cases/audit/system settings/email events                    | None                         | None                                      | None                                       | Assigned/relevant case only | Staff scope; audit/settings/admin operations narrowed by role |
@@ -78,6 +78,10 @@ verified provider webhooks. Service-only RPCs:
   `SKIP LOCKED`.
 - `record_resend_delivery_event(...)` records an already signature-verified
   provider event and updates delivery state idempotently.
+- `record_dzalekapay_reconciliation(...)` stores a minimal server-read result
+  without altering the internal payment state.
+- `record_dzalekapay_webhook_event(...)` deduplicates a verified delivery and
+  updates only the matching reconciliation row.
 
 Neither function is executable by anonymous or authenticated application
 roles.

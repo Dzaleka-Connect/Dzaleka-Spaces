@@ -26,11 +26,18 @@ RESEND_WEBHOOK_SECRET=
 EMAIL_FROM=
 EMAIL_REPLY_TO=
 NOTIFICATION_WORKER_SECRET=
+DZALEKAPAY_RECONCILIATION_ENABLED=false
+DZALEKAPAY_API_KEY=
+DZALEKAPAY_WEBHOOK_SECRET=
+DZALEKAPAY_MERCHANT_ID=
+# DZALEKAPAY_BASE_URL=https://pay.dzaleka.com
 ```
 
 `DIRECT_URL` belongs in the controlled migration/test environment, not browser
 runtime. `validateRuntimeEnvironment()` stops production startup when required
 values are absent or the worker secret is shorter than 32 characters.
+DzalekaPay variables may be omitted while reconciliation is disabled; once the
+gate is `true`, the API key, webhook secret and merchant UUID are mandatory.
 
 ## Database release
 
@@ -38,13 +45,13 @@ values are absent or the worker secret is shorter than 32 characters.
 2. Validate each unapplied migration:
 
    ```bash
-   node scripts/db-apply.mjs supabase/migrations/00012_email_delivery_events.sql --check
+   node scripts/db-apply.mjs supabase/migrations/00015_dzalekapay_reconciliation.sql --check
    ```
 
 3. Apply each migration in numeric order:
 
    ```bash
-   node scripts/db-apply.mjs supabase/migrations/00012_email_delivery_events.sql
+   node scripts/db-apply.mjs supabase/migrations/00015_dzalekapay_reconciliation.sql
    ```
 
 4. Confirm `app_schema_migrations` has the expected version/checksum.
@@ -76,6 +83,23 @@ values are absent or the worker secret is shorter than 32 characters.
 6. Verify queue claim, send, webhook update, replay deduplication and failed
    delivery appearance in `/admin/notifications/failures`.
 
+## DzalekaPay reconciliation
+
+1. Create a store-bound API key with `transactions:read` only. Do not grant
+   `payments:write`.
+2. Register `https://spaces.dzaleka.com/api/webhooks/dzalekapay` for
+   `transaction.created` and `transaction.updated` and store the one-time
+   `whsec_` secret.
+3. Configure the key, store UUID and secret while
+   `DZALEKAPAY_RECONCILIATION_ENABLED=false`; deploy and verify startup.
+4. Enable reconciliation and test a low-value external transaction: pending,
+   completed, amount mismatch, duplicate delivery, stale signature and invalid
+   merchant. No test may create a payment from Dzaleka Spaces.
+5. Confirm the provider phone and raw payload are absent from application logs
+   and `dzalekapay_*` tables.
+6. Confirm DzalekaPay `completed` does not issue a receipt by itself; both
+   occupancy parties must still confirm the local payment record.
+
 ## Post-release smoke
 
 Use the ten-step smoke test in `docs/production-readiness.md`. At minimum:
@@ -84,6 +108,8 @@ Use the ten-step smoke test in `docs/production-readiness.md`. At minimum:
 - a complete non-residential listing can be assigned, verified and published;
 - exact location/evidence remains anonymous-inaccessible;
 - dual confirmation is required before a receipt exists;
+- DzalekaPay records require completed, amount-matched reconciliation before
+  dual confirmation can issue a receipt;
 - maintenance participant files remain private;
 - email worker and signed webhook complete without duplicates.
 

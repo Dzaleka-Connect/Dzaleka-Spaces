@@ -48,7 +48,8 @@ Never test by overwriting production.
 6. Run format/lint/typecheck/content/unit/build/browser/RLS gates.
 7. Test public listing images; anonymous denial for exact/private data; enquiry
    and maintenance signed downloads; verifier evidence/quarantine; occupancy,
-   payment and receipt history; audit continuity; email queue/event replay.
+   payment and receipt history; DzalekaPay reconciliation/event dedupe and
+   receipt guard; audit continuity; email queue/event replay.
 8. Compare expected table/object counts and representative checksums.
 9. Record start/end time, data-loss window, failures, remediation owner and
    whether measured RPO/RTO met policy.
@@ -66,7 +67,8 @@ Never test by overwriting production.
 6. Rotate potentially exposed keys and invalidate sessions where required.
 7. Run the release smoke and RLS suites before restoring traffic to
    `https://spaces.dzaleka.com`.
-8. Monitor closely, reconcile queue/webhook idempotency and communicate impact.
+8. Monitor closely, reconcile email/DzalekaPay webhook idempotency and
+   communicate impact.
 
 ## Destructive operation rule
 

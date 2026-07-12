@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { ReceiptText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -36,6 +37,7 @@ export function PaymentEntryFields({
   audience: "occupant" | "provider";
   pending: boolean;
 }) {
+  const [method, setMethod] = useState<string | null>(null);
   const occupancyItems = occupancies.map((occupancy) => {
     const occupant = occupancy.parties.find((party) => party.role === "occupant");
     const space = `${categoryLabel(occupancy.spaceCategory)} (${occupancy.spaceZone})`;
@@ -90,7 +92,14 @@ export function PaymentEntryFields({
 
       <Field>
         <FieldLabel htmlFor="payment-method">Method used outside the platform</FieldLabel>
-        <Select name="method" items={PAYMENT_METHOD_ITEMS} required disabled={pending}>
+        <Select
+          name="method"
+          items={PAYMENT_METHOD_ITEMS}
+          value={method}
+          onValueChange={setMethod}
+          required
+          disabled={pending}
+        >
           <SelectTrigger id="payment-method">
             <SelectValue placeholder="Choose a method" />
           </SelectTrigger>
@@ -111,14 +120,26 @@ export function PaymentEntryFields({
       </Field>
 
       <Field>
-        <FieldLabel htmlFor="payment-reference">External reference</FieldLabel>
+        <FieldLabel htmlFor="payment-reference">
+          {method === "dzalekapay" ? "DzalekaPay transaction ID" : "External reference"}
+        </FieldLabel>
         <Input
           id="payment-reference"
           name="externalReference"
-          maxLength={200}
-          placeholder="Optional transaction or cash receipt reference"
+          maxLength={100}
+          required={method === "dzalekapay"}
+          placeholder={
+            method === "dzalekapay"
+              ? "Transaction UUID from DzalekaPay"
+              : "Optional transaction or cash receipt reference"
+          }
           disabled={pending}
         />
+        {method === "dzalekapay" ? (
+          <FieldDescription>
+            Use the transaction UUID. Do not enter the DZALEKA receipt reference or a phone number.
+          </FieldDescription>
+        ) : null}
       </Field>
 
       <Field>

@@ -5,21 +5,23 @@ only as long as needed, delete on request where no obligation requires keeping.
 
 ## Schedule (pilot defaults — confirm in formal review)
 
-| Record                       | Retention                                                |
-| ---------------------------- | -------------------------------------------------------- |
-| Public listing media         | Until listing removal + limited archive                  |
-| Rejected listing evidence    | 12 months                                                |
-| Identity documents           | Not stored by default; delete after any verification use |
-| Verification decisions       | While the space remains active                           |
-| Enquiries and messages       | 24 months                                                |
-| Viewings                     | 24 months                                                |
-| Occupancy records            | Arrangement period + operational retention               |
-| Payment records (when added) | Per applicable financial obligations                     |
-| Reports / cases              | By category and legal requirement                        |
-| Exact coordinates            | While necessary for active verification                  |
-| Notification delivery logs   | 90–180 days                                              |
-| Analytics events             | Aggregated; raw events pruned on a rolling window        |
-| Audit events                 | Longer, restricted retention                             |
+| Record                       | Retention                                                 |
+| ---------------------------- | --------------------------------------------------------- |
+| Public listing media         | Until listing removal + limited archive                   |
+| Rejected listing evidence    | 12 months                                                 |
+| Identity documents           | Not stored by default; delete after any verification use  |
+| Verification decisions       | While the space remains active                            |
+| Enquiries and messages       | 24 months                                                 |
+| Viewings                     | 24 months                                                 |
+| Occupancy records            | Arrangement period + operational retention                |
+| Payment records (when added) | Per applicable financial obligations                      |
+| DzalekaPay webhook events    | 180 days unless dispute/security evidence requires longer |
+| DzalekaPay reconciliation    | With the associated payment record                        |
+| Reports / cases              | By category and legal requirement                         |
+| Exact coordinates            | While necessary for active verification                   |
+| Notification delivery logs   | 90–180 days                                               |
+| Analytics events             | Aggregated; raw events pruned on a rolling window         |
+| Audit events                 | Longer, restricted retention                              |
 
 ## Subject rights
 

@@ -79,14 +79,18 @@ requested -> proposed/accepted -> confirmed -> completed/cancelled/no-show
 1. Provider creates an idempotent charge through `ledger_create_charge()`.
 2. Either party records an externally completed payment through
    `ledger_record_payment()` using a stable form idempotency key.
-3. The recording party is marked confirmed; the other party reviews and
-   confirms or disputes.
-4. On dual confirmation, the database applies FIFO allocations and creates one
+3. For DzalekaPay, the external reference must be the transaction UUID. A
+   server-only `transactions:read` call checks merchant, status and amount; the
+   signed webhook keeps that separate reconciliation state current.
+4. The recording party is marked confirmed; the other party reviews and
+   confirms or disputes. A DzalekaPay record cannot reach final confirmation
+   unless the provider status is `completed` and the MWK amount matches.
+5. On dual confirmation, the database applies FIFO allocations and creates one
    immutable receipt number and verification code.
-5. Rejection, dispute, void and adjustment use dedicated RPCs. Confirmed
+6. Rejection, dispute, void and adjustment use dedicated RPCs. Confirmed
    amounts, allocations, receipts, and audit history are never rewritten.
-6. Mobile-money/DzalekaPay values are references only. Adapters cannot initiate
-   or verify funds during the pilot.
+7. No adapter initiates payment. DzalekaPay verification does not confirm the
+   parties' agreement, allocate funds, reverse a refund or prove platform custody.
 
 ## Maintenance marketplace
 

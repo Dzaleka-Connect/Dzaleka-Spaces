@@ -1,5 +1,7 @@
 import "server-only";
 
+import { isDzalekaPayTransactionId } from "@/lib/dzalekapay/contract";
+
 export type AppEnvironment = "local" | "test" | "development" | "staging" | "production";
 
 function environment(): AppEnvironment {
@@ -23,6 +25,44 @@ function validUrl(name: string, value: string | undefined, problems: string[]) {
   }
 }
 
+function validateDzalekaPayEnvironment(problems: string[]) {
+  const enabledValue = process.env.DZALEKAPAY_RECONCILIATION_ENABLED;
+  if (enabledValue && enabledValue !== "true" && enabledValue !== "false") {
+    problems.push("DZALEKAPAY_RECONCILIATION_ENABLED must be true or false");
+  }
+  if (enabledValue !== "true") return;
+
+  if (!process.env.DZALEKAPAY_API_KEY?.startsWith("dzp_live_")) {
+    problems.push("DZALEKAPAY_API_KEY must be a server-only dzp_live_ key");
+  }
+  if (!process.env.DZALEKAPAY_WEBHOOK_SECRET?.startsWith("whsec_")) {
+    problems.push("DZALEKAPAY_WEBHOOK_SECRET must be a server-only whsec_ secret");
+  }
+  if (
+    !process.env.DZALEKAPAY_MERCHANT_ID ||
+    !isDzalekaPayTransactionId(process.env.DZALEKAPAY_MERCHANT_ID)
+  ) {
+    problems.push("DZALEKAPAY_MERCHANT_ID must be the store UUID bound to the API key");
+  }
+
+  const baseUrl = process.env.DZALEKAPAY_BASE_URL ?? "https://pay.dzaleka.com";
+  try {
+    const url = new URL(baseUrl);
+    if (
+      url.protocol !== "https:" ||
+      url.username ||
+      url.password ||
+      url.pathname !== "/" ||
+      url.search ||
+      url.hash
+    ) {
+      problems.push("DZALEKAPAY_BASE_URL must be an HTTPS origin without credentials");
+    }
+  } catch {
+    problems.push("DZALEKAPAY_BASE_URL must be a valid HTTPS origin");
+  }
+}
+
 export function validateRuntimeEnvironment() {
   const appEnvironment = environment();
   if (appEnvironment !== "production" && appEnvironment !== "staging") return { appEnvironment };
@@ -38,6 +78,7 @@ export function validateRuntimeEnvironment() {
   if (!process.env.RESEND_API_KEY) problems.push("RESEND_API_KEY is required");
   if (!process.env.RESEND_WEBHOOK_SECRET) problems.push("RESEND_WEBHOOK_SECRET is required");
   if (!process.env.EMAIL_FROM) problems.push("EMAIL_FROM is required");
+  validateDzalekaPayEnvironment(problems);
   if (problems.length)
     throw new Error(`Invalid ${appEnvironment} environment:\n- ${problems.join("\n- ")}`);
   return { appEnvironment };
