@@ -3,10 +3,19 @@ import Image from "next/image";
 import { BadgeCheck, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { categoryLabel, facilityLabel, formatMwk, listingHref, type Listing } from "@/lib/types";
+import {
+  billingPeriodUnit,
+  categoryLabel,
+  facilityLabel,
+  formatMwk,
+  listingHref,
+  stayRangeLabel,
+  type Listing,
+} from "@/lib/types";
 
 export function ListingCard({ listing }: { listing: Listing }) {
-  const period = listing.billingPeriod === "daily" ? "day" : "month";
+  const period = billingPeriodUnit(listing.billingPeriod);
+  const stayRange = stayRangeLabel(listing.minStayDays, listing.maxStayDays);
   const extraFacilities = Math.max(0, listing.facilities.length - 2);
 
   return (
@@ -67,6 +76,7 @@ export function ListingCard({ listing }: { listing: Listing }) {
         <CardFooter className="mt-auto pt-3">
           <p className="text-xs text-muted-foreground">
             {categoryLabel(listing.category)}
+            {stayRange ? ` · ${stayRange}` : ""}
             {listing.capacity ? ` · up to ${listing.capacity}` : ""}
             {listing.facilities.length > 0
               ? ` · ${listing.facilities

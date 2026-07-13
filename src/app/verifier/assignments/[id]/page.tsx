@@ -19,7 +19,7 @@ import { PhotoUpload } from "@/components/photo-upload";
 import { getSessionUser, isStaff } from "@/lib/auth";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
-import { categoryLabel, facilityLabel, formatMwk } from "@/lib/types";
+import { billingPeriodUnit, categoryLabel, facilityLabel, formatMwk } from "@/lib/types";
 import { CHECKLIST_ITEMS, RECOMMENDATIONS } from "@/lib/verification";
 import { submitChecklist } from "@/app/verifier/actions";
 
@@ -93,7 +93,7 @@ export default async function AssignmentDetailPage({
           <CardTitle>Listing details to confirm on site</CardTitle>
           <CardDescription>
             Price {formatMwk(listing.price_mwk)}/
-            {listing.billing_period === "daily" ? "day" : "month"}
+            {billingPeriodUnit(listing.billing_period)}
             {listing.deposit_mwk ? ` · Deposit ${formatMwk(listing.deposit_mwk)}` : " · No deposit"}
             {space?.rooms ? ` · ${space.rooms} room(s)` : ""}
             {space?.capacity ? ` · capacity ${space.capacity}` : ""}

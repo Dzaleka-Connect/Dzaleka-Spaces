@@ -16,7 +16,7 @@ import {
 import { canModerate, getSessionUser } from "@/lib/auth";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
-import { categoryLabel, formatMwk } from "@/lib/types";
+import { billingPeriodShort, categoryLabel, formatMwk } from "@/lib/types";
 
 export const metadata: Metadata = {
   title: "Listings",
@@ -133,7 +133,7 @@ export default async function AdminListingsPage({ searchParams }: AdminListingsP
                   {categoryLabel(space?.category)} · {space?.zones?.name}
                 </TableCell>
                 <TableCell>
-                  {formatMwk(l.price_mwk)}/{l.billing_period === "daily" ? "day" : "mo"}
+                  {formatMwk(l.price_mwk)}/{billingPeriodShort(l.billing_period)}
                 </TableCell>
                 <TableCell>
                   <Badge variant={STATUS_VARIANTS[l.status] ?? "outline"}>

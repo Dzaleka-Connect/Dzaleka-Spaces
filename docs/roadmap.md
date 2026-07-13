@@ -61,10 +61,19 @@ These are operational gates, not unimplemented application pages:
 9. Complete DPIA, safeguarding, retention, terms, privacy, and operational
    sign-off by the named responsible people.
 
+## Residential pilot enabled
+
+Residential (`room`, `shared_room`) and family accommodation publication was
+enabled by platform-owner decision on 13 July 2026 through the reviewed
+migration `00016_residential_pilot_enablement.sql`, together with the
+privacy-safe public map and short-stay support (weekly billing, min/max stay
+days). Every residential listing passes the same authority review, field
+verification and moderation as other categories; exact locations remain
+staff-only. Switching either flag off in `feature_flags` cleanly hides the
+categories again.
+
 ## Deliberately disabled
 
-- Residential and family accommodation publication, pending written guidance
-  and a separately reviewed database migration.
 - Platform fund custody, deposit processing, and mobile-money initiation. The
   release records external transactions; DzalekaPay status reconciliation is
   read-only and never replaces party confirmation.

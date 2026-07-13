@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { getSessionUser } from "@/lib/auth";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
-import { categoryLabel, facilityLabel, formatMwk } from "@/lib/types";
+import { billingPeriodUnit, categoryLabel, facilityLabel, formatMwk } from "@/lib/types";
 
 export const metadata: Metadata = {
   title: "Listing preview",
@@ -51,7 +51,7 @@ export default async function ProviderListingPreviewPage({
           </div>
           <CardTitle>
             {formatMwk(listing.price_mwk)} per{" "}
-            {listing.billing_period === "daily" ? "day" : "month"}
+            {billingPeriodUnit(listing.billing_period)}
           </CardTitle>
           <CardDescription>
             {space?.zones?.name ?? "Unknown zone"} · {space?.landmark}

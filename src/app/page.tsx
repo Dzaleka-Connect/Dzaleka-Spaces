@@ -17,7 +17,7 @@ import { ListingCard } from "@/components/listing-card";
 import { getDashboardPath, getSessionUser } from "@/lib/auth";
 import { getFeaturedListings } from "@/lib/listings";
 import { listServiceProviders } from "@/lib/trades";
-import { SPACE_CATEGORIES } from "@/lib/types";
+import { getAvailableCategories } from "@/lib/categories";
 import { getZoneSummaries } from "@/lib/zones";
 
 export default async function HomePage() {
@@ -26,10 +26,11 @@ export default async function HomePage() {
   const user = await getSessionUser();
   if (user) redirect(getDashboardPath(user));
 
-  const [featured, zones, serviceProviders] = await Promise.all([
+  const [featured, zones, serviceProviders, categories] = await Promise.all([
     getFeaturedListings(3),
     getZoneSummaries(),
     listServiceProviders(),
+    getAvailableCategories(),
   ]);
 
   return (
@@ -165,7 +166,7 @@ export default async function HomePage() {
             </p>
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-            {SPACE_CATEGORIES.slice(0, 10).map((category) => (
+            {categories.map((category) => (
               <Button
                 key={category.value}
                 variant="outline"

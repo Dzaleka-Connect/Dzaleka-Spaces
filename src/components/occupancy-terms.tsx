@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import type { OccupancyRecord } from "@/lib/occupancies";
-import { categoryLabel, formatMwk } from "@/lib/types";
+import { billingPeriodUnit, categoryLabel, formatMwk } from "@/lib/types";
 
 export function OccupancyTerms({ occupancy }: { occupancy: OccupancyRecord }) {
   const rows: [string, string][] = [
@@ -15,7 +15,7 @@ export function OccupancyTerms({ occupancy }: { occupancy: OccupancyRecord }) {
     [
       "Agreed amount",
       `${formatMwk(occupancy.agreedAmountMwk)} per ${
-        occupancy.billingPeriod === "daily" ? "day" : "month"
+        billingPeriodUnit(occupancy.billingPeriod)
       }`,
     ],
     ["Deposit", occupancy.depositAmountMwk ? formatMwk(occupancy.depositAmountMwk) : "None"],

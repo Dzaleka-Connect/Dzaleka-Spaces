@@ -11,6 +11,7 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { ListingCard } from "@/components/listing-card";
+import { categoryAvailable } from "@/lib/categories";
 import { getListings } from "@/lib/listings";
 import { SPACE_CATEGORIES } from "@/lib/types";
 
@@ -24,6 +25,11 @@ const CATEGORY_INTROS: Record<string, string> = {
   storage: "Dry, lockable storage rooms for stock and equipment.",
   homestay:
     "Visitor rooms operated through the approved homestay programme, connected with Visit Dzaleka.",
+  room: "Private rooms to rent, verified in person like every other listing. View before paying.",
+  shared_room:
+    "Shared accommodation for people happy to split a room or compound — cheaper and social.",
+  family_accommodation:
+    "Family rooms and units, including short stays for relatives visiting for a few days. Look for the stay range on each listing.",
 };
 
 function categoryFromSlug(slug: string) {
@@ -47,6 +53,8 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   const { slug } = await params;
   const category = categoryFromSlug(slug);
   if (!category) notFound();
+  // Residential categories disappear cleanly if their flag is switched off.
+  if (!(await categoryAvailable(category.value))) notFound();
 
   const listings = await getListings({ category: category.value });
 

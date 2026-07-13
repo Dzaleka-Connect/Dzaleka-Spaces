@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { BookOpen } from "lucide-react";
 import { ListSpaceForm } from "@/components/list-space-form";
+import { getAvailableCategories } from "@/lib/categories";
 import { getZones } from "@/lib/zones";
 
 export const metadata: Metadata = {
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ListASpacePage() {
-  const zones = await getZones();
+  const [zones, categories] = await Promise.all([getZones(), getAvailableCategories()]);
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-8">
       <div>
@@ -39,12 +40,12 @@ export default async function ListASpacePage() {
           <h2 className="mb-1 text-lg font-medium">What is not allowed</h2>
           <p className="text-muted-foreground">
             Land sales, shelter sales presented as ownership, listings for spaces you are not
-            authorised to offer, and discriminatory conditions. Residential room listings open later
-            under a separate pilot.
+            authorised to offer, and discriminatory conditions. Rooms, shared and family
+            accommodation are welcome — like every listing they pass an in-person check first.
           </p>
         </div>
       </div>
-      <ListSpaceForm zones={zones} />
+      <ListSpaceForm zones={zones} categories={categories} />
     </div>
   );
 }

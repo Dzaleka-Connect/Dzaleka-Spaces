@@ -15,8 +15,10 @@ database conventions change.
   initiate it or bypass dual confirmation.
 - Notifications are Resend email plus in-app records only. Do not enable SMS,
   WhatsApp or web push delivery.
-- Residential categories are present in the database enum but publication is
-  blocked until written operational guidance authorises the pilot.
+- The residential pilot is enabled (owner decision, 2026-07-13, migration
+  00016): rooms, shared rooms and family accommodation publish through the
+  same authority-review, verification and moderation pipeline as every other
+  category. Flag changes still require a new reviewed migration.
 - Public location data is approximate: zone plus landmark only. Exact
   locations and authority evidence stay in `space_internal` behind staff RLS.
 

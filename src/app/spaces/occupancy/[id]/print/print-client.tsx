@@ -32,6 +32,7 @@ const TRANSLATIONS: Record<SupportedLang, Record<string, string>> = {
     printBtn: "Print Document",
     backBtn: "Back to Details",
     daily: "day",
+    weekly: "week",
     monthly: "month",
     none: "None",
     openEnded: "Open-ended",
@@ -61,6 +62,7 @@ const TRANSLATIONS: Record<SupportedLang, Record<string, string>> = {
     printBtn: "Sindikizani Chikalatachi",
     backBtn: "Bwererani Mmbuyo",
     daily: "tsiku",
+    weekly: "sabata",
     monthly: "mwezi",
     none: "Palibe",
     openEnded: "Zosatha",
@@ -90,6 +92,7 @@ const TRANSLATIONS: Record<SupportedLang, Record<string, string>> = {
     printBtn: "Chapa Hati",
     backBtn: "Rudi kwenye Maelezo",
     daily: "siku",
+    weekly: "wiki",
     monthly: "mwezi",
     none: "Hakuna",
     openEnded: "Isiyo na mwisho",
@@ -119,6 +122,7 @@ const TRANSLATIONS: Record<SupportedLang, Record<string, string>> = {
     printBtn: "Imprimer le Document",
     backBtn: "Retour aux Détails",
     daily: "jour",
+    weekly: "semaine",
     monthly: "mois",
     none: "Aucun",
     openEnded: "Indéterminée",
@@ -148,6 +152,7 @@ const TRANSLATIONS: Record<SupportedLang, Record<string, string>> = {
     printBtn: "Sohora Iki Kete",
     backBtn: "Subira Inyuma",
     daily: "umusi",
+    weekly: "indwi",
     monthly: "ukwezi",
     none: "Nta yihari",
     openEnded: "Kidafise iherezo",
@@ -174,7 +179,7 @@ export function PrintContractClient({ occupancy }: { occupancy: OccupancyRecord 
     window.print();
   };
 
-  const rentPeriod = occupancy.billingPeriod === "daily" ? t.daily : t.monthly;
+  const rentPeriod = occupancy.billingPeriod === "daily" ? t.daily : occupancy.billingPeriod === "weekly" ? t.weekly : t.monthly;
 
   return (
     <div className="flex flex-col gap-6">

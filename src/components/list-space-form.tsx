@@ -29,10 +29,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { FACILITIES, SPACE_CATEGORIES, ZONES } from "@/lib/types";
 import { submitSpace } from "@/app/list-a-space/actions";
 
-const categoryItems = [
-  { label: "Select a category", value: null },
-  ...SPACE_CATEGORIES.map((c) => ({ label: c.label, value: c.value as string })),
-];
+type CategoryOption = { value: string; label: string };
 
 const authorityItems = [
   { label: "Select the basis of your authority", value: null },
@@ -44,10 +41,20 @@ const authorityItems = [
   { label: "Other documented relationship", value: "other_documented" },
 ];
 
-export function ListSpaceForm({ zones = [...ZONES] }: { zones?: string[] }) {
+export function ListSpaceForm({
+  zones = [...ZONES],
+  categories = SPACE_CATEGORIES.map((c) => ({ value: c.value, label: c.label })),
+}: {
+  zones?: string[];
+  categories?: CategoryOption[];
+}) {
   const zoneItems = [
     { label: "Select a zone", value: null },
     ...zones.map((z) => ({ label: z, value: z })),
+  ];
+  const categoryItems = [
+    { label: "Select a category", value: null },
+    ...categories.map((c) => ({ label: c.label, value: c.value })),
   ];
   const [isPending, startTransition] = useTransition();
   const [category, setCategory] = useState<string | null>(null);
@@ -239,10 +246,42 @@ export function ListSpaceForm({ zones = [...ZONES] }: { zones?: string[] }) {
               spacing={2}
             >
               <ToggleGroupItem value="monthly">Monthly</ToggleGroupItem>
+              <ToggleGroupItem value="weekly">Weekly</ToggleGroupItem>
               <ToggleGroupItem value="daily">Daily</ToggleGroupItem>
             </ToggleGroup>
           </Field>
         </div>
+
+        {billing !== "monthly" ? (
+          <div className="grid gap-6 sm:grid-cols-2">
+            <Field>
+              <FieldLabel htmlFor="ls-min-stay">Minimum stay (days, optional)</FieldLabel>
+              <Input
+                id="ls-min-stay"
+                name="min_stay_days"
+                type="number"
+                min={1}
+                placeholder="e.g. 2"
+                disabled={isPending}
+              />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="ls-max-stay">Maximum stay (days, optional)</FieldLabel>
+              <Input
+                id="ls-max-stay"
+                name="max_stay_days"
+                type="number"
+                min={1}
+                placeholder="e.g. 14"
+                disabled={isPending}
+              />
+              <FieldDescription>
+                Helpful for visiting families staying only a few days — seekers
+                see the stay range on the listing.
+              </FieldDescription>
+            </Field>
+          </div>
+        ) : null}
 
         <FieldSet>
           <FieldLegend>Facilities</FieldLegend>

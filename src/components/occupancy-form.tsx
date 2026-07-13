@@ -141,6 +141,7 @@ export function OccupancyForm({
               spacing={2}
             >
               <ToggleGroupItem value="monthly">Monthly</ToggleGroupItem>
+              <ToggleGroupItem value="weekly">Weekly</ToggleGroupItem>
               <ToggleGroupItem value="daily">Daily</ToggleGroupItem>
             </ToggleGroup>
           </Field>

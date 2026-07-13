@@ -16,7 +16,7 @@ import {
 import { getSessionUser, isStaff } from "@/lib/auth";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
-import { categoryLabel, formatMwk } from "@/lib/types";
+import { billingPeriodShort, categoryLabel, formatMwk } from "@/lib/types";
 
 export const metadata: Metadata = {
   title: "Verification assignments",
@@ -108,7 +108,7 @@ export default async function AssignmentsPage({
                   <CardTitle className="text-base">{l.title}</CardTitle>
                   <CardDescription>
                     {space?.zones?.name} · {space?.landmark} · {formatMwk(l.price_mwk)}/
-                    {l.billing_period === "daily" ? "day" : "mo"}
+                    {billingPeriodShort(l.billing_period)}
                   </CardDescription>
                 </CardHeader>
                 <CardFooter>

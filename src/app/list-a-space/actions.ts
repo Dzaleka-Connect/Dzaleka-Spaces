@@ -31,12 +31,31 @@ export async function submitSpace(formData: FormData): Promise<SubmitSpaceResult
   const description = String(formData.get("description") ?? "").trim();
   const price = Number(formData.get("price") ?? 0);
   const deposit = formData.get("deposit") ? Number(formData.get("deposit")) : null;
-  const billingPeriod = String(formData.get("billing_period") ?? "monthly");
+  const billingPeriodRaw = String(formData.get("billing_period") ?? "monthly");
+  const billingPeriod = ["daily", "weekly", "monthly"].includes(billingPeriodRaw)
+    ? billingPeriodRaw
+    : "monthly";
+  const minStayDays = formData.get("min_stay_days")
+    ? Number(formData.get("min_stay_days"))
+    : null;
+  const maxStayDays = formData.get("max_stay_days")
+    ? Number(formData.get("max_stay_days"))
+    : null;
   const authorityBasis = String(formData.get("authority_basis") ?? "").trim();
   const facilities = formData.getAll("facilities").map(String);
 
   if (!title || !category || !zone || !landmark || !description || !price) {
     return { ok: false, message: "Please complete all required fields." };
+  }
+  if (
+    (minStayDays !== null && (!Number.isInteger(minStayDays) || minStayDays < 1)) ||
+    (maxStayDays !== null && (!Number.isInteger(maxStayDays) || maxStayDays < 1)) ||
+    (minStayDays !== null && maxStayDays !== null && maxStayDays < minStayDays)
+  ) {
+    return {
+      ok: false,
+      message: "Stay length must be whole days, with the maximum at least the minimum.",
+    };
   }
   if (!authorityBasis) {
     return {
@@ -112,6 +131,8 @@ export async function submitSpace(formData: FormData): Promise<SubmitSpaceResult
     price_mwk: price,
     deposit_mwk: deposit,
     billing_period: billingPeriod,
+    min_stay_days: minStayDays,
+    max_stay_days: maxStayDays,
     status: "pending_review",
   });
 

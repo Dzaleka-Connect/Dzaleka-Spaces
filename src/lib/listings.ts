@@ -21,6 +21,8 @@ function rowToListing(row: any): Listing {
     priceMwk: row.price_mwk,
     depositMwk: row.deposit_mwk,
     billingPeriod: row.billing_period,
+    minStayDays: row.min_stay_days ?? null,
+    maxStayDays: row.max_stay_days ?? null,
     availableFrom: row.available_from,
     verified: Boolean(row.verified),
     verifiedAt: row.verified_at,

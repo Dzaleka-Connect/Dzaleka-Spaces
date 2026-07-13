@@ -23,7 +23,7 @@ import {
 import { getSessionUser } from "@/lib/auth";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
-import { formatMwk } from "@/lib/types";
+import { billingPeriodShort, formatMwk } from "@/lib/types";
 
 export const metadata: Metadata = {
   title: "My listings",
@@ -115,7 +115,7 @@ export default async function ProviderListingsPage() {
                   )}
                 </TableCell>
                 <TableCell>
-                  {formatMwk(l.price_mwk)}/{l.billing_period === "daily" ? "day" : "mo"}
+                  {formatMwk(l.price_mwk)}/{billingPeriodShort(l.billing_period)}
                 </TableCell>
                 <TableCell>
                   <Badge variant={STATUS_VARIANTS[l.status] ?? "outline"}>

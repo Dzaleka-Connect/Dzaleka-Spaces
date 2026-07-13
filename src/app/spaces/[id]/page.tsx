@@ -38,7 +38,7 @@ import { getListing } from "@/lib/listings";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 import { trackAnalyticsEvent } from "@/lib/track-analytics";
-import { categoryLabel, facilityLabel, formatMwk } from "@/lib/types";
+import { billingPeriodUnit, categoryLabel, facilityLabel, formatMwk, stayRangeLabel } from "@/lib/types";
 import { reportListing, saveListing } from "./actions";
 
 interface ListingPageProps {
@@ -220,7 +220,7 @@ export default async function ListingPage({ params, searchParams }: ListingPageP
               <CardTitle className="text-2xl">
                 {formatMwk(listing.priceMwk)}
                 <span className="ml-1 text-sm font-normal text-muted-foreground">
-                  per {listing.billingPeriod === "daily" ? "day" : "month"}
+                  per {billingPeriodUnit(listing.billingPeriod)}
                 </span>
               </CardTitle>
               {listing.depositMwk ? (
@@ -228,6 +228,11 @@ export default async function ListingPage({ params, searchParams }: ListingPageP
               ) : (
                 <CardDescription>No deposit required</CardDescription>
               )}
+              {stayRangeLabel(listing.minStayDays, listing.maxStayDays) ? (
+                <CardDescription>
+                  {stayRangeLabel(listing.minStayDays, listing.maxStayDays)}
+                </CardDescription>
+              ) : null}
               {listing.providerName ? (
                 <CardDescription>Provided by {listing.providerName}</CardDescription>
               ) : null}

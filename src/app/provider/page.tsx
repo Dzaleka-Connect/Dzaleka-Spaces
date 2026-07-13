@@ -24,7 +24,7 @@ import {
 import { getSessionUser } from "@/lib/auth";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
-import { categoryLabel, formatMwk } from "@/lib/types";
+import { billingPeriodShort, categoryLabel, formatMwk } from "@/lib/types";
 
 export const metadata: Metadata = {
   title: "Provider dashboard",
@@ -179,7 +179,7 @@ export default async function ProviderPage() {
                       <TableCell className="font-medium">{l.title}</TableCell>
                       <TableCell>{space ? categoryLabel(space.category) : "—"}</TableCell>
                       <TableCell>
-                        {formatMwk(l.price_mwk)}/{l.billing_period === "daily" ? "day" : "mo"}
+                        {formatMwk(l.price_mwk)}/{billingPeriodShort(l.billing_period)}
                       </TableCell>
                       <TableCell>
                         <Badge variant={STATUS_VARIANTS[l.status] ?? "outline"}>

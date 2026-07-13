@@ -24,7 +24,7 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { canModerate, getSessionUser } from "@/lib/auth";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
-import { categoryLabel, formatMwk } from "@/lib/types";
+import { billingPeriodUnit, categoryLabel, formatMwk } from "@/lib/types";
 import { approveAndPublish, rejectListing, requestChanges } from "../actions";
 import { getReviewListings } from "../data";
 
@@ -160,7 +160,7 @@ export default async function AdminReviewPage({
                   <CardDescription className="flex flex-wrap items-center gap-1.5">
                     <MapPin />
                     {listing.zone} · {listing.landmark} · {formatMwk(listing.priceMwk)}/
-                    {listing.billingPeriod === "daily" ? "day" : "month"}
+                    {billingPeriodUnit(listing.billingPeriod)}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-4">

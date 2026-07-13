@@ -22,7 +22,7 @@ import { canModerate, getSessionUser } from "@/lib/auth";
 import type { OccupancyStatus } from "@/lib/occupancies";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
-import { categoryLabel, formatMwk } from "@/lib/types";
+import { billingPeriodShort, categoryLabel, formatMwk } from "@/lib/types";
 
 export const metadata: Metadata = {
   title: "Occupancies",
@@ -107,7 +107,7 @@ export default async function AdminOccupanciesPage() {
                     ) : null}
                   </TableCell>
                   <TableCell>
-                    {formatMwk(o.agreed_amount_mwk)}/{o.billing_period === "daily" ? "day" : "mo"}
+                    {formatMwk(o.agreed_amount_mwk)}/{billingPeriodShort(o.billing_period)}
                   </TableCell>
                   <TableCell className="text-muted-foreground">{o.start_date}</TableCell>
                   <TableCell>

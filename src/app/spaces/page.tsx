@@ -17,6 +17,7 @@ import { SpacesFilters } from "@/components/spaces-filters";
 import { getSessionUser } from "@/lib/auth";
 import { searchListings } from "@/lib/listings";
 import { trackAnalyticsEvent } from "@/lib/track-analytics";
+import { getAvailableCategories } from "@/lib/categories";
 import { getZones } from "@/lib/zones";
 
 export const metadata: Metadata = {
@@ -48,7 +49,7 @@ export default async function SpacesPage({ searchParams }: SpacesPageProps) {
     : params.facility
       ? [params.facility]
       : [];
-  const [result, zones, user] = await Promise.all([
+  const [result, zones, categoryOptions, user] = await Promise.all([
     searchListings({
       q: params.q,
       category: params.category === "all" ? undefined : params.category,
@@ -56,7 +57,9 @@ export default async function SpacesPage({ searchParams }: SpacesPageProps) {
       minPrice: params.min ? Number(params.min) : undefined,
       maxPrice: params.max ? Number(params.max) : undefined,
       billingPeriod:
-        params.billing === "daily" || params.billing === "monthly" ? params.billing : undefined,
+        params.billing === "daily" || params.billing === "weekly" || params.billing === "monthly"
+          ? params.billing
+          : undefined,
       availableBy: params.available || undefined,
       minRooms: params.rooms ? Number(params.rooms) : undefined,
       facilities,
@@ -76,6 +79,7 @@ export default async function SpacesPage({ searchParams }: SpacesPageProps) {
       page: params.page ? Number(params.page) : 1,
     }),
     getZones(),
+    getAvailableCategories(),
     getSessionUser(),
   ]);
   const { listings, total, page, pageSize } = result;
@@ -105,7 +109,7 @@ export default async function SpacesPage({ searchParams }: SpacesPageProps) {
 
       <div className="flex flex-col gap-3">
         <Suspense fallback={<Skeleton className="h-20 w-full" />}>
-          <SpacesFilters zones={zones} />
+          <SpacesFilters zones={zones} categoryOptions={categoryOptions} />
         </Suspense>
         <div className="flex gap-2">
           <Suspense>

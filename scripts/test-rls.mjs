@@ -85,9 +85,21 @@ async function main() {
 
   await client.query("begin");
 
-  // 1. Residential publication blocked by feature flag.
+  // 1. Residential pilot enabled (migration 00016): the feature-flag gate no
+  //    longer blocks residential categories. Direct publication still fails on
+  //    the OTHER guards (reviewer caller, verification, approved media) — what
+  //    matters here is that the failure is no longer the residential gate.
   {
-    const err = await expectError("residential gate", async () => {
+    const flags = await client.query(
+      "select name, enabled from feature_flags where name in ('residential_listings','family_accommodation','public_map') order by name"
+    );
+    assert(
+      "residential/family/map flags are enabled",
+      flags.rows.length === 3 && flags.rows.every((r) => r.enabled === true),
+      flags.rows.map((r) => `${r.name}=${r.enabled}`).join(",")
+    );
+
+    const err = await expectError("residential publish path", async () => {
       const s = await client.query(
         "insert into spaces (category, zone_id, landmark, description) values ('room', $1, 't', 't') returning id",
         [zoneId]
@@ -102,9 +114,9 @@ async function main() {
       );
     });
     assert(
-      "residential listing cannot be published while gated",
-      Boolean(err && /residential/i.test(err)),
-      err ?? "no error raised"
+      "residential category is no longer blocked by the feature flag",
+      !err || !/residential|family accommodation/i.test(err),
+      err ?? "published"
     );
   }
 
@@ -130,8 +142,6 @@ async function main() {
   // 3. Protected pilot flags cannot be enabled, even by a direct SQL role.
   {
     for (const flag of [
-      "residential_listings",
-      "family_accommodation",
       "mobile_money_processing",
       "deposit_processing",
       "sms_notifications",

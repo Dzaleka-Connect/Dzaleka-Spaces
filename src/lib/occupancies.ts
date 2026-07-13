@@ -36,7 +36,7 @@ export interface OccupancyRecord {
   status: OccupancyStatus;
   startDate: string;
   expectedEndDate: string | null;
-  billingPeriod: "daily" | "monthly";
+  billingPeriod: "daily" | "weekly" | "monthly";
   agreedAmountMwk: number;
   depositAmountMwk: number | null;
   paymentDueDay: number | null;

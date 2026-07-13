@@ -23,11 +23,13 @@ ecosystem (DzalekaPay, Visit Dzaleka, Dzaleka Online Services).
   webhooks only; it never initiates a payment and never auto-confirms a receipt.
 - **Email delivery only during the pilot.** Resend email and in-app records are
   supported. SMS, WhatsApp and web push delivery flags stay off.
-- **Residential listings are gated.** `room`, `shared_room`,
-  `family_accommodation` categories exist in the enum but publication is
-  blocked by a database trigger until the `residential_listings` /
-  `family_accommodation` feature flags are enabled — which requires written
-  operational guidance from authorities. Do not bypass.
+- **Residential pilot is enabled (owner decision, 2026-07-13, migration
+  00016).** `room`, `shared_room` and `family_accommodation` are live
+  categories behind the `residential_listings` / `family_accommodation`
+  flags; every listing still passes authority review, field verification and
+  moderation before publication. Turning a flag off hides the category again.
+  Any future change to these flags goes through a new reviewed migration —
+  the admin UI cannot flip them.
 - **Location privacy.** Public data shows only zone + landmark. Exact
   locations live in `space_internal` (staff-only RLS). Never expose refugee
   identity documents or exact household coordinates.

@@ -18,13 +18,16 @@ import {
 } from "@/components/ui/select";
 import { FACILITIES, SPACE_CATEGORIES, ZONES } from "@/lib/types";
 
-const categories = [
-  { label: "All categories", value: "all" },
-  ...SPACE_CATEGORIES.map((item) => ({ label: item.label, value: item.value as string })),
-];
+type CategoryOption = { value: string; label: string };
+
+const DEFAULT_CATEGORIES: CategoryOption[] = SPACE_CATEGORIES.map((item) => ({
+  label: item.label,
+  value: item.value,
+}));
 const billing = [
   { label: "Any billing period", value: "all" },
   { label: "Per day", value: "daily" },
+  { label: "Per week", value: "weekly" },
   { label: "Per month", value: "monthly" },
 ];
 const sorting = [
@@ -42,8 +45,18 @@ const recent = [
   { label: "Checked in 90 days", value: "90" },
 ];
 
-export function SpacesFilters({ zones = [...ZONES] }: { zones?: string[] }) {
+export function SpacesFilters({
+  zones = [...ZONES],
+  categoryOptions = DEFAULT_CATEGORIES,
+}: {
+  zones?: string[];
+  categoryOptions?: CategoryOption[];
+}) {
   const params = useSearchParams();
+  const categories = [
+    { label: "All categories", value: "all" },
+    ...categoryOptions.map((item) => ({ label: item.label, value: item.value })),
+  ];
   const zoneItems = [
     { label: "All zones", value: "all" },
     ...zones.map((zone) => ({ label: zone, value: zone })),

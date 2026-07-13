@@ -17,7 +17,7 @@ import { getSessionUser } from "@/lib/auth";
 import { featureEnabled } from "@/lib/features";
 import { listOccupanciesForProvider } from "@/lib/occupancies";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
-import { categoryLabel, formatMwk } from "@/lib/types";
+import { billingPeriodShort, categoryLabel, formatMwk } from "@/lib/types";
 
 export const metadata: Metadata = {
   title: "Occupancies",
@@ -97,7 +97,7 @@ export default async function ProviderOccupanciesPage() {
                   </CardTitle>
                   <CardDescription>
                     {occupant?.fullName ?? "Occupant"} · {formatMwk(o.agreedAmountMwk)}/
-                    {o.billingPeriod === "daily" ? "day" : "mo"} · from {o.startDate}
+                    {billingPeriodShort(o.billingPeriod)} · from {o.startDate}
                   </CardDescription>
                 </CardHeader>
                 <CardFooter>
