@@ -50,8 +50,7 @@ export default async function ProviderListingPreviewPage({
             <Badge variant="outline">{categoryLabel(space?.category ?? "other")}</Badge>
           </div>
           <CardTitle>
-            {formatMwk(listing.price_mwk)} per{" "}
-            {billingPeriodUnit(listing.billing_period)}
+            {formatMwk(listing.price_mwk)} per {billingPeriodUnit(listing.billing_period)}
           </CardTitle>
           <CardDescription>
             {space?.zones?.name ?? "Unknown zone"} · {space?.landmark}

@@ -19,7 +19,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getListingsByIds } from "@/lib/listings";
-import { billingPeriodUnit, categoryLabel, facilityLabel, formatMwk, listingHref } from "@/lib/types";
+import {
+  billingPeriodUnit,
+  categoryLabel,
+  facilityLabel,
+  formatMwk,
+  listingHref,
+} from "@/lib/types";
 
 export const metadata: Metadata = {
   title: "Compare spaces",
@@ -85,8 +91,7 @@ export default async function ComparePage({
               <TableCell className="font-medium">Amount</TableCell>
               {listings.map((listing) => (
                 <TableCell key={listing.id}>
-                  {formatMwk(listing.priceMwk)} per{" "}
-                  {billingPeriodUnit(listing.billingPeriod)}
+                  {formatMwk(listing.priceMwk)} per {billingPeriodUnit(listing.billingPeriod)}
                 </TableCell>
               ))}
             </TableRow>

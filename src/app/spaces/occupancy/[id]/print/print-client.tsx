@@ -179,7 +179,12 @@ export function PrintContractClient({ occupancy }: { occupancy: OccupancyRecord 
     window.print();
   };
 
-  const rentPeriod = occupancy.billingPeriod === "daily" ? t.daily : occupancy.billingPeriod === "weekly" ? t.weekly : t.monthly;
+  const rentPeriod =
+    occupancy.billingPeriod === "daily"
+      ? t.daily
+      : occupancy.billingPeriod === "weekly"
+        ? t.weekly
+        : t.monthly;
 
   return (
     <div className="flex flex-col gap-6">

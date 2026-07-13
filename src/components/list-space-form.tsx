@@ -276,8 +276,8 @@ export function ListSpaceForm({
                 disabled={isPending}
               />
               <FieldDescription>
-                Helpful for visiting families staying only a few days — seekers
-                see the stay range on the listing.
+                Helpful for visiting families staying only a few days — seekers see the stay range
+                on the listing.
               </FieldDescription>
             </Field>
           </div>

@@ -1,11 +1,7 @@
 import "server-only";
 
 import { featureEnabled } from "./features";
-import {
-  FAMILY_CATEGORY_VALUES,
-  RESIDENTIAL_CATEGORY_VALUES,
-  SPACE_CATEGORIES,
-} from "./types";
+import { FAMILY_CATEGORY_VALUES, RESIDENTIAL_CATEGORY_VALUES, SPACE_CATEGORIES } from "./types";
 
 export interface CategoryOption {
   value: string;

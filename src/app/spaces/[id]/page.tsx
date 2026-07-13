@@ -38,7 +38,13 @@ import { getListing } from "@/lib/listings";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 import { trackAnalyticsEvent } from "@/lib/track-analytics";
-import { billingPeriodUnit, categoryLabel, facilityLabel, formatMwk, stayRangeLabel } from "@/lib/types";
+import {
+  billingPeriodUnit,
+  categoryLabel,
+  facilityLabel,
+  formatMwk,
+  stayRangeLabel,
+} from "@/lib/types";
 import { reportListing, saveListing } from "./actions";
 
 interface ListingPageProps {

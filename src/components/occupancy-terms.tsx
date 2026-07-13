@@ -14,9 +14,7 @@ export function OccupancyTerms({ occupancy }: { occupancy: OccupancyRecord }) {
     ],
     [
       "Agreed amount",
-      `${formatMwk(occupancy.agreedAmountMwk)} per ${
-        billingPeriodUnit(occupancy.billingPeriod)
-      }`,
+      `${formatMwk(occupancy.agreedAmountMwk)} per ${billingPeriodUnit(occupancy.billingPeriod)}`,
     ],
     ["Deposit", occupancy.depositAmountMwk ? formatMwk(occupancy.depositAmountMwk) : "None"],
     ["Start date", occupancy.startDate],

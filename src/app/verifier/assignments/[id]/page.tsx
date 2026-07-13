@@ -92,8 +92,7 @@ export default async function AssignmentDetailPage({
         <CardHeader>
           <CardTitle>Listing details to confirm on site</CardTitle>
           <CardDescription>
-            Price {formatMwk(listing.price_mwk)}/
-            {billingPeriodUnit(listing.billing_period)}
+            Price {formatMwk(listing.price_mwk)}/{billingPeriodUnit(listing.billing_period)}
             {listing.deposit_mwk ? ` · Deposit ${formatMwk(listing.deposit_mwk)}` : " · No deposit"}
             {space?.rooms ? ` · ${space.rooms} room(s)` : ""}
             {space?.capacity ? ` · capacity ${space.capacity}` : ""}

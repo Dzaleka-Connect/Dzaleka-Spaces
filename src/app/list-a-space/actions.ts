@@ -35,12 +35,8 @@ export async function submitSpace(formData: FormData): Promise<SubmitSpaceResult
   const billingPeriod = ["daily", "weekly", "monthly"].includes(billingPeriodRaw)
     ? billingPeriodRaw
     : "monthly";
-  const minStayDays = formData.get("min_stay_days")
-    ? Number(formData.get("min_stay_days"))
-    : null;
-  const maxStayDays = formData.get("max_stay_days")
-    ? Number(formData.get("max_stay_days"))
-    : null;
+  const minStayDays = formData.get("min_stay_days") ? Number(formData.get("min_stay_days")) : null;
+  const maxStayDays = formData.get("max_stay_days") ? Number(formData.get("max_stay_days")) : null;
   const authorityBasis = String(formData.get("authority_basis") ?? "").trim();
   const facilities = formData.getAll("facilities").map(String);
 

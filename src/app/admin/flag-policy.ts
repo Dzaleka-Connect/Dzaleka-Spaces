@@ -1,7 +1,4 @@
-export const LOCKED_PILOT_FLAGS = [
-  "deposit_processing",
-  "mobile_money_processing",
-] as const;
+export const LOCKED_PILOT_FLAGS = ["deposit_processing", "mobile_money_processing"] as const;
 
 export function isLockedPilotFlag(name: string): boolean {
   return LOCKED_PILOT_FLAGS.includes(name as (typeof LOCKED_PILOT_FLAGS)[number]);
