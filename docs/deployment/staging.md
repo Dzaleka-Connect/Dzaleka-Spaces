@@ -9,7 +9,8 @@ identity documents or exact household data.
 - Separate Supabase project (own URL, keys, storage, cron).
 - Separate `RESEND_API_KEY` and a staging `EMAIL_FROM` (or leave email
   disabled).
-- Host env (Vercel/Cloudflare) with staging-scoped variables.
+- Host env (Netlify/Vercel/Cloudflare) with staging-scoped variables.
+- On Netlify, `NETLIFY=true` automatically configures a compatible allowlist CSP (`script-src 'self' 'unsafe-inline' https://*.netlify.app`), avoiding strict-dynamic hydration blocks while preserving origin boundaries. Override with `CSP_NONCE_ENABLED=true` if using `@netlify/plugin-csp-nonce`.
 
 ## Deploy
 

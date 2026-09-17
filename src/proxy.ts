@@ -3,9 +3,31 @@ import { NextResponse, type NextRequest } from "next/server";
 
 const isDev = process.env.NODE_ENV === "development";
 
+export function isNetlifyEnvironment(): boolean {
+  return process.env.NETLIFY === "true";
+}
+
+// Nonce + strict-dynamic CSP requires that the hosting platform reliably
+// forwards request headers from proxy/middleware to the Next.js server runtime
+// (so Next's HTML renderer can read the nonce from headers and inject it into
+// framework scripts and hydration payload chunks).
+//
+// On platforms like Netlify where middleware runs in edge functions that do
+// not pass request-time CSP headers into downstream serverless functions or
+// where pre-rendered static CDN assets are served without request-time nonces,
+// strict-dynamic blocks Next.js hydration scripts and Netlify deploy-preview
+// scripts. In those environments (or when explicitly opted out via
+// CSP_NONCE_ENABLED="false"), we emit an allowlist-based CSP with 'unsafe-inline'
+// so hydration and chunk loading work without errors.
+export function shouldUseNonce(): boolean {
+  if (process.env.CSP_NONCE_ENABLED === "true") return true;
+  if (process.env.CSP_NONCE_ENABLED === "false") return false;
+  return !isNetlifyEnvironment();
+}
+
 // Supabase origins the browser talks to: REST/Auth over https, Realtime over
 // wss, Storage images over https. Derived from the public URL when present.
-function supabaseOrigins(): { https: string; wss: string } {
+export function supabaseOrigins(): { https: string; wss: string } {
   const raw = process.env.NEXT_PUBLIC_SUPABASE_URL;
   if (raw) {
     try {
@@ -18,19 +40,23 @@ function supabaseOrigins(): { https: string; wss: string } {
   return { https: "https://*.supabase.co", wss: "wss://*.supabase.co" };
 }
 
-function buildCsp(nonce: string): string {
+export function buildCsp(nonce: string): string {
   const sb = supabaseOrigins();
+  const useNonce = shouldUseNonce();
+
+  const scriptDirective = useNonce
+    ? `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDev ? " 'unsafe-eval'" : ""}`
+    : `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://*.netlify.app https://netlify-cdp.netlify.app`;
+
   const directives = [
     `default-src 'self'`,
-    // Nonce + strict-dynamic: only Next's nonced bootstrap and what it loads
-    // may run. 'unsafe-eval' is dev-only (React debug uses eval).
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDev ? " 'unsafe-eval'" : ""}`,
+    scriptDirective,
     // Base UI components set inline style attributes for positioning, so
     // style-src keeps 'unsafe-inline' (styles are low XSS risk).
     `style-src 'self' 'unsafe-inline'`,
     `img-src 'self' blob: data: ${sb.https}`,
     `font-src 'self' data:`,
-    `connect-src 'self' ${sb.https} ${sb.wss}${isDev ? " ws: http://localhost:*" : ""}`,
+    `connect-src 'self' ${sb.https} ${sb.wss}${isDev ? " ws: http://localhost:*" : ""}${isNetlifyEnvironment() ? " https://*.netlify.app https://*.netlify.com" : ""}`,
     `worker-src 'self' blob:`,
     `manifest-src 'self'`,
     `media-src 'self' blob: ${sb.https}`,
@@ -43,7 +69,7 @@ function buildCsp(nonce: string): string {
   return directives.join("; ");
 }
 
-function applySecurityHeaders(headers: Headers, csp: string) {
+export function applySecurityHeaders(headers: Headers, csp: string) {
   headers.set("Content-Security-Policy", csp);
   headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   headers.set("X-Content-Type-Options", "nosniff");
@@ -67,6 +93,7 @@ export default async function proxy(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-nonce", nonce);
   requestHeaders.set("Content-Security-Policy", csp);
+  requestHeaders.set("content-security-policy", csp);
 
   const makeResponse = () => NextResponse.next({ request: { headers: requestHeaders } });
 
